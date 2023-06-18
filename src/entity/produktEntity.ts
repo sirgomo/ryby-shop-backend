@@ -7,15 +7,15 @@ import {
   JoinTable,
   OneToMany,
 } from 'typeorm';
-import { Lieferant } from './Lieferant';
-import { Stellplatz } from './Stellplatz';
-import { ProduktInBestellung } from './ProduktInBestellung';
-import { Kategorie } from './Kategorie';
-import { WareneingangProduct } from './WareneingangProduct';
-import { WarenausgangProduct } from './WarenausgangProduct';
-import { Aktion } from './Aktion';
-import { Reservierung } from './Reservierung';
-import { Kundenbewertung } from './Kundenbewertung';
+import { Lieferant } from './lifernatEntity';
+import { Stellplatze } from './stellplatzeEntity';
+import { ProduktInBestellung } from './productBestellungEntity';
+import { Kategorie } from './kategorieEntity';
+import { WareneingangProduct } from './warenEingangProductEntity';
+import { WarenausgangProduct } from './warenAusgangProductEntity';
+import { Aktion } from './promocjeEntity';
+import { Reservierung } from './reservierungEntity';
+import { Kundenbewertung } from './kundenBewertungEntity';
 
 @Entity()
 export class Produkt {
@@ -40,9 +40,9 @@ export class Produkt {
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.produkte)
   lieferant: Lieferant;
 
-  @ManyToMany(() => Stellplatz)
+  @ManyToMany(() => Stellplatze)
   @JoinTable()
-  lagerorte: Stellplatz[];
+  lagerorte: Stellplatze[];
 
   @ManyToMany(() => ProduktInBestellung)
   @JoinTable()
@@ -80,7 +80,7 @@ export class Produkt {
 
   @ManyToMany(() => Aktion)
   @JoinTable()
-  aktion: Aktion[];
+  promocje: Aktion[];
 
   @ManyToMany(() => Reservierung)
   @JoinTable()

@@ -15,7 +15,7 @@ export class WarenausgangProduct {
   id: number;
 
   @ManyToOne(() => Warenausgang, (wareneingang) => wareneingang.products)
-  warenenausgang: Warenausgang;
+  warenausgang: Warenausgang;
 
   @ManyToMany(() => Produkt)
   @JoinTable()

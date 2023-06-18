@@ -21,7 +21,7 @@ export class Warenausgang {
 
   @OneToMany(
     () => WarenausgangProduct,
-    (warenausgangProduct) => warenausgangProduct.warenenausgang,
+    (warenausgangProduct) => warenausgangProduct.warenausgang,
   )
   products: WarenausgangProduct[];
 

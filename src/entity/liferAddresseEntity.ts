@@ -1,13 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
-import { Kunde } from './kundeEntity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class Lieferadresse {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @OneToOne(() => Kunde)
-  kunde: Kunde;
 
   @Column()
   strasse: string;

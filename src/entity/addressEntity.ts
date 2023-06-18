@@ -1,20 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
-import { Kunde } from './kundeEntity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class AdresseKunde {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @OneToOne(() => Kunde)
-  @JoinColumn()
-  kunde: Kunde;
 
   @Column()
   strasse: string;
