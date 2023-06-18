@@ -21,7 +21,11 @@ export class Database {
         multipleStatements: true,
       });
       await connection
-        .query(`CREATE DATABASE IF NOT EXISTS ${env.db}`)
+        .query(
+          `CREATE DATABASE IF NOT EXISTS ${env.db};
+        
+        `,
+        )
         .catch((err) => {
           console.log(err);
         });

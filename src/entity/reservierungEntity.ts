@@ -1,0 +1,26 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  JoinTable,
+  Column,
+} from 'typeorm';
+import { Bestellung } from './bestellungEntity';
+import { Produkt } from './produktEntity';
+
+@Entity()
+export class Reservierung {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToMany(() => Bestellung)
+  @JoinTable()
+  bestellung: Bestellung[];
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @Column()
+  menge: number;
+}
