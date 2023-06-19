@@ -1,0 +1,521 @@
+***
+@Entity('waren_eingang_product')
+export class WareneingangProduct {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Wareneingang, (wareneingang) => wareneingang.products)
+  wareneingang: Wareneingang;
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @Column('int')
+  menge: number;
+
+  @Column('decimal')
+  preis: number;
+
+  @Column('int')
+  mwst: number;
+}
+***
+
+@Entity('waren_eingang')
+export class Wareneingang {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToMany(() => WareneingangProduct, (product) => product.wareneingang)
+  products: WareneingangProduct[];
+
+  @ManyToOne(() => Lieferant, (lieferant) => lieferant.wareneingaenge)
+  lieferant: Lieferant;
+
+  @Column()
+  empfangsdatum: Date;
+
+  @Column()
+  rechnung: string;
+
+  @Column()
+  lieferscheinNr: string;
+
+  @Column()
+  datenEingabe: Date;
+}
+***
+@Entity('waren_ausgang_product')
+export class WarenausgangProduct {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Warenausgang, (wareneingang) => wareneingang.products)
+  warenausgang: Warenausgang;
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @Column('int')
+  menge: number;
+
+  @Column('decimal')
+  preis: number;
+
+  @Column('int')
+  mwst: number;
+}
+***
+@Entity('waren_ausgang')
+export class Warenausgang {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Bestellung, (bestellung) => bestellung.produkte)
+  bestellung: Bestellung;
+
+  @Column()
+  ausgangsdatum: Date;
+
+  @OneToMany(
+    () => WarenausgangProduct,
+    (warenausgangProduct) => warenausgangProduct.warenausgang,
+  )
+  products: WarenausgangProduct[];
+
+  @Column()
+  rechnung: string;
+
+  @Column()
+  datenEingabe: Date;
+
+  @Column()
+  zahlungsstatus: string;
+}
+***
+@Entity('stellplatze')
+export class Stellplatze {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  platzid: string;
+
+  @ManyToOne(() => Lager, (lager) => lager.lagerorte)
+  lager: Lager;
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @ManyToOne(() => Lieferant, (lieferant) => lieferant.stellplatz)
+  lieferant: Lieferant;
+
+  @Column('int')
+  menge: number;
+
+  @Column('int')
+  bestand: number;
+
+  @Column()
+  mhd: Date;
+
+  @Column('tinyint')
+  static: number;
+
+  @Column('int')
+  prufziffern: number;
+
+  @Column('tinyint')
+  gesperrt: boolean;
+}
+***
+@Entity('reservierung')
+export class Reservierung {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToMany(() => Bestellung)
+  @JoinTable()
+  bestellung: Bestellung[];
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @Column()
+  menge: number;
+}
+***
+
+@Entity('aktion')
+export class Aktion {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @Column({ type: 'date' })
+  startdatum: Date;
+
+  @Column({ type: 'date' })
+  enddatum: Date;
+
+  @Column({ type: 'numeric' })
+  rabattProzent: number;
+}
+***
+@Entity('produkt')
+export class Produkt {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column('decimal')
+  preis: number;
+
+  @Column()
+  beschreibung: string;
+
+  @Column()
+  foto: string;
+
+  @Column()
+  thumbnail: string;
+
+  @ManyToOne(() => Lieferant, (lieferant) => lieferant.produkte)
+  lieferant: Lieferant;
+
+  @ManyToMany(() => Stellplatze)
+  @JoinTable()
+  lagerorte: Stellplatze[];
+
+  @ManyToMany(() => ProduktInBestellung)
+  @JoinTable()
+  bestellungen: ProduktInBestellung[];
+
+  @Column({ type: 'date' })
+  datumHinzugefuegt: Date;
+
+  @ManyToMany(() => Kategorie)
+  @JoinTable()
+  kategorie: Kategorie[];
+
+  @Column('tinyint')
+  verfgbarkeit: boolean;
+
+  @Column('int')
+  mindestmenge: number;
+
+  @Column('tinyint')
+  aktion: boolean;
+
+  @Column('int')
+  verkaufteAnzahl: number;
+
+  @ManyToMany(() => WareneingangProduct)
+  @JoinTable()
+  wareneingang: WareneingangProduct[];
+
+  @ManyToMany(() => WarenausgangProduct)
+  @JoinTable()
+  warenausgang: WarenausgangProduct[];
+
+  @Column('int')
+  mehrwehrsteuer: number;
+
+  @ManyToMany(() => Aktion)
+  @JoinTable()
+  promocje: Aktion[];
+
+  @ManyToMany(() => Reservierung)
+  @JoinTable()
+  reservation: Reservierung[];
+
+  @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.produkt)
+  bewertung: Kundenbewertung[];
+}
+***
+@Entity('product_ruckgabe')
+export class ProduktRueckgabe {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @OneToOne(() => Bestellung)
+  bestellung: Bestellung;
+
+  @OneToMany(
+    () => ProduktInBestellung,
+    (produktInBestellung) => produktInBestellung.productRucgabe,
+  )
+  produkte: ProduktInBestellung[];
+
+  @ManyToOne(() => Kunde, (kunde) => kunde.ruckgabe)
+  kunde: Kunde;
+
+  @Column()
+  rueckgabegrund: string;
+
+  @Column()
+  rueckgabedatum: Date;
+
+  @Column()
+  rueckgabestatus: string;
+}
+***
+@Entity('product_in_bestellung')
+export class ProduktInBestellung {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Bestellung, (bestellung) => bestellung.produkte)
+  bestellung: Bestellung;
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  produkt: Produkt[];
+
+  @Column('int')
+  menge: number;
+
+  @Column('decimal')
+  rabatt: number;
+
+  @Column('int')
+  mengeGepackt: number;
+
+  @ManyToOne(
+    () => ProduktRueckgabe,
+    (produktRueckgabe) => produktRueckgabe.produkte,
+  )
+  productRucgabe: ProduktRueckgabe;
+}
+***
+
+@Entity('liferant')
+export class Lieferant {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @OneToMany(() => Produkt, (produkt) => produkt.lieferant)
+  produkte: Produkt[];
+
+  @Column()
+  email: string;
+
+  @Column()
+  telefon: string;
+
+  @OneToOne(() => AdresseKunde)
+  adresse: AdresseKunde;
+
+  @Column()
+  steuernummer: string;
+
+  @Column()
+  bankkontonummer: string;
+
+  @Column()
+  ansprechpartner: string;
+
+  @Column()
+  zahlart: string;
+
+  @Column()
+  umsatzsteuerIdentifikationsnummer: string;
+  @OneToMany(() => Stellplatze, (stellplatz) => stellplatz.lieferant)
+  stellplatz: Stellplatze[];
+  @OneToMany(() => Wareneingang, (wareneingaenge) => wareneingaenge.lieferant)
+  wareneingaenge: Wareneingang[];
+}
+***
+@Entity('liefer_addresse')
+export class Lieferadresse {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  strasse: string;
+
+  @Column()
+  hausnummer: string;
+
+  @Column()
+  stadt: string;
+
+  @Column()
+  postleitzahl: string;
+
+  @Column()
+  land: string;
+}
+***
+@Entity('lager')
+export class Lager {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @OneToMany(() => Stellplatze, (stellplatze) => stellplatze.lager)
+  lagerorte: Stellplatze[];
+
+  @Column()
+  adresse: string;
+}
+***
+
+@Entity('kunden_bewertung')
+export class Kundenbewertung {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Kunde, (kunde) => kunde.bewertungen)
+  kunde: Kunde;
+
+  @ManyToOne(() => Produkt, (produkt) => produkt.bewertung)
+  produkt: Produkt;
+
+  @Column()
+  titel: string;
+
+  @Column()
+  inhalt: string;
+
+  @Column()
+  bewertung: number;
+
+  @Column()
+  datumHinzugefuegt: Date;
+}
+***
+
+@Entity('kunde')
+export class Kunde {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  vorname: string;
+
+  @Column()
+  nachname: string;
+  @Column()
+  password: string;
+
+  @OneToOne(() => AdresseKunde)
+  adresse: AdresseKunde;
+
+  @OneToOne(() => Lieferadresse)
+  lieferadresse: Lieferadresse;
+
+  @OneToMany(() => Bestellung, (bestellung) => bestellung.kunde)
+  bestellungen: Bestellung[];
+
+  @OneToMany(() => ProduktRueckgabe, (ruckgabe) => ruckgabe.kunde)
+  ruckgabe: Bestellung[];
+
+  @Column()
+  email: string;
+
+  @Column()
+  telefon: string;
+  @Column()
+  role: string;
+  @Column()
+  registrierungsdatum: Date;
+
+  @Column()
+  treuepunkte: number;
+
+  @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.kunde)
+  bewertungen: Kundenbewertung[];
+}
+***
+@Entity('kategorie')
+export class Kategorie {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ nullable: true })
+  parent_id: number;
+
+  @Column()
+  name: string;
+
+  @ManyToMany(() => Produkt)
+  @JoinTable()
+  products: Produkt[];
+
+  @ManyToOne(() => Kategorie, { nullable: true })
+  parent: Kategorie;
+}
+***
+@Entity('bestellung')
+export class Bestellung {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Kunde, (kunde) => kunde.bestellungen)
+  kunde: Kunde;
+
+  @OneToMany(
+    () => ProduktInBestellung,
+    (produktInBestellung) => produktInBestellung.bestellung,
+  )
+  produkte: ProduktInBestellung[];
+
+  @Column()
+  bestelldatum: Date;
+
+  @Column()
+  status: string;
+
+  @Column()
+  lieferdatum: Date;
+
+  @Column()
+  zahlungsart: string;
+
+  @Column('decimal')
+  gesamtwert: number;
+
+  @Column()
+  zahlungsstatus: string;
+
+  @OneToOne(() => Reservierung, (reservierung) => reservierung.bestellung)
+  reservation: Reservierung;
+}
+***
+@Entity('address_kunde')
+export class AdresseKunde {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  strasse: string;
+
+  @Column()
+  hausnummer: string;
+
+  @Column()
+  stadt: string;
+
+  @Column()
+  postleitzahl: string;
+
+  @Column()
+  land: string;
+}
+***
+uzyj create table if not exist i utf8mb4_general_ci, napisz kod mysql dla konsoli dla podanych entity i dodatkowo many to many

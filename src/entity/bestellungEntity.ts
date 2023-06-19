@@ -10,7 +10,7 @@ import { Kunde } from './kundeEntity';
 import { ProduktInBestellung } from './productBestellungEntity';
 import { Reservierung } from './reservierungEntity';
 
-@Entity()
+@Entity('bestellung')
 export class Bestellung {
   @PrimaryGeneratedColumn()
   id: number;
@@ -36,7 +36,7 @@ export class Bestellung {
   @Column()
   zahlungsart: string;
 
-  @Column()
+  @Column('decimal')
   gesamtwert: number;
 
   @Column()

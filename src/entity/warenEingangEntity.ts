@@ -8,7 +8,7 @@ import {
 import { Lieferant } from './lifernatEntity';
 import { WareneingangProduct } from './warenEingangProductEntity';
 
-@Entity()
+@Entity('waren_eingang')
 export class Wareneingang {
   @PrimaryGeneratedColumn()
   id: number;

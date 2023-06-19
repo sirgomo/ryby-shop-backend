@@ -10,7 +10,7 @@ import { Lager } from './lagerEntity';
 import { Produkt } from './produktEntity';
 import { Lieferant } from './lifernatEntity';
 
-@Entity()
+@Entity('stellplatze')
 export class Stellplatze {
   @PrimaryGeneratedColumn()
   id: number;
@@ -28,21 +28,21 @@ export class Stellplatze {
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.stellplatz)
   lieferant: Lieferant;
 
-  @Column()
+  @Column('int')
   menge: number;
 
-  @Column()
+  @Column('int')
   bestand: number;
 
   @Column()
-  mhd: string;
+  mhd: Date;
 
-  @Column()
+  @Column('tinyint')
   static: number;
 
-  @Column()
+  @Column('int')
   prufziffern: number;
 
-  @Column()
+  @Column('tinyint')
   gesperrt: boolean;
 }

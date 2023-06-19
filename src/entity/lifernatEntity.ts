@@ -10,7 +10,7 @@ import { AdresseKunde } from './addressEntity';
 import { Stellplatze } from './stellplatzeEntity';
 import { Wareneingang } from './warenEingangEntity';
 
-@Entity()
+@Entity('liferant')
 export class Lieferant {
   @PrimaryGeneratedColumn()
   id: number;

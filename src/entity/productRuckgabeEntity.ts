@@ -10,7 +10,7 @@ import { Bestellung } from './bestellungEntity';
 import { ProduktInBestellung } from './productBestellungEntity';
 import { Kunde } from './kundeEntity';
 
-@Entity()
+@Entity('product_ruckgabe')
 export class ProduktRueckgabe {
   @PrimaryGeneratedColumn()
   id: number;

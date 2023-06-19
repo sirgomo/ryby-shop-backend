@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Kunde } from './kundeEntity';
 import { Produkt } from './produktEntity';
 
-@Entity()
+@Entity('kunden_bewertung')
 export class Kundenbewertung {
   @PrimaryGeneratedColumn()
   id: number;

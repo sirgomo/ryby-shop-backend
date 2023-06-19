@@ -11,7 +11,7 @@ import { Bestellung } from './bestellungEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 import { ProduktRueckgabe } from './productRuckgabeEntity';
 
-@Entity()
+@Entity('kunde')
 export class Kunde {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,6 +21,8 @@ export class Kunde {
 
   @Column()
   nachname: string;
+  @Column()
+  password: string;
 
   @OneToOne(() => AdresseKunde)
   adresse: AdresseKunde;
@@ -39,6 +41,8 @@ export class Kunde {
 
   @Column()
   telefon: string;
+  @Column()
+  role: string;
 
   @Column()
   registrierungsdatum: Date;

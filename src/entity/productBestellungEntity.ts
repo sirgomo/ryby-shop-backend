@@ -10,7 +10,7 @@ import { Bestellung } from './bestellungEntity';
 import { Produkt } from './produktEntity';
 import { ProduktRueckgabe } from './productRuckgabeEntity';
 
-@Entity()
+@Entity('product_in_bestellung')
 export class ProduktInBestellung {
   @PrimaryGeneratedColumn()
   id: number;
@@ -22,20 +22,14 @@ export class ProduktInBestellung {
   @JoinTable()
   produkt: Produkt[];
 
-  @Column()
+  @Column('int')
   menge: number;
 
-  @Column()
-  preis: number;
-
-  @Column()
+  @Column('decimal')
   rabatt: number;
 
-  @Column()
-  wert: number;
-
-  @Column()
-  mengeVerpackt: number;
+  @Column('int')
+  mengeGepackt: number;
 
   @ManyToOne(
     () => ProduktRueckgabe,

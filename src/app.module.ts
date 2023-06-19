@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { env } from 'env/env';
+import { env } from 'src/env/env';
 import { AdresseKunde } from './entity/addressEntity';
 import { Bestellung } from './entity/bestellungEntity';
 import { Kategorie } from './entity/kategorieEntity';
@@ -21,6 +21,9 @@ import { Wareneingang } from './entity/warenEingangEntity';
 import { WareneingangProduct } from './entity/warenEingangProductEntity';
 import { Reservierung } from './entity/reservierungEntity';
 import { Stellplatze } from './entity/stellplatzeEntity';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -53,6 +56,8 @@ import { Stellplatze } from './entity/stellplatzeEntity';
       ],
       synchronize: false,
     }),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

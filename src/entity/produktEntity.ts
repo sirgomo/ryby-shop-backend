@@ -17,7 +17,7 @@ import { Aktion } from './promocjeEntity';
 import { Reservierung } from './reservierungEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 
-@Entity()
+@Entity('produkt')
 export class Produkt {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,7 +25,7 @@ export class Produkt {
   @Column()
   name: string;
 
-  @Column()
+  @Column('decimal')
   preis: number;
 
   @Column()
@@ -55,16 +55,16 @@ export class Produkt {
   @JoinTable()
   kategorie: Kategorie[];
 
-  @Column()
+  @Column('tinyint')
   verfgbarkeit: boolean;
 
-  @Column()
+  @Column('int')
   mindestmenge: number;
 
-  @Column()
+  @Column('tinyint')
   aktion: boolean;
 
-  @Column()
+  @Column('int')
   verkaufteAnzahl: number;
 
   @ManyToMany(() => WareneingangProduct)
@@ -75,8 +75,8 @@ export class Produkt {
   @JoinTable()
   warenausgang: WarenausgangProduct[];
 
-  @Column()
-  mehrwehrsteuer: boolean;
+  @Column('int')
+  mehrwehrsteuer: number;
 
   @ManyToMany(() => Aktion)
   @JoinTable()

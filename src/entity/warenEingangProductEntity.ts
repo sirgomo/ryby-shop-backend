@@ -9,7 +9,7 @@ import {
 import { Wareneingang } from './warenEingangEntity';
 import { Produkt } from './produktEntity';
 
-@Entity()
+@Entity('waren_eingang_product')
 export class WareneingangProduct {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,12 +21,12 @@ export class WareneingangProduct {
   @JoinTable()
   produkt: Produkt[];
 
-  @Column()
+  @Column('int')
   menge: number;
 
-  @Column()
+  @Column('decimal')
   preis: number;
 
-  @Column()
+  @Column('int')
   mwst: number;
 }
