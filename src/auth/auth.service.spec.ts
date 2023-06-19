@@ -5,20 +5,50 @@ import { JwtService } from '@nestjs/jwt';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Kunde } from 'src/entity/kundeEntity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { AdresseKunde } from 'src/entity/addressEntity';
+import { Lieferadresse } from 'src/entity/liferAddresseEntity';
+import { Repository } from 'typeorm';
 
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
   let jwtService: JwtService;
+  let repo: Repository<Kunde>;
+  let addressRepo: Repository<AdresseKunde>;
+  let laddRepo: Repository<Lieferadresse>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, UsersService, JwtService],
+      providers: [
+        AuthService,
+        UsersService,
+        {
+          provide: getRepositoryToken(Kunde),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(AdresseKunde),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Lieferadresse),
+          useClass: Repository,
+        },
+        JwtService,
+      ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
     jwtService = module.get<JwtService>(JwtService);
+    repo = module.get<Repository<Kunde>>(getRepositoryToken(Kunde));
+    addressRepo = module.get<Repository<AdresseKunde>>(
+      getRepositoryToken(AdresseKunde),
+    );
+    laddRepo = module.get<Repository<Lieferadresse>>(
+      getRepositoryToken(Lieferadresse),
+    );
   });
 
   describe('validateUser', () => {
