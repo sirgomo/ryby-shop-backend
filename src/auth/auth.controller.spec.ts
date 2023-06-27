@@ -77,7 +77,9 @@ describe('AuthController', () => {
         adresseLand: '',
       };
 
-      jest.spyOn(usersService, 'createUser').mockResolvedValue(newUser);
+      jest
+        .spyOn(usersService, 'createUser')
+        .mockResolvedValue(newUser as unknown as Kunde);
 
       const result = await authController.registerNewUser(newUser);
 

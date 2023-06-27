@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from 'src/dto/register.dto';
 import { UserUpdateDto } from 'src/dto/userUpdate.dto';
-import { HttpException, HttpExceptionBody } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
