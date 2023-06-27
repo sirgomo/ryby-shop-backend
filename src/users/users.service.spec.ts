@@ -7,6 +7,8 @@ import { Lieferadresse } from 'src/entity/liferAddresseEntity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from 'src/dto/register.dto';
+import { UserUpdateDto } from 'src/dto/userUpdate.dto';
+import { HttpException, HttpExceptionBody } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -95,8 +97,7 @@ describe('UsersService', () => {
       jest.spyOn(repo, 'findAndCount').mockResolvedValue([[user], 1]);
       jest.spyOn(repo, 'save').mockResolvedValue(user);
 
-      const createdUser = await service.createUser(reguser);
-      user.password = createdUser.password;
+      const createdUser: Kunde = await service.createUser(reguser);
 
       expect(createdUser.email).toEqual(reguser.email);
     });
@@ -151,9 +152,230 @@ describe('UsersService', () => {
 
       jest.spyOn(repo, 'findAndCount').mockResolvedValue([[], 0]);
       jest.spyOn(repo, 'save').mockResolvedValue(user);
-      const createdUser = await service.createUser(reguser);
+      const createdUser: Kunde = await service.createUser(reguser);
 
       expect(createdUser.email).toEqual(user.email);
+      expect(createdUser).toBeInstanceOf(Kunde);
+    });
+  });
+  describe('getUserDetails', () => {
+    it('should return user details', async () => {
+      const userId = 1;
+      const userDetails: Kunde = {
+        id: userId,
+        vorname: 'John Doe',
+        nachname: '',
+        password: '',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+        bestellungen: [],
+        ruckgabe: [],
+        email: '',
+        telefon: '',
+        role: '',
+        registrierungsdatum: undefined,
+        treuepunkte: 0,
+        bewertungen: [],
+      };
+
+      jest.spyOn(repo, 'findOne').mockResolvedValue(userDetails);
+
+      const result = await service.getUserDetails(userId);
+
+      expect(result).toEqual(userDetails);
+      expect(result.password).toBe('');
+    });
+
+    it('should return error if user details not found', async () => {
+      const userId = 1;
+
+      jest
+        .spyOn(repo, 'findOne')
+        .mockRejectedValue(new Error('User not found'));
+
+      const result = await service.getUserDetails(userId);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe('User not found');
+    });
+  });
+
+  describe('updateUser', () => {
+    it('should update user details', async () => {
+      const itemId = 1;
+      const itemToUpdate: UserUpdateDto = {
+        id: itemId,
+        vorname: 'Jan',
+        nachname: 'Kowalski',
+        email: 'jan.kowalski@example.com',
+        telefon: '123456789',
+        role: 'user',
+        registrierungsdatum: undefined,
+        treuepunkte: 100,
+        l_strasse: 'Główna',
+        l_hausnummer: '1',
+        l_stadt: 'Warszawa',
+        l_postleitzahl: '00-001',
+        l_land: 'Polen',
+        adresseStrasse: 'Mieszka I',
+        adresseHausnummer: '1',
+        adresseStadt: 'Kraków',
+        adressePostleitzahl: '30-001',
+        adresseLand: 'Polen',
+      };
+
+      jest
+        .spyOn(repo, 'update')
+        .mockResolvedValue({ affected: 1, raw: '', generatedMaps: [] });
+
+      const result = await service.updateUser(itemToUpdate);
+
+      expect(result).toBe(1);
+    });
+
+    it('should return error if update failed', async () => {
+      const itemId = 1;
+      const itemToUpdate: UserUpdateDto = {
+        id: itemId,
+        vorname: 'Jan',
+        nachname: 'Kowalski',
+        email: 'jan.kowalski@example.com',
+        telefon: '123456789',
+        role: 'user',
+        registrierungsdatum: undefined,
+        treuepunkte: 100,
+        l_strasse: 'Główna',
+        l_hausnummer: '1',
+        l_stadt: 'Warszawa',
+        l_postleitzahl: '00-001',
+        l_land: 'Polen',
+        adresseStrasse: 'Mieszka I',
+        adresseHausnummer: '1',
+        adresseStadt: 'Kraków',
+        adressePostleitzahl: '30-001',
+        adresseLand: 'Polen',
+      };
+      jest.spyOn(repo, 'update').mockRejectedValue(new Error('Update failed'));
+
+      const result = await service.updateUser(itemToUpdate);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe('Update failed');
+    });
+  });
+
+  describe('changePassword', () => {
+    it('should change user password', async () => {
+      const itemId = 1;
+      const item = {
+        userid: itemId,
+        altPassword: 'oldPassword',
+        newPassword: 'newPassword',
+      };
+      const user: Kunde = {
+        id: itemId,
+        password: 'oldPasswordHash',
+        vorname: 'sdklhsadj',
+        nachname: 'asdjkljasd',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+        bestellungen: [],
+        ruckgabe: [],
+        email: '',
+        telefon: '',
+        role: '',
+        registrierungsdatum: undefined,
+        treuepunkte: 0,
+        bewertungen: [],
+      };
+
+      jest.spyOn(repo, 'findOne').mockResolvedValue(user);
+      jest
+        .spyOn(repo, 'update')
+        .mockResolvedValue({ affected: 1, raw: '', generatedMaps: [] });
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(true));
+      jest
+        .spyOn(bcrypt, 'hash')
+        .mockImplementation(() => Promise.resolve('newPassword'));
+
+      const result = await service.changePassword(item);
+
+      expect(result).toBe(1);
+    });
+
+    it('should return error if password does not match', async () => {
+      const itemId = 1;
+      const item = {
+        userid: itemId,
+        altPassword: 'wrongPassword',
+        newPassword: 'newPassword',
+      };
+      const user: Kunde = {
+        id: itemId,
+        password: 'oldPasswordHash',
+        vorname: '',
+        nachname: '',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+        bestellungen: [],
+        ruckgabe: [],
+        email: '',
+        telefon: '',
+        role: '',
+        registrierungsdatum: undefined,
+        treuepunkte: 0,
+        bewertungen: [],
+      };
+
+      jest.spyOn(repo, 'findOne').mockResolvedValue(user);
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(false));
+
+      await expect(service.changePassword(item)).resolves.toThrowError(
+        'Das falsche Passwort wurde eingegeben.',
+      );
+      //  await expect(service.changePassword(item))
+    });
+
+    it('should return error if change password failed', async () => {
+      const itemId = 1;
+      const item = {
+        userid: itemId,
+        altPassword: 'oldPassword',
+        newPassword: 'newPassword',
+      };
+      const user: Kunde = {
+        id: itemId,
+        password: 'oldPasswordHash',
+        vorname: '',
+        nachname: '',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+        bestellungen: [],
+        ruckgabe: [],
+        email: '',
+        telefon: '',
+        role: '',
+        registrierungsdatum: undefined,
+        treuepunkte: 0,
+        bewertungen: [],
+      };
+
+      jest.spyOn(repo, 'findOne').mockResolvedValue(user);
+      jest
+        .spyOn(repo, 'update')
+        .mockRejectedValue(new Error('Change password failed'));
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementation(() => Promise.resolve(true));
+
+      const result = await service.changePassword(item);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe('Change password failed');
     });
   });
 });

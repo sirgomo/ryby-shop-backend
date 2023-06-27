@@ -8,6 +8,7 @@ async function bootstrap() {
   await db.checkDatabaseConnection();
   const app = await NestFactory.create(AppModule);
   await app.useGlobalPipes(new ValidationPipe());
+  await app.enableCors({ origin: true });
   await app.listen(3000);
 }
 bootstrap();
