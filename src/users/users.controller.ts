@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { UsersService } from './users.service';
 import { UserUpdateDto } from 'src/dto/userUpdate.dto';
 import { NewPassword } from 'src/dto/newPassword.dto';
+import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -10,6 +10,7 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
   @Get('/:id')
   async getUserDetails(@Param('id') userid: number) {
+    console.log(userid);
     return await this.userService.getUserDetails(userid);
   }
   @Patch()

@@ -23,7 +23,6 @@ import { Reservierung } from './entity/reservierungEntity';
 import { Stellplatze } from './entity/stellplatzeEntity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -60,6 +59,6 @@ import { AuthService } from './auth/auth.service';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthModule],
 })
 export class AppModule {}

@@ -57,7 +57,6 @@ export class UsersService {
         laddres.strasse = reguser.l_strasse;
         user.lieferadresse = laddres;
       }
-      console.log(user);
       const userNew = await this.repo.save(user);
       userNew.password = '';
       return userNew;

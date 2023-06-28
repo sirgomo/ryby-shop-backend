@@ -10,6 +10,7 @@ import { env } from 'src/env/env';
 import { JwtStrategy } from './auth.JwtStrategy.strategy';
 import { AdresseKunde } from 'src/entity/addressEntity';
 import { Lieferadresse } from 'src/entity/liferAddresseEntity';
+import { LocalStrategy } from './local.strategy';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { Lieferadresse } from 'src/entity/liferAddresseEntity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, JwtStrategy],
+  providers: [AuthService, UsersService, JwtStrategy, LocalStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
