@@ -27,7 +27,17 @@ export class UsersService {
   }
   async createUser(reguser: RegisterUserDto): Promise<Kunde> {
     try {
-      const userzahl = await this.repo.findAndCount().then((res) => res[1]);
+      const userzahl = await this.repo
+        .findAndCount()
+        .then((res) => res[1])
+        .catch((err) => {
+          console.log(err);
+          throw new HttpException(
+            'Etwas ist schiefgelaufen bei user registrieren',
+            HttpStatus.BAD_REQUEST,
+          );
+        });
+
       const user = new Kunde();
       user.email = reguser.email;
       user.password = await bcrypt.hash(reguser.password, 10);
@@ -57,7 +67,14 @@ export class UsersService {
         laddres.strasse = reguser.l_strasse;
         user.lieferadresse = laddres;
       }
-      const userNew = await this.repo.save(user);
+
+      const userNew = await this.repo.save(user).catch((err) => {
+        console.log(err);
+        throw new HttpException(
+          'Etwas ist schiefgelaufen bei user registrieren',
+          HttpStatus.BAD_REQUEST,
+        );
+      });
       userNew.password = '';
       return userNew;
     } catch (err) {
@@ -66,14 +83,24 @@ export class UsersService {
   }
   async getUserDetails(userid: number) {
     try {
-      const user = await this.repo.findOne({
-        where: { id: userid },
-        relations: {
-          adresse: true,
-          lieferadresse: true,
-        },
-      });
-      user.password = '';
+      const user = await this.repo
+        .findOne({
+          where: { id: userid },
+          relations: {
+            adresse: true,
+            lieferadresse: true,
+          },
+        })
+        .catch((err) => {
+          console.log(err);
+          throw new HttpException(
+            'User Details nicht gefunden',
+            HttpStatus.BAD_REQUEST,
+          );
+        });
+      if (user) user.password = '';
+
+      console.log(user);
       return user;
     } catch (err) {
       return err;

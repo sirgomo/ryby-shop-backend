@@ -46,13 +46,13 @@ export class Database {
             name VARCHAR(255),
             email VARCHAR(255),
             telefon VARCHAR(255),
-            adresse_id INT,
+            adresseId INT,
             steuernummer VARCHAR(255),
             bankkontonummer VARCHAR(255),
             ansprechpartner VARCHAR(255),
             zahlart VARCHAR(255),
             umsatzsteuerIdentifikationsnummer VARCHAR(255),
-            FOREIGN KEY (adresse_id) REFERENCES liefer_addresse (id)
+            FOREIGN KEY (adresseId) REFERENCES address_kunde (id)
           );
           CREATE TABLE IF NOT EXISTS produkt (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,14 +61,14 @@ export class Database {
             beschreibung VARCHAR(255),
             foto VARCHAR(255),
             thumbnail VARCHAR(255),
-            lieferant_id INT,
+            lieferantId INT,
             datumHinzugefuegt DATE,
             verfgbarkeit BOOLEAN,
             mindestmenge INT,
             aktion BOOLEAN,
             verkaufteAnzahl INT,
             mehrwehrsteuer INT,
-            FOREIGN KEY (lieferant_id) REFERENCES liferant (id)
+            FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
           CREATE TABLE IF NOT EXISTS lager (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -79,16 +79,16 @@ export class Database {
           CREATE TABLE IF NOT EXISTS stellplatze (
             id INT AUTO_INCREMENT PRIMARY KEY,
             platzid VARCHAR(255),
-            lager_id INT,
-            lieferant_id INT,
+            lagerId INT,
+            lieferantId INT,
             menge INT,
             bestand INT,
             mhd DATE,
             static INT,
             prufziffern INT,
             gesperrt BOOLEAN,
-            FOREIGN KEY (lager_id) REFERENCES lager (id),
-            FOREIGN KEY (lieferant_id) REFERENCES liferant (id)
+            FOREIGN KEY (lagerId) REFERENCES lager (id),
+            FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
           
           CREATE TABLE IF NOT EXISTS reservierung (
@@ -104,126 +104,126 @@ export class Database {
           );
           CREATE TABLE IF NOT EXISTS waren_eingang (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            lieferant_id INT,
+            lieferantId INT,
             empfangsdatum DATE,
             rechnung VARCHAR(255),
             lieferscheinNr VARCHAR(255),
             datenEingabe DATE,
-            FOREIGN KEY (lieferant_id) REFERENCES liferant (id)
+            FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
 
           CREATE TABLE IF NOT EXISTS waren_eingang_product (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            wareneingang_id INT,
+            wareneingangId INT,
             menge INT,
             preis DECIMAL,
             mwst INT,
-            FOREIGN KEY (wareneingang_id) REFERENCES waren_eingang (id)
+            FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id)
           );
           CREATE TABLE IF NOT EXISTS kunde (
             id INT AUTO_INCREMENT PRIMARY KEY,
             vorname VARCHAR(255),
             nachname VARCHAR(255),
             password VARCHAR(255),
-            adresse_id INT,
-            lieferadresse_id INT,
+            adresseId INT,
+            lieferadresseId INT,
             email VARCHAR(255),
             telefon VARCHAR(255),
             role VARCHAR(255),
             registrierungsdatum DATE,
             treuepunkte INT,
-            FOREIGN KEY (adresse_id) REFERENCES address_kunde (id),
-            FOREIGN KEY (lieferadresse_id) REFERENCES liefer_addresse (id)
+            FOREIGN KEY (adresseId) REFERENCES address_kunde (id),
+            FOREIGN KEY (lieferadresseId) REFERENCES liefer_addresse (id)
           );
           CREATE TABLE IF NOT EXISTS kategorie (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            parent_id INT,
+            parentId INT,
             name VARCHAR(255),
-            FOREIGN KEY (parent_id) REFERENCES kategorie (id)
+            FOREIGN KEY (parentId) REFERENCES kategorie (id)
           );
           CREATE TABLE IF NOT EXISTS bestellung (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            kunde_id INT,
+            kundeId INT,
             bestelldatum DATE,
             status VARCHAR(255),
             lieferdatum DATE,
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL,
             zahlungsstatus VARCHAR(255),
-            FOREIGN KEY (kunde_id) REFERENCES kunde (id)
+            FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
           CREATE TABLE IF NOT EXISTS waren_ausgang (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            bestellung_id INT,
+            bestellungId INT,
             ausgangsdatum DATE,
             rechnung VARCHAR(255),
             datenEingabe DATE,
             zahlungsstatus VARCHAR(255),
-            FOREIGN KEY (bestellung_id) REFERENCES bestellung (id)
+            FOREIGN KEY (bestellungId) REFERENCES bestellung (id)
           );
           CREATE TABLE IF NOT EXISTS waren_ausgang_product (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            warenausgang_id INT,
+            warenausgangId INT,
             menge INT,
             preis DECIMAL,
             mwst INT,
-            FOREIGN KEY (warenausgang_id) REFERENCES waren_ausgang (id)
+            FOREIGN KEY (warenausgangId) REFERENCES waren_ausgang (id)
           );
           CREATE TABLE IF NOT EXISTS product_ruckgabe (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            bestellung_id INT,
-            kunde_id INT,
+            bestellungId INT,
+            kundeId INT,
             rueckgabegrund VARCHAR(255),
             rueckgabedatum DATE,
             rueckgabestatus VARCHAR(255),
-            FOREIGN KEY (bestellung_id) REFERENCES bestellung (id),
-            FOREIGN KEY (kunde_id) REFERENCES kunde (id)
+            FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
+            FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
             
           CREATE TABLE IF NOT EXISTS product_in_bestellung (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            bestellung_id INT,
-            produkt_id INT,
+            bestellungId INT,
+            produktId INT,
             menge INT,
             rabatt DECIMAL,
             mengeGepackt INT,
-            productRucgabe_id INT,
-            FOREIGN KEY (bestellung_id) REFERENCES bestellung (id),
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id),
-            FOREIGN KEY (productRucgabe_id) REFERENCES product_ruckgabe (id)
+            productRucgabeId INT,
+            FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id),
+            FOREIGN KEY (productRucgabeId) REFERENCES product_ruckgabe (id)
           );
           
           CREATE TABLE IF NOT EXISTS kunden_bewertung (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            kunde_id INT,
-            produkt_id INT,
+            kundeId INT,
+            produktId INT,
             titel VARCHAR(255),
             inhalt VARCHAR(255),
             bewertung INT,
             datumHinzugefuegt DATE,
-            FOREIGN KEY (kunde_id) REFERENCES kunde (id),
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id)
+            FOREIGN KEY (kundeId) REFERENCES kunde (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
           CREATE TABLE IF NOT EXISTS produkt_kategorie (
-            produkt_id INT,
-            kategorie_id INT,
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id),
-            FOREIGN KEY (kategorie_id) REFERENCES kategorie (id)
+            produktId INT,
+            kategorieId INT,
+            FOREIGN KEY (produktId) REFERENCES produkt (id),
+            FOREIGN KEY (kategorieId) REFERENCES kategorie (id)
           );
           
           CREATE TABLE IF NOT EXISTS produkt_aktion (
-            produkt_id INT,
-            aktion_id INT,
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id),
-            FOREIGN KEY (aktion_id) REFERENCES aktion (id)
+            produktId INT,
+            aktionId INT,
+            FOREIGN KEY (produktId) REFERENCES produkt (id),
+            FOREIGN KEY (aktionId) REFERENCES aktion (id)
           );
           
           CREATE TABLE IF NOT EXISTS reservierung_bestellung (
-            reservierung_id INT,
-            bestellung_id INT,
-            FOREIGN KEY (reservierung_id) REFERENCES reservierung (id),
-            FOREIGN KEY (bestellung_id) REFERENCES bestellung (id)
+            reservierungId INT,
+            bestellungId INT,
+            FOREIGN KEY (reservierungId) REFERENCES reservierung (id),
+            FOREIGN KEY (bestellungId) REFERENCES bestellung (id)
           );
           
           CREATE TABLE IF NOT EXISTS produkt_in_bestellung_produkt (

@@ -4,6 +4,7 @@ import {
   Column,
   OneToMany,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Produkt } from './produktEntity';
 import { AdresseKunde } from './addressEntity';
@@ -28,6 +29,7 @@ export class Lieferant {
   telefon: string;
 
   @OneToOne(() => AdresseKunde)
+  @JoinColumn()
   adresse: AdresseKunde;
 
   @Column()

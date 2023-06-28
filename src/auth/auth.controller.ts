@@ -11,6 +11,7 @@ export class AuthController {
   ) {}
   @Post()
   login(@Body() user: { email: string; password: string }) {
+    console.log('login');
     return this.authService.login(user);
   }
   @Post('/reg')

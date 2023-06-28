@@ -190,12 +190,12 @@ describe('UsersService', () => {
 
       jest
         .spyOn(repo, 'findOne')
-        .mockRejectedValue(new Error('User not found'));
+        .mockRejectedValue(new Error('User Details nicht gefunden'));
 
       const result = await service.getUserDetails(userId);
 
       expect(result).toBeInstanceOf(Error);
-      expect(result.message).toBe('User not found');
+      expect(result.message).toBe('User Details nicht gefunden');
     });
   });
 

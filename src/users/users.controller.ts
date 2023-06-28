@@ -10,7 +10,6 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
   @Get('/:id')
   async getUserDetails(@Param('id') userid: number) {
-    console.log(userid);
     return await this.userService.getUserDetails(userid);
   }
   @Patch()

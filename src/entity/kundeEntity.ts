@@ -4,6 +4,7 @@ import {
   Column,
   OneToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { AdresseKunde } from './addressEntity';
 import { Lieferadresse } from './liferAddresseEntity';
@@ -24,16 +25,28 @@ export class Kunde {
   @Column()
   password: string;
 
-  @OneToOne(() => AdresseKunde)
+  @OneToOne(() => AdresseKunde, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn()
   adresse: AdresseKunde;
 
-  @OneToOne(() => Lieferadresse)
+  @OneToOne(() => Lieferadresse, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn()
   lieferadresse: Lieferadresse;
 
   @OneToMany(() => Bestellung, (bestellung) => bestellung.kunde)
+  @JoinColumn()
   bestellungen: Bestellung[];
 
   @OneToMany(() => ProduktRueckgabe, (ruckgabe) => ruckgabe.kunde)
+  @JoinColumn()
   ruckgabe: Bestellung[];
 
   @Column()
@@ -51,5 +64,6 @@ export class Kunde {
   treuepunkte: number;
 
   @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.kunde)
+  @JoinColumn()
   bewertungen: Kundenbewertung[];
 }
