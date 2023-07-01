@@ -23,6 +23,7 @@ import { Reservierung } from './entity/reservierungEntity';
 import { Stellplatze } from './entity/stellplatzeEntity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { KategorieModule } from './kategorie/kategorie.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    KategorieModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],

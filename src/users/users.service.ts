@@ -43,7 +43,7 @@ export class UsersService {
       user.password = await bcrypt.hash(reguser.password, 10);
       user.nachname = reguser.nachname;
       user.vorname = reguser.vorname;
-      user.registrierungsdatum = reguser.registrierungsdatum;
+      user.registrierungsdatum = new Date(reguser.registrierungsdatum);
       user.role = 'USER';
       if (userzahl === 0) {
         user.role = 'ADMIN';
@@ -75,6 +75,7 @@ export class UsersService {
           HttpStatus.BAD_REQUEST,
         );
       });
+
       userNew.password = '';
       return userNew;
     } catch (err) {
@@ -100,7 +101,6 @@ export class UsersService {
         });
       if (user) user.password = '';
 
-      console.log(user);
       return user;
     } catch (err) {
       return err;
@@ -108,7 +108,19 @@ export class UsersService {
   }
   async updateUser(item: UserUpdateDto) {
     try {
-      return (await this.repo.update({ id: item.id }, item)).affected;
+      const items = await this.repo.create(item);
+      return await this.repo.save(items).then(
+        (data) => {
+          if (data) return 1;
+        },
+        (err) => {
+          console.log(err);
+          throw new HttpException(
+            'User Update - Ich kann die Daten nicht speichern',
+            HttpStatus.BAD_REQUEST,
+          );
+        },
+      );
     } catch (err) {
       return err;
     }

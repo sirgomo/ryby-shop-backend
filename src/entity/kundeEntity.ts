@@ -25,19 +25,11 @@ export class Kunde {
   @Column()
   password: string;
 
-  @OneToOne(() => AdresseKunde, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
+  @OneToOne(() => AdresseKunde, { cascade: true })
   @JoinColumn()
   adresse: AdresseKunde;
 
-  @OneToOne(() => Lieferadresse, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
+  @OneToOne(() => Lieferadresse, { cascade: true })
   @JoinColumn()
   lieferadresse: Lieferadresse;
 

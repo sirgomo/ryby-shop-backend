@@ -132,8 +132,8 @@ export class Database {
             role VARCHAR(255),
             registrierungsdatum DATE,
             treuepunkte INT,
-            FOREIGN KEY (adresseId) REFERENCES address_kunde (id),
-            FOREIGN KEY (lieferadresseId) REFERENCES liefer_addresse (id)
+            FOREIGN KEY (adresseId) REFERENCES address_kunde (id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (lieferadresseId) REFERENCES liefer_addresse (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           CREATE TABLE IF NOT EXISTS kategorie (
             id INT AUTO_INCREMENT PRIMARY KEY,
