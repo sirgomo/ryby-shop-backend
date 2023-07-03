@@ -137,9 +137,8 @@ export class Database {
           );
           CREATE TABLE IF NOT EXISTS kategorie (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            parentId INT,
-            name VARCHAR(255),
-            FOREIGN KEY (parentId) REFERENCES kategorie (id)
+            parent_id INT,
+            name VARCHAR(255)
           );
           CREATE TABLE IF NOT EXISTS bestellung (
             id INT AUTO_INCREMENT PRIMARY KEY,

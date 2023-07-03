@@ -4,7 +4,6 @@ import {
   Column,
   ManyToMany,
   JoinTable,
-  ManyToOne,
 } from 'typeorm';
 import { Produkt } from './produktEntity';
 
@@ -22,7 +21,4 @@ export class Kategorie {
   @ManyToMany(() => Produkt)
   @JoinTable()
   products: Produkt[];
-
-  @ManyToOne(() => Kategorie, { nullable: true })
-  parent: Kategorie;
 }

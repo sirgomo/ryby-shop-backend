@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Kategorie } from 'src/entity/kategorieEntity';
 import { Produkt } from 'src/entity/produktEntity';
@@ -16,7 +16,18 @@ export class KategorieService {
   async createCategory(categoryData: Partial<Kategorie>): Promise<Kategorie> {
     try {
       const category = await this.kategorieRepository.create(categoryData);
-      return await this.kategorieRepository.save(category);
+      return await this.kategorieRepository.save(category).then(
+        (res) => {
+          return res;
+        },
+        (err) => {
+          console.log(err);
+          throw new HttpException(
+            'Etwas ist schiefgegangen, ich kann neue Category nicht erstellen',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        },
+      );
     } catch (err) {
       return err;
     }
@@ -32,10 +43,15 @@ export class KategorieService {
 
   async getAllCategories(): Promise<Kategorie[]> {
     try {
-      return await this.kategorieRepository.find();
+      return await this.kategorieRepository.find().catch((err) => {
+        throw new HttpException(
+          'Es ist ein feheler Aufgetreten',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
     } catch (error) {
       console.error(error);
-      return [];
+      return error;
     }
   }
 
@@ -50,8 +66,14 @@ export class KategorieService {
       if (!category) {
         return undefined;
       }
-      this.kategorieRepository.merge(category, categoryData);
-      return await this.kategorieRepository.save(category);
+      await this.kategorieRepository.merge(category, categoryData);
+      return await this.kategorieRepository.save(category).catch((err) => {
+        console.log(err);
+        throw new HttpException(
+          'Etwas ist schiefgelaufen, änderungen wurden nicht gespeichert',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
     } catch (error) {
       console.error(error);
     }
@@ -59,7 +81,13 @@ export class KategorieService {
 
   async deleteCategory(id: number): Promise<boolean> {
     try {
-      const result = await this.kategorieRepository.delete(id);
+      const result = await this.kategorieRepository.delete(id).catch((err) => {
+        console.log(err);
+        throw new HttpException(
+          'Etwas ist schiefgelaufen, post wurde nicht gelöscht',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
       return result.affected > 0;
     } catch (error) {
       console.error(error);
