@@ -208,24 +208,30 @@ describe('UsersService', () => {
         nachname: 'Kowalski',
         email: 'jan.kowalski@example.com',
         telefon: '123456789',
-        role: 'user',
-        registrierungsdatum: undefined,
-        treuepunkte: 100,
-        l_strasse: 'Główna',
-        l_hausnummer: '1',
-        l_stadt: 'Warszawa',
-        l_postleitzahl: '00-001',
-        l_land: 'Polen',
-        adresseStrasse: 'Mieszka I',
-        adresseHausnummer: '1',
-        adresseStadt: 'Kraków',
-        adressePostleitzahl: '30-001',
-        adresseLand: 'Polen',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
       };
-
+      const itemCreated: Kunde = {
+        id: itemId,
+        vorname: 'Jan',
+        nachname: 'Kowalski',
+        email: 'jan.kowalski@example.com',
+        telefon: '123456789',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+        password: '',
+        bestellungen: [],
+        ruckgabe: [],
+        role: '',
+        registrierungsdatum: undefined,
+        treuepunkte: 0,
+        bewertungen: [],
+      };
       jest
         .spyOn(repo, 'update')
         .mockResolvedValue({ affected: 1, raw: '', generatedMaps: [] });
+      jest.spyOn(repo, 'create').mockReturnValue(itemCreated);
+      jest.spyOn(repo, 'save').mockResolvedValue(itemCreated);
 
       const result = await service.updateUser(itemToUpdate);
 
@@ -240,24 +246,33 @@ describe('UsersService', () => {
         nachname: 'Kowalski',
         email: 'jan.kowalski@example.com',
         telefon: '123456789',
-        role: 'user',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+      };
+      const itemCreated: Kunde = {
+        id: itemId,
+        vorname: 'Jan',
+        nachname: 'Kowalski',
+        email: 'jan.kowalski@example.com',
+        telefon: '123456789',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
+        password: '',
+        bestellungen: [],
+        ruckgabe: [],
+        role: '',
         registrierungsdatum: undefined,
-        treuepunkte: 100,
-        l_strasse: 'Główna',
-        l_hausnummer: '1',
-        l_stadt: 'Warszawa',
-        l_postleitzahl: '00-001',
-        l_land: 'Polen',
-        adresseStrasse: 'Mieszka I',
-        adresseHausnummer: '1',
-        adresseStadt: 'Kraków',
-        adressePostleitzahl: '30-001',
-        adresseLand: 'Polen',
+        treuepunkte: 0,
+        bewertungen: [],
       };
       jest.spyOn(repo, 'update').mockRejectedValue(new Error('Update failed'));
+      jest.spyOn(repo, 'create').mockReturnValue(itemCreated);
+      jest.spyOn(repo, 'save').mockImplementation(() => {
+        throw new Error('Update failed');
+      });
 
       const result = await service.updateUser(itemToUpdate);
-
+      expect(repo.create).toBeCalled();
       expect(result).toBeInstanceOf(Error);
       expect(result.message).toBe('Update failed');
     });

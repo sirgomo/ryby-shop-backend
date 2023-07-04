@@ -2,8 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { KategorieService } from './kategorie.service';
 import { Kategorie } from 'src/entity/kategorieEntity';
 import { Produkt } from 'src/entity/produktEntity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('KategorieService', () => {
   let kategorieService: KategorieService;
@@ -231,27 +232,25 @@ describe('KategorieService', () => {
     it('should delete the category with the specified id', async () => {
       const categoryId = 1;
 
-      const deleteResult = {
-        raw: {
-          affected: 1,
-        },
+      const deleteResult: DeleteResult = {
+        affected: 1,
+        raw: undefined,
       };
 
       jest.spyOn(kategorieRepository, 'delete').mockResolvedValue(deleteResult);
 
       const result = await kategorieService.deleteCategory(categoryId);
 
-      expect(result).toBe(true);
       expect(kategorieRepository.delete).toHaveBeenCalledWith(categoryId);
+      expect(result).toBe(true);
     });
 
     it('should return false if the category is not found', async () => {
       const categoryId = 1;
 
-      const deleteResult = {
-        raw: {
-          affected: 0,
-        },
+      const deleteResult: DeleteResult = {
+        affected: 0,
+        raw: undefined,
       };
 
       jest.spyOn(kategorieRepository, 'delete').mockResolvedValue(deleteResult);
@@ -265,9 +264,7 @@ describe('KategorieService', () => {
     it('should throw an error if category deletion fails', async () => {
       const categoryId = 1;
 
-      jest.spyOn(kategorieRepository, 'delete').mockImplementation(() => {
-        throw new Error();
-      });
+      jest.spyOn(kategorieRepository, 'delete').mockRejectedValue(new Error());
 
       await expect(
         kategorieService.deleteCategory(categoryId),

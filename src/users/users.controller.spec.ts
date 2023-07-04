@@ -58,19 +58,8 @@ describe('UsersController', () => {
         nachname: '',
         email: '',
         telefon: '',
-        role: '',
-        registrierungsdatum: undefined,
-        treuepunkte: 0,
-        l_strasse: '',
-        l_hausnummer: '',
-        l_stadt: '',
-        l_postleitzahl: '',
-        l_land: '',
-        adresseStrasse: '',
-        adresseHausnummer: '',
-        adresseStadt: '',
-        adressePostleitzahl: '',
-        adresseLand: '',
+        adresse: new AdresseKunde(),
+        lieferadresse: new Lieferadresse(),
       }; // provide sample user update data
 
       jest.spyOn(service, 'updateUser').mockResolvedValue(1);

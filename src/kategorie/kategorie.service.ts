@@ -29,7 +29,7 @@ export class KategorieService {
         },
       );
     } catch (err) {
-      return err;
+      throw err;
     }
   }
 
@@ -51,7 +51,7 @@ export class KategorieService {
       });
     } catch (error) {
       console.error(error);
-      return error;
+      throw error;
     }
   }
 
@@ -76,6 +76,7 @@ export class KategorieService {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
   }
 
@@ -91,7 +92,7 @@ export class KategorieService {
       return result.affected > 0;
     } catch (error) {
       console.error(error);
-      return false;
+      throw error;
     }
   }
 
