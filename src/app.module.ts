@@ -24,6 +24,7 @@ import { Stellplatze } from './entity/stellplatzeEntity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { KategorieModule } from './kategorie/kategorie.module';
+import { LiferantModule } from './liferant/liferant.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { KategorieModule } from './kategorie/kategorie.module';
     AuthModule,
     UsersModule,
     KategorieModule,
+    LiferantModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],
