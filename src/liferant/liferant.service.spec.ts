@@ -2,9 +2,11 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Lieferant } from 'src/entity/lifernatEntity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { LiferantService } from './liferant.service';
 import { AdresseKunde } from 'src/entity/addressEntity';
+import { LieferantDto } from 'src/dto/liferant.dto';
+import { AddressDto } from 'src/dto/adress.dto';
 
 describe('LiferantService', () => {
   let liferantService: LiferantService;
@@ -95,7 +97,18 @@ describe('LiferantService', () => {
 
   describe('create', () => {
     it('should create a new Lieferant', async () => {
- const newLieferant: Partial<Lieferant> = { name: 'Lieferant 1' };
+      const newLieferant: LieferantDto = {
+        name: 'Lieferant 1',
+        id: undefined,
+        email: '',
+        telefon: '',
+        adresse: new AddressDto,
+        steuernummer: '',
+        bankkontonummer: '',
+        ansprechpartner: '',
+        zahlart: '',
+        umsatzsteuerIdentifikationsnummer: ''
+      };
       const createdLieferant: Lieferant = {
         id: 1, name: 'Lieferant 1',
         produkte: [],
@@ -110,6 +123,7 @@ describe('LiferantService', () => {
         stellplatz: [],
         wareneingaenge: []
       };
+      jest.spyOn(lieferantRepository, 'create').mockImplementation();
       jest
         .spyOn(lieferantRepository, 'save')
         .mockResolvedValueOnce(createdLieferant);
@@ -120,7 +134,18 @@ describe('LiferantService', () => {
     });
 
     it('should throw an error if save operation fails', async () => {
-      const newLieferant: Partial<Lieferant> = { name: 'Lieferant 1' };
+      const newLieferant: LieferantDto = {
+        name: 'Lieferant 1',
+        id: 0,
+        email: '',
+        telefon: '',
+        adresse: new AddressDto,
+        steuernummer: '',
+        bankkontonummer: '',
+        ansprechpartner: '',
+        zahlart: '',
+        umsatzsteuerIdentifikationsnummer: ''
+      };
       jest.spyOn(lieferantRepository, 'save').mockRejectedValueOnce(new Error());
 
       await expect(liferantService.create(newLieferant)).rejects.toThrowError();
@@ -129,7 +154,17 @@ describe('LiferantService', () => {
 
   describe('update', () => {
     it('should update a Lieferant', async () => {
-      const updatedLieferant: Partial<Lieferant> = { id: 1, name: 'Lieferant 1' };
+      const updatedLieferant: LieferantDto = {
+        id: 1, name: 'Lieferant 1',
+        email: '',
+        telefon: '',
+        adresse: new AddressDto,
+        steuernummer: '',
+        bankkontonummer: '',
+        ansprechpartner: '',
+        zahlart: '',
+        umsatzsteuerIdentifikationsnummer: ''
+      };
       const savedLieferant: Lieferant = {
         id: 1, name: 'Lieferant 1',
         produkte: [],
@@ -144,8 +179,10 @@ describe('LiferantService', () => {
         stellplatz: [],
         wareneingaenge: []
       };
-      jest
-        .spyOn(lieferantRepository, 'save')
+      jest.spyOn(lieferantRepository, 'create').mockImplementation();
+      jest.spyOn(lieferantRepository, 'findOne').mockImplementation();
+      jest.spyOn(lieferantRepository, 'merge').mockImplementation();
+      jest.spyOn(lieferantRepository, 'save')
         .mockResolvedValue(savedLieferant);
 
       const result = await liferantService.update(updatedLieferant);
@@ -154,8 +191,19 @@ describe('LiferantService', () => {
     });
 
  it('should throw an error if id not provided', async () => {
-      const updatedLieferant: Partial<Lieferant> = {  name: 'Lieferant 1' };
-
+      const updatedLieferant: LieferantDto = {
+        name: 'Lieferant 1',
+        id: undefined,
+        email: '',
+        telefon: '',
+        adresse: new AddressDto,
+        steuernummer: '',
+        bankkontonummer: '',
+        ansprechpartner: '',
+        zahlart: '',
+        umsatzsteuerIdentifikationsnummer: ''
+      };
+      jest.spyOn(lieferantRepository, 'create').mockImplementation();
       await expect(liferantService.update(updatedLieferant)).rejects.toThrowError(
         new HttpException(
           'Etaws ist schiefgegangen, der liferant konnte nicht gespeichert werden',
@@ -165,7 +213,17 @@ describe('LiferantService', () => {
     });
 
     it('should throw an error if save operation fails', async () => {
-      const updatedLieferant: Partial<Lieferant> = { id: 1, name: 'Lieferant 1' };
+      const updatedLieferant: LieferantDto = {
+        id: 1, name: 'Lieferant 1',
+        email: '',
+        telefon: '',
+        adresse: new AddressDto,
+        steuernummer: '',
+        bankkontonummer: '',
+        ansprechpartner: '',
+        zahlart: '',
+        umsatzsteuerIdentifikationsnummer: ''
+      };
       jest.spyOn(lieferantRepository, 'save').mockRejectedValueOnce(new Error());
 
       await expect(liferantService.update(updatedLieferant)).rejects.toThrowError();
@@ -175,7 +233,27 @@ describe('LiferantService', () => {
   describe('', () => {
     it('should delete a Lieferant', async () => {
       const id = 1;
-       jest.spyOn(lieferantRepository, 'delete').mockImplementation();
+      const delRes: DeleteResult = {
+        affected: 1,
+        raw: undefined
+      }
+      const savedLieferant: Lieferant = {
+        id: 1, name: 'Lieferant 1',
+        produkte: [],
+        email: '',
+        telefon: '',
+        adresse: new AdresseKunde,
+        steuernummer: '',
+        bankkontonummer: '',
+        ansprechpartner: '',
+        zahlart: '',
+        umsatzsteuerIdentifikationsnummer: '',
+        stellplatz: [],
+        wareneingaenge: []
+      };
+       jest.spyOn(lieferantRepository, 'delete').mockResolvedValue(delRes);
+       jest.spyOn(lieferantRepository, 'findOne').mockResolvedValue(savedLieferant);
+       jest.spyOn(lieferantRepository, 'query').mockImplementation();
 
       await liferantService.delete(id);
 
