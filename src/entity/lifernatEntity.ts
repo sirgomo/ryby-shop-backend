@@ -28,7 +28,7 @@ export class Lieferant {
   @Column()
   telefon: string;
 
-  @OneToOne(() => AdresseKunde)
+  @OneToOne(() => AdresseKunde, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   adresse: AdresseKunde;
 

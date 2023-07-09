@@ -11,7 +11,7 @@ export class LieferantDto {
     @IsEmail()
     email: string;
 
-    @IsPhoneNumber()
+    @Matches(/^[0-9+]{6,14}$/)
     telefon: string;
 
     @IsOptional()

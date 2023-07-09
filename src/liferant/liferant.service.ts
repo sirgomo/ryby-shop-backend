@@ -29,7 +29,9 @@ export class LiferantService {
     
       async create(lieferant: LieferantDto): Promise<Lieferant> {
         try {
+          console.log(lieferant)
             const item: Partial<Lieferant> = await this.lieferantRepository.create(lieferant); 
+            console.log(item);
           return await this.lieferantRepository.save(item);
         } catch (error) {
           throw error;
@@ -41,8 +43,10 @@ export class LiferantService {
             const item: Partial<Lieferant> = await this.lieferantRepository.create(lieferant); 
             if(!isFinite(lieferant.id) || lieferant.id === null || lieferant.id === undefined)
                 throw new HttpException('Etaws ist schiefgegangen, der liferant konnte nicht gespeichert werden', HttpStatus.BAD_REQUEST);
-            
-                return await this.lieferantRepository.save(item);
+            const alt = await this.lieferantRepository.findOne({where: {id: lieferant.id}, relations: { adresse: true }});
+            const newItem = await this.lieferantRepository.merge(alt, item);
+                
+                return await this.lieferantRepository.save(newItem);
         } catch (error) {
           throw error;
         }
@@ -50,7 +54,16 @@ export class LiferantService {
     
       async delete(id: number): Promise<number> {
         try {
-         return  (await this.lieferantRepository.delete(id)).affected;
+          const alt = await this.lieferantRepository.findOne({where: {id: id}, relations: { adresse: true }});
+        
+          const del = await (await this.lieferantRepository.delete(id)).affected;
+          if(del === 1) {
+            await this.lieferantRepository.query('DELETE FROM address_kunde WHERE ID='+alt.adresse.id);
+            return del;
+          }
+      
+
+          throw new HttpException('Etwas ist schiefgelaufen, liferant wurde nicht gelöscht', HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (error) {
           throw error;
         }
