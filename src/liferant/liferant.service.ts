@@ -29,9 +29,7 @@ export class LiferantService {
     
       async create(lieferant: LieferantDto): Promise<Lieferant> {
         try {
-          console.log(lieferant)
             const item: Partial<Lieferant> = await this.lieferantRepository.create(lieferant); 
-            console.log(item);
           return await this.lieferantRepository.save(item);
         } catch (error) {
           throw error;
