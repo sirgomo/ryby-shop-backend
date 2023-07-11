@@ -15,7 +15,7 @@ export class ProductService {
         try {
           return await this.produktRepository.find();
         } catch (error) {
-          throw new HttpException('Error while retrieving products', HttpStatus.NOT_FOUND);
+            throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
       }
     
@@ -32,7 +32,7 @@ export class ProductService {
             bewertung: true,
           }});
         } catch (error) {
-        throw new HttpException('Error while retrieving products', HttpStatus.NOT_FOUND);
+            throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
       }
     
@@ -42,7 +42,7 @@ export class ProductService {
           return await this.produktRepository.save(produkt);
         } catch (error) {
          
-          throw new HttpException('Error while creating product', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException('Fehler beim Erstellen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
     
@@ -50,7 +50,7 @@ export class ProductService {
         try {
           const produkt = await this.produktRepository.findOne({where: { id: id }});
           if (!produkt) {
-            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+            throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
           }
         await this.produktRepository.merge(produkt, productDto);
           return await this.produktRepository.save(produkt);
@@ -63,7 +63,7 @@ export class ProductService {
         try {
           await this.produktRepository.delete(id);
         } catch (error) {
-          throw new Error('Error while deleting product');
+            throw new Error('Fehler beim Löschen des Produkts');
         }
       }
 }
