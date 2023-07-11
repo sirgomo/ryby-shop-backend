@@ -4,6 +4,7 @@ import { Produkt } from 'src/entity/produktEntity';
 import { ProductService } from './product.service';
 import { PhotoService } from 'src/service/photoService';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { DeleteResult } from 'typeorm';
 
 @Controller('product')
 export class ProductController {
@@ -33,15 +34,16 @@ export class ProductController {
     }
   
     @Delete(':id')
-    async deleteProduct(@Param('id') id: number): Promise<void> {
+    async deleteProduct(@Param('id') id: number): Promise<DeleteResult> {
       return await this.productService.deleteProdukt(id);
     }
-    @Post()
+    @Post('upload')
     @UseInterceptors(FileInterceptor("photo"))
     async uploadPhoto(@UploadedFile( 
         new ParseFilePipeBuilder().addFileTypeValidator({
-            fileType:  '/^jpg$|^png$/',
-        }).build({
+            fileType:   /(jpg|jpeg|png)$/,
+        })
+        .build({
             errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE
         })
     ) file: Express.Multer.File): Promise<string> {

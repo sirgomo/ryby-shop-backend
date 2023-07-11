@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductDto } from 'src/dto/product.dto';
 import { Produkt } from 'src/entity/produktEntity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -42,7 +42,7 @@ export class ProductService {
           return await this.produktRepository.save(produkt);
         } catch (error) {
          
-            throw new HttpException('Fehler beim Erstellen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException('Fehler beim Erstellen des Produkts', HttpStatus.BAD_REQUEST);
         }
       }
     
@@ -55,15 +55,15 @@ export class ProductService {
         await this.produktRepository.merge(produkt, productDto);
           return await this.produktRepository.save(produkt);
         } catch (error) {
-          throw error;
+            throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
         }
       }
     
-      async deleteProdukt(id: number): Promise<void> {
+      async deleteProdukt(id: number): Promise<DeleteResult> {
         try {
-          await this.produktRepository.delete(id);
+          return await this.produktRepository.delete(id);
         } catch (error) {
-            throw new Error('Fehler beim Löschen des Produkts');
+            throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
 }
