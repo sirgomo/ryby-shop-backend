@@ -4,6 +4,7 @@ import { Database } from './database/databse';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+ 
   const db = await new Database();
   await db.checkDatabaseConnection();
   const app = await NestFactory.create(AppModule);

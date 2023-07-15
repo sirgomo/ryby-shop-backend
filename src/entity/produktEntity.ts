@@ -6,6 +6,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  PrimaryColumn,
 } from 'typeorm';
 import { Lieferant } from './lifernatEntity';
 import { Stellplatze } from './stellplatzeEntity';
@@ -28,8 +29,14 @@ export class Produkt {
   @Column('decimal')
   preis: number;
 
+  @PrimaryColumn({ unique: true, nullable: false, type: 'int' })
+  artid: number;
+
   @Column()
   beschreibung: string;
+  
+  @Column()
+  color: string;
 
   @Column()
   foto: string;

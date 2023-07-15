@@ -19,10 +19,18 @@ export class ProductDto{
     @IsNotEmpty()
     @IsNumber()
     preis: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    artid: number;
   
     @IsNotEmpty()
     @IsString()
     beschreibung: string;
+
+    @IsNotEmpty()
+    @IsString()
+    color: string;
   
     @IsNotEmpty()
     @IsString()
