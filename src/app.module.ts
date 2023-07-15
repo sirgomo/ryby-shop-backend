@@ -27,6 +27,8 @@ import { KategorieModule } from './kategorie/kategorie.module';
 import { LiferantModule } from './liferant/liferant.module';
 import { ProductModule } from './product/product.module';
 
+
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -63,6 +65,7 @@ import { ProductModule } from './product/product.module';
     KategorieModule,
     LiferantModule,
     ProductModule,
+    
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],
