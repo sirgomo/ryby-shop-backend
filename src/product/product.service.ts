@@ -30,7 +30,10 @@ export class ProductService {
             promocje: true,
             reservation: true,
             bewertung: true,
-          }});
+          }}).catch((err) => {
+            console.log(err)
+            throw err;
+          });
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
@@ -39,7 +42,10 @@ export class ProductService {
       async createProdukt(productDto: ProductDto): Promise<Produkt> {
         try {
           const produkt = await this.produktRepository.create(productDto);
-          return await this.produktRepository.save(produkt);
+          return await this.produktRepository.save(produkt).catch((err) => {
+            console.log(err)
+            throw err;
+          });
         } catch (error) {
          
             throw new HttpException('Fehler beim Erstellen des Produkts', HttpStatus.BAD_REQUEST);

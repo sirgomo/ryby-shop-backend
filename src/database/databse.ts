@@ -67,7 +67,6 @@ export class Database {
             datumHinzugefuegt DATE,
             verfgbarkeit BOOLEAN,
             mindestmenge INT,
-            aktion BOOLEAN,
             verkaufteAnzahl INT,
             mehrwehrsteuer INT,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
@@ -206,32 +205,34 @@ export class Database {
             FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
-          CREATE TABLE IF NOT EXISTS produkt_kategorie (
+          CREATE TABLE IF NOT EXISTS produkt_kategorie_kategorie (
             produktId INT,
             kategorieId INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id),
             FOREIGN KEY (kategorieId) REFERENCES kategorie (id)
           );
           
-          CREATE TABLE IF NOT EXISTS produkt_aktion (
+          CREATE TABLE IF NOT EXISTS produkt_promocje_aktion (
             produktId INT,
             aktionId INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id),
             FOREIGN KEY (aktionId) REFERENCES aktion (id)
           );
           
-          CREATE TABLE IF NOT EXISTS reservierung_bestellung (
+          CREATE TABLE IF NOT EXISTS produkt_reservation_reservierung (
             reservierungId INT,
             bestellungId INT,
+            produktId INT,
             FOREIGN KEY (reservierungId) REFERENCES reservierung (id),
-            FOREIGN KEY (bestellungId) REFERENCES bestellung (id)
+            FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
-          CREATE TABLE IF NOT EXISTS produkt_in_bestellung_produkt (
-            produkt_in_bestellung_id INT,
-            produkt_id INT,
-            FOREIGN KEY (produkt_in_bestellung_id) REFERENCES product_in_bestellung (id),
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id)
+          CREATE TABLE IF NOT EXISTS produkt_bestellungen_product_in_bestellung (
+            productInBestellungId INT,
+            produktId INT,
+            FOREIGN KEY (productInBestellungId) REFERENCES product_in_bestellung (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
           CREATE TABLE IF NOT EXISTS bestellen_produkt_ruckgabe (
@@ -248,27 +249,28 @@ export class Database {
             FOREIGN KEY (stellplatze_id) REFERENCES stellplatze (id)
           );
           
-          CREATE TABLE IF NOT EXISTS waren_eingang_product_produkt (
-            waren_eingang_product_id INT,
-            produkt_id INT,
-            FOREIGN KEY (waren_eingang_product_id) REFERENCES waren_eingang_product (id),
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id)
-          );
-          
-          CREATE TABLE IF NOT EXISTS waren_ausgang_product_produkt (
-            waren_ausgang_product_id INT,
-            produkt_id INT,
-            FOREIGN KEY (waren_ausgang_product_id) REFERENCES waren_ausgang_product (id),
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id)
+          CREATE TABLE IF NOT EXISTS produkt_wareneingang_waren_eingang_product (
+            warenEingangProductId INT,
+            produktId INT,
+            FOREIGN KEY (warenEingangProductId) REFERENCES waren_eingang_product (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
           CREATE TABLE IF NOT EXISTS waren_eingang_product_wareneingang (
-            waren_eingang_product_id INT,
-            wareneingang_id INT,
-            FOREIGN KEY (waren_eingang_product_id) REFERENCES waren_eingang_product (id),
-            FOREIGN KEY (wareneingang_id) REFERENCES waren_eingang (id)
+            waren_eingang_productId INT,
+            wareneingangId INT,
+            FOREIGN KEY (waren_eingang_productId) REFERENCES waren_eingang_product (id),
+            FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id)
           );
           
+          CREATE TABLE IF NOT EXISTS produkt_warenausgang_waren_ausgang_product (
+            warenAusgangProductId INT,
+            produktId INT,
+            FOREIGN KEY (warenAusgangProductId) REFERENCES waren_ausgang_product (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id)
+          );
+          
+        
           CREATE TABLE IF NOT EXISTS waren_ausgang_product_warenausgang (
             waren_ausgang_product_id INT,
             warenausgang_id INT,
@@ -287,7 +289,7 @@ export class Database {
         )
         .then(
           (res) => {
-            console.log(res);
+            console.log('Database created');
           },
           (err) => {
             console.log(err);

@@ -1,6 +1,7 @@
 import { Bestellung } from "src/entity/bestellungEntity";
 import { ProduktRueckgabe } from "src/entity/productRuckgabeEntity";
 import { ProductDto } from "./product.dto";
+import { Produkt } from "src/entity/produktEntity";
 
 export class ProductBestellungDto {
     
@@ -10,7 +11,7 @@ export class ProductBestellungDto {
     bestellung: Bestellung;
   
  
-    produkt: ProductDto[];
+    produkt: Produkt[];
   
    
     menge: number;

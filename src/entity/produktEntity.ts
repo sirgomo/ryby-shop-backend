@@ -14,7 +14,7 @@ import { ProduktInBestellung } from './productBestellungEntity';
 import { Kategorie } from './kategorieEntity';
 import { WareneingangProduct } from './warenEingangProductEntity';
 import { WarenausgangProduct } from './warenAusgangProductEntity';
-import { Aktion } from './promocjeEntity';
+import { Aktion } from './aktionEntity';
 import { Reservierung } from './reservierungEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 
@@ -29,7 +29,7 @@ export class Produkt {
   @Column('decimal')
   preis: number;
 
-  @PrimaryColumn({ unique: true, nullable: false, type: 'int' })
+  @Column({ unique: true, nullable: false, type: 'int' })
   artid: number;
 
   @Column()
@@ -68,8 +68,6 @@ export class Produkt {
   @Column('int')
   mindestmenge: number;
 
-  @Column('tinyint')
-  aktion: boolean;
 
   @Column('int')
   verkaufteAnzahl: number;
@@ -94,5 +92,6 @@ export class Produkt {
   reservation: Reservierung[];
 
   @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.produkt)
+  @JoinTable()
   bewertung: Kundenbewertung[];
 }

@@ -6,7 +6,7 @@ import { PhotoService } from 'src/service/photoService';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DeleteResult } from 'typeorm';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
-import { createReadStream } from 'fs';
+
 
 
 @Controller('product')

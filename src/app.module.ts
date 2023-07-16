@@ -14,7 +14,7 @@ import { Lieferant } from './entity/lifernatEntity';
 import { Produkt } from './entity/produktEntity';
 import { ProduktInBestellung } from './entity/productBestellungEntity';
 import { ProduktRueckgabe } from './entity/productRuckgabeEntity';
-import { Aktion } from './entity/promocjeEntity';
+import { Aktion } from './entity/aktionEntity';
 import { Warenausgang } from './entity/warenAusgangEntity';
 import { WarenausgangProduct } from './entity/warenAusgangProductEntity';
 import { Wareneingang } from './entity/warenEingangEntity';
