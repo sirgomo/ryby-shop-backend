@@ -57,7 +57,7 @@ export class Database {
           CREATE TABLE IF NOT EXISTS produkt (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
-            preis DECIMAL,
+            preis DECIMAL(10,2),
             artid INT NOT NULL UNIQUE,
             beschreibung VARCHAR(255),
             color VARCHAR(255),
@@ -101,7 +101,7 @@ export class Database {
             id INT AUTO_INCREMENT PRIMARY KEY,
             startdatum DATE,
             enddatum DATE,
-            rabattProzent DECIMAL
+            rabattProzent DECIMAL(5,2)
           );
           CREATE TABLE IF NOT EXISTS waren_eingang (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -117,7 +117,7 @@ export class Database {
             id INT AUTO_INCREMENT PRIMARY KEY,
             wareneingangId INT,
             menge INT,
-            preis DECIMAL,
+            preis DECIMAL(10,2),
             mwst INT,
             FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id)
           );
@@ -148,7 +148,7 @@ export class Database {
             status VARCHAR(255),
             lieferdatum DATE,
             zahlungsart VARCHAR(255),
-            gesamtwert DECIMAL,
+            gesamtwert DECIMAL(10,2),
             zahlungsstatus VARCHAR(255),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
@@ -165,7 +165,7 @@ export class Database {
             id INT AUTO_INCREMENT PRIMARY KEY,
             warenausgangId INT,
             menge INT,
-            preis DECIMAL,
+            preis DECIMAL(10,2),
             mwst INT,
             FOREIGN KEY (warenausgangId) REFERENCES waren_ausgang (id)
           );
@@ -185,7 +185,7 @@ export class Database {
             bestellungId INT,
             produktId INT,
             menge INT,
-            rabatt DECIMAL,
+            rabatt DECIMAL(5,2),
             mengeGepackt INT,
             productRucgabeId INT,
             FOREIGN KEY (bestellungId) REFERENCES bestellung (id),

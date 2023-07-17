@@ -1,13 +1,12 @@
 import { Kategorie } from "src/entity/kategorieEntity";
 import { LieferantDto } from "./liferant.dto";
-import { ProductBestellungDto } from "./productBestellung.dto";
 import { WareneingangProduct } from "src/entity/warenEingangProductEntity";
 import { Kundenbewertung } from "src/entity/kundenBewertungEntity";
 import { Aktion } from "src/entity/aktionEntity";
 import { Reservierung } from "src/entity/reservierungEntity";
 import { Stellplatze } from "src/entity/stellplatzeEntity";
 import { WarenausgangProduct } from "src/entity/warenAusgangProductEntity";
-import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsOptional, IsObject } from "class-validator";
+import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsOptional } from "class-validator";
 import { ProduktInBestellung } from "src/entity/productBestellungEntity";
 
 export class ProductDto{
