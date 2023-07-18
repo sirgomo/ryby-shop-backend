@@ -69,7 +69,10 @@ export class ProductService {
     
       async deleteProdukt(id: number): Promise<DeleteResult> {
         try {
-          return await this.produktRepository.delete(id);
+          return await this.produktRepository.delete(id).catch((err) => {
+            console.log(err);
+            return err;
+          });
         } catch (error) {
             throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
         }

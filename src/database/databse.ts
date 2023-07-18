@@ -208,7 +208,7 @@ export class Database {
           CREATE TABLE IF NOT EXISTS produkt_kategorie_kategorie (
             produktId INT,
             kategorieId INT,
-            FOREIGN KEY (produktId) REFERENCES produkt (id),
+            FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE, 
             FOREIGN KEY (kategorieId) REFERENCES kategorie (id)
           );
           
