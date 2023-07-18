@@ -2,7 +2,8 @@
 /dist
 /node_modules
 /src/env
-
+/thumbnails
+/uploads
 # Logs
 logs
 *.log
