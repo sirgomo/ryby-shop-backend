@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductDto } from 'src/dto/product.dto';
 import { Produkt } from 'src/entity/produktEntity';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -11,8 +11,57 @@ export class ProductService {
         private produktRepository: Repository<Produkt>,
       ) {}
     
-      async getAllProdukte(): Promise<Produkt[]> {
+      async getAllProdukte(search: string, katid: number, pagecount: number, pagenr: number): Promise<Produkt[]> {
+        if(!isFinite(pagenr) || pagenr < 1)
+        pagenr = 1;
+        const start = pagecount * pagenr - pagecount;
+        const end = pagecount * pagenr;
         try {
+          if(search != 'null' && katid != 0) {
+                  return await this.produktRepository.find({ where: {
+                    name: Like(`%${search}%`),
+                    kategorie: {
+                      id: katid
+                    }
+                  },
+                relations: {
+                  kategorie: true
+                },
+                take: end, 
+                skip: start,
+              }).catch(err => {
+                console.log(err)
+                return err;
+              })
+        } else if ( search != 'null' && katid == 0) {
+          console.log(search)
+                return await this.produktRepository.find({ where: {
+                  name: Like(`%${search}%`),
+                },
+              take: end, 
+              skip: start,
+            }).catch(err => {
+              console.log(err)
+              return err;
+            })
+        } else if (search == 'null' && katid  != 0) {
+          return await this.produktRepository.find({ where: {
+            kategorie: {
+              id: katid
+            }
+          },
+        relations: {
+          kategorie: true
+        },
+        take: end, 
+        skip: start,
+      }).catch(err => {
+        console.log(err)
+        return err;
+      })
+        }
+           
+
           return await this.produktRepository.find();
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);

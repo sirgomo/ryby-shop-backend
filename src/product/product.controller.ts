@@ -13,9 +13,9 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 export class ProductController {
     constructor(private readonly productService: ProductService, private readonly photoService: PhotoService) {}
 
-    @Get()
-    async getAllProducts(): Promise<Produkt[]> {
-      return await this.productService.getAllProdukte();
+    @Get(':search/:katid/:pagecount/:pagenr')
+    async getAllProducts(@Param('search') search: string, @Param('katid') katid: number, @Param('pagecount') pagecount: number, @Param('pagenr') pagenr: number): Promise<Produkt[]> {
+      return await this.productService.getAllProdukte(search, katid, pagecount, pagenr);
     }
   
     @Get(':id')
@@ -24,11 +24,13 @@ export class ProductController {
     }
   
     @Post()
+    @UseGuards(JwtAuthGuard)
     async createProduct(@Body() productDto: ProductDto): Promise<Produkt> {
       return await this.productService.createProdukt(productDto);
     }
   
     @Put(':id')
+    @UseGuards(JwtAuthGuard)
     async updateProduct(
       @Param('id') id: number,
       @Body() productDto: ProductDto,
@@ -37,10 +39,12 @@ export class ProductController {
     }
   
     @Delete(':id')
+    @UseGuards(JwtAuthGuard)
     async deleteProduct(@Param('id') id: number): Promise<DeleteResult> {
       return await this.productService.deleteProdukt(id);
     }
     @Post('upload')
+    @UseGuards(JwtAuthGuard)
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('photo'))
     async uploadPhoto(@UploadedFile( 
