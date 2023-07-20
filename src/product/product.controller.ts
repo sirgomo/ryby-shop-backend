@@ -45,11 +45,10 @@ export class ProductController {
     }
     @Post('upload')
     @UseGuards(JwtAuthGuard)
-    @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('photo'))
     async uploadPhoto(@UploadedFile( 
         new ParseFilePipeBuilder().addFileTypeValidator({
-          fileType: 'png',
+          fileType: 'jpeg|png',
         })
         .build({
             errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE

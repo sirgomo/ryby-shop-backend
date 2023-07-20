@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-
+//import * as request from 'supertest';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductDto } from 'src/dto/product.dto';
@@ -10,6 +10,8 @@ import { ProductController } from './product.controller';
 import { Lieferant } from 'src/entity/lifernatEntity';
 import { LieferantDto } from 'src/dto/liferant.dto';
 import { PhotoService } from 'src/service/photoService';
+import { AuthModule } from 'src/auth/auth.module';
+import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 
 describe('ProductController (e2e)', () => {
   let app: INestApplication;
@@ -17,6 +19,7 @@ describe('ProductController (e2e)', () => {
   let productRepository: Repository<Produkt>;
   const request = require('supertest');
   let photoService: PhotoService;
+  
   
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -29,7 +32,7 @@ describe('ProductController (e2e)', () => {
         },
         PhotoService
       ],
-    }).compile();
+    }).overrideGuard(JwtAuthGuard).useValue({ canActivate: () => true }).compile();
 
     app = moduleFixture.createNestApplication();
     productService = moduleFixture.get<ProductService>(ProductService);
@@ -58,14 +61,15 @@ describe('ProductController (e2e)', () => {
         kategorie: [],
         verfgbarkeit: false,
         mindestmenge: 0,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
         reservation: [],
-        bewertung: []
+        bewertung: [],
+        artid: 3243124,
+        color: ''
       }
       const prod : Produkt = {
         id: 2,
@@ -81,14 +85,15 @@ describe('ProductController (e2e)', () => {
         kategorie: [],
         verfgbarkeit: false,
         mindestmenge: 0,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
         reservation: [],
-        bewertung: []
+        bewertung: [],
+        artid: 2123,
+        color: ''
       }
       const mockProducts: Produkt[] = [
     prod, prod1
@@ -96,7 +101,8 @@ describe('ProductController (e2e)', () => {
 
       jest.spyOn(productRepository, 'find').mockResolvedValue(mockProducts);
 
-      const response = await request(app.getHttpServer()).get('/product').expect(200);
+      const response = await request(app.getHttpServer()).get('/product/null/1/20/1')
+      .expect(200);
 
       expect(response.body).toBeInstanceOf(Array);
     
@@ -119,14 +125,15 @@ describe('ProductController (e2e)', () => {
         kategorie: [],
         verfgbarkeit: false,
         mindestmenge: 0,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
         reservation: [],
-        bewertung: []
+        bewertung: [],
+        artid: 0,
+        color: ''
       };
       const productId = 1;
 
@@ -158,7 +165,6 @@ describe('ProductController (e2e)', () => {
         datumHinzugefuegt: '2022-01-01',
         verfgbarkeit: true,
         mindestmenge: 10,
-        aktion: false,
         verkaufteAnzahl: 0,
         mehrwehrsteuer: 0.23,
 
@@ -171,7 +177,9 @@ describe('ProductController (e2e)', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: 0
+        id: 0,
+        artid: 0,
+        color: ''
       };
 
       const newP: Produkt = new Produkt();
@@ -181,7 +189,7 @@ describe('ProductController (e2e)', () => {
       jest.spyOn(productRepository, 'create').mockReturnValue(newP);
       jest.spyOn(productRepository, 'save').mockResolvedValue(newP);
 
-      const response = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer()) 
         .post('/product')
         .send(productDto)
         .expect(201);
@@ -198,7 +206,6 @@ describe('ProductController (e2e)', () => {
         datumHinzugefuegt: '2022-01-01',
         verfgbarkeit: true,
         mindestmenge: 10,
-        aktion: false,
         verkaufteAnzahl: 0,
         mehrwehrsteuer: 0.23,
         id: 0,
@@ -211,7 +218,9 @@ describe('ProductController (e2e)', () => {
         warenausgang: [],
         promocje: [],
         reservation: [],
-        bewertung: []
+        bewertung: [],
+        artid: 0,
+        color: ''
       };
 
       await request(app.getHttpServer()).post('/product').send(productDto).expect(400);
@@ -235,14 +244,15 @@ describe('ProductController (e2e)', () => {
         kategorie: [],
         verfgbarkeit: false,
         mindestmenge: 0,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
         reservation: [],
-        bewertung: []
+        bewertung: [],
+        artid: 0,
+        color: ''
       };
       const updatedProduct: Produkt = new Produkt();
       Object.assign(updatedProduct, productDto);
@@ -277,14 +287,15 @@ describe('ProductController (e2e)', () => {
         kategorie: [],
         verfgbarkeit: false,
         mindestmenge: 0,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
         reservation: [],
-        bewertung: []
+        bewertung: [],
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(productRepository, 'findOne').mockResolvedValue(null);
@@ -302,7 +313,7 @@ describe('ProductController (e2e)', () => {
       await request(app.getHttpServer()).delete(`/product/${productId}`).expect(200);
     });
 
-    it('should return 404 if product not found', async () => {
+    it('should return affected 0 if product not found', async () => {
       const productId = 999;
 
       jest.spyOn(productRepository, 'delete').mockResolvedValue({ affected: 0, raw: undefined });
@@ -317,29 +328,27 @@ describe('ProductController (e2e)', () => {
         buffer: Buffer.from('test'),
         originalname: 'test.jpg',
       };
-     jest.spyOn(photoService, 'savePhoto').mockImplementation(() => {
-        return file.originalname;
-      })
+     jest.spyOn(photoService, 'savePhoto').mockReturnValue({ imageid: 'test.jpeg'})
 
       const response = await request(app.getHttpServer())
         .post('/product/upload')
         .attach('photo', file.buffer, file.originalname)
         .expect(201);
-      expect(response.text).toEqual( 'test.jpg' )
+        expect(response.text).toBe(JSON.stringify( { imageid: 'test.jpeg'}));
     });
     it('should upload a photo png', async () => {
       const file = {
         buffer: Buffer.from('test'),
         originalname: 'test.png',
       };
-      jest.spyOn(photoService, 'savePhoto').mockReturnValue('test.png')
+      jest.spyOn(photoService, 'savePhoto').mockReturnValue( { imageid: 'test.png'})
 
       const response = await request(app.getHttpServer())
         .post('/product/upload')
         .attach('photo', file.buffer, file.originalname)
         .expect(201);
 
-      expect(response.text).toBe('test.png');
+      expect(response.text).toBe(JSON.stringify( { imageid: 'test.png'}));
     });
 
     it('should return 415 if file type is not supported', async () => {

@@ -42,7 +42,6 @@ describe('ProductService', () => {
           kategorie: [],
           verfgbarkeit: true,
           mindestmenge: 5,
-          aktion: false,
           verkaufteAnzahl: 0,
           wareneingang: [],
           warenausgang: [],
@@ -50,6 +49,8 @@ describe('ProductService', () => {
           promocje: [],
           reservation: [],
           bewertung: [],
+          artid: 0,
+          color: ''
         },
         {
           id: 2,
@@ -65,7 +66,6 @@ describe('ProductService', () => {
           kategorie: [],
           verfgbarkeit: true,
           mindestmenge: 10,
-          aktion: false,
           verkaufteAnzahl: 0,
           wareneingang: [],
           warenausgang: [],
@@ -73,12 +73,14 @@ describe('ProductService', () => {
           promocje: [],
           reservation: [],
           bewertung: [],
+          artid: 0,
+          color: ''
         },
       ];
 
       jest.spyOn(produktRepository, 'find').mockResolvedValue(products);
 
-      const result = await productService.getAllProdukte();
+      const result = await productService.getAllProdukte('null', 0, 20, 1);
 
       expect(result).toEqual(products);
       expect(produktRepository.find).toHaveBeenCalled();
@@ -87,7 +89,7 @@ describe('ProductService', () => {
     it('should throw an exception if there is an error', async () => {
       jest.spyOn(produktRepository, 'find').mockRejectedValue(new Error('Test Error'));
 
-      await expect(productService.getAllProdukte()).rejects.toThrowError(HttpException);
+      await expect(productService.getAllProdukte('null', 0, 20, 1)).rejects.toThrowError(HttpException);
       expect(produktRepository.find).toHaveBeenCalled();
     });
   });
@@ -108,7 +110,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -116,6 +117,8 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(produktRepository, 'findOne').mockResolvedValue(product);
@@ -183,7 +186,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -191,7 +193,9 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: 0
+        id: 0,
+        artid: 0,
+        color: ''
       };
 
       const createdProduct: Produkt = {
@@ -208,7 +212,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -216,6 +219,8 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(produktRepository, 'create').mockReturnValue(createdProduct);
@@ -242,7 +247,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -250,7 +254,9 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: undefined
+        id: undefined,
+        artid: 0,
+        color: ''
       };
       const productEn: Produkt = {
         name: 'Product 1',
@@ -265,7 +271,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -273,7 +278,9 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: undefined
+        id: undefined,
+        artid: 0,
+        color: ''
       }
 
       jest.spyOn(produktRepository, 'create').mockReturnValue(productEn);
@@ -300,7 +307,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -308,7 +314,9 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: 1
+        id: 1,
+        artid: 0,
+        color: ''
       };
 
       const updatedProduct: Produkt = {
@@ -325,7 +333,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -333,6 +340,8 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
+        artid: 0,
+        color: ''
       };
       const mergedEntity: Produkt = {
         id: 1,
@@ -348,7 +357,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -356,6 +364,8 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(produktRepository, 'findOne').mockResolvedValue(updatedProduct);
@@ -391,7 +401,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -399,7 +408,9 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: 0
+        id: 0,
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(produktRepository, 'findOne').mockResolvedValue(null);
@@ -422,7 +433,6 @@ describe('ProductService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -430,7 +440,9 @@ describe('ProductService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
-        id: 0
+        id: 0,
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(produktRepository, 'findOne').mockRejectedValue(new Error('Test Error'));

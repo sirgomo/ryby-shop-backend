@@ -120,7 +120,7 @@ export class ProductService {
         try {
           return await this.produktRepository.delete(id).catch((err) => {
             console.log(err);
-            return err;
+            throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
           });
         } catch (error) {
             throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);

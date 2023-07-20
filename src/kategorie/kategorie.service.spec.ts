@@ -298,7 +298,6 @@ describe('KategorieService', () => {
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 1,
-        aktion: false,
         verkaufteAnzahl: 0,
         wareneingang: [],
         warenausgang: [],
@@ -306,6 +305,8 @@ describe('KategorieService', () => {
         promocje: [],
         reservation: [],
         bewertung: [],
+        artid: 0,
+        color: ''
       };
 
       jest.spyOn(kategorieRepository, 'findOne').mockResolvedValue(category);
@@ -405,7 +406,6 @@ describe('KategorieService', () => {
             kategorie: [],
             verfgbarkeit: true,
             mindestmenge: 1,
-            aktion: false,
             verkaufteAnzahl: 0,
             wareneingang: [],
             warenausgang: [],
@@ -413,6 +413,8 @@ describe('KategorieService', () => {
             promocje: [],
             reservation: [],
             bewertung: [],
+            artid: 0,
+            color: ''
           },
         ],
         parent_id: 0,
