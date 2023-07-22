@@ -59,6 +59,10 @@ export class ProductDto{
   
     @IsNumber()
     mindestmenge: number;
+    @IsNumber()
+    currentmenge: number;
+    @IsOptional()
+    product_sup_id: string;
   
     @IsNumber()
     verkaufteAnzahl: number;

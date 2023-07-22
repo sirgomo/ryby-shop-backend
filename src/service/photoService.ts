@@ -1,12 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { v4 as uuidv4 } from 'uuid';
 import * as path from "path";
-import * as fsExtra from 'fs-extra';
+
 import * as sharp from "sharp";
-import { createReadStream } from "fs";
+import { createReadStream, unlinkSync } from "fs";
+import { DeleteFileDto } from "src/dto/deleteFilde.dto";
 
 @Injectable()
 export class PhotoService {
+  fsExtra = require('fs-extra');
+
    savePhoto(file): { imageid: string} {
     try {
       const uniqueName = uuidv4();
@@ -14,15 +17,15 @@ export class PhotoService {
       const thumbnailPath = path.resolve(__dirname, '../../', 'thumbnails');
   
      // Create the 'uploads' directory if it doesn't exist
-     fsExtra.ensureDirSync(uploadPath);
-     fsExtra.ensureDirSync(thumbnailPath);
+     this.fsExtra.ensureDirSync(uploadPath);
+     this.fsExtra.ensureDirSync(thumbnailPath);
   
-      const existingFiles = fsExtra.readdirSync(uploadPath);
+      const existingFiles = this.fsExtra.readdirSync(uploadPath);
       const ext = file.originalname.split('.').pop().toLowerCase();
       const originalName = `${uniqueName}.${ext}`;
      
       const originalFilePath = path.join(uploadPath, originalName);
-      fsExtra.writeFileSync(originalFilePath, file.buffer);
+      this.fsExtra.writeFileSync(originalFilePath, file.buffer);
   
      
     
@@ -66,4 +69,19 @@ export class PhotoService {
         throw err;
       }
   }
+  deletePhoto(file: DeleteFileDto) {
+    const uploadPath = path.resolve(__dirname, '../../', 'uploads');
+    const thumbnailPath = path.resolve(__dirname, '../../', 'thumbnails');
+
+    const imgpath = path.join(uploadPath, file.fileid);
+    const thumpath = path.join(thumbnailPath, file.fileid);
+    try {
+       unlinkSync(imgpath);
+       unlinkSync(thumpath);
+    
+     return 1;
+    } catch (err) {
+      console.log(err);
+    }
+ }
 }

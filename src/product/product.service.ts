@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductDto } from 'src/dto/product.dto';
 import { Produkt } from 'src/entity/produktEntity';
 import { DeleteResult, Like, Repository } from 'typeorm';
@@ -67,6 +68,65 @@ export class ProductService {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
       }
+      async getAllProdukteForKunden(search: string, katid: number, pagecount: number, pagenr: number): Promise<Produkt[]> {
+        if(!isFinite(pagenr) || pagenr < 1)
+        pagenr = 1;
+        const start = pagecount * pagenr - pagecount;
+        const end = pagecount * pagenr;
+        try {
+          if(search != 'null' && katid != 0) {
+                  return await this.produktRepository.find({ where: {
+                    name: Like(`%${search}%`),
+                    kategorie: {
+                      id: katid
+                    },
+                    verfgbarkeit: true,
+                  },
+                relations: {
+                  kategorie: true
+                },
+                take: end, 
+                skip: start,
+              }).catch(err => {
+                console.log(err)
+                return err;
+              })
+        } else if ( search != 'null' && katid == 0) {
+          console.log(search)
+                return await this.produktRepository.find({ where: {
+                  name: Like(`%${search}%`),
+                  verfgbarkeit: true,
+                },
+              take: end, 
+              skip: start,
+            }).catch(err => {
+              console.log(err)
+              return err;
+            })
+        } else if (search == 'null' && katid  != 0) {
+          return await this.produktRepository.find({ where: {
+            kategorie: {
+              id: katid
+            },
+            verfgbarkeit: true,
+          },
+        relations: {
+          kategorie: true
+        },
+        take: end, 
+        skip: start,
+      }).catch(err => {
+        console.log(err)
+        return err;
+      })
+        }
+           
+
+          return await this.produktRepository.find( { where: { verfgbarkeit: true }});
+        } catch (error) {
+            throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
+        }
+      }
     
       async getProduktById(id: number): Promise<Produkt> {
         try {
@@ -124,6 +184,40 @@ export class ProductService {
           });
         } catch (error) {
             throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
+      async deleteImage(image: DeleteFileDto) {
+        try {
+          const item = await this.produktRepository.findOne({where: { id: image.produktid }});
+
+          if(!item)
+            return false;
+
+            const images: string[] = JSON.parse(item.foto);
+           const index = images.findIndex((tmp) => tmp === image.fileid)
+            images.splice(index, 1);
+            item.foto = JSON.stringify(images);
+          await this.produktRepository.save(item);
+          
+          return true;
+        } catch (err) {
+          return err;
+        }
+      }
+      async addImage(image: string, productid: number) {
+        try {
+          const item = await this.produktRepository.findOne({where: { id : productid }});
+          if(!item)
+            return false;
+
+          const currentImages: string[] = JSON.parse(item.foto);
+          currentImages.push(image);
+          item.foto = JSON.stringify(currentImages);
+          await this.produktRepository.save(item);
+
+          return true;
+        } catch (err) {
+          return err;
         }
       }
 }

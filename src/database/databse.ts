@@ -67,6 +67,8 @@ export class Database {
             datumHinzugefuegt DATE,
             verfgbarkeit BOOLEAN,
             mindestmenge INT,
+            currentmenge INT,
+            product_sup_id VARCHAR(255),
             verkaufteAnzahl INT,
             mehrwehrsteuer INT,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
