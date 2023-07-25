@@ -112,6 +112,8 @@ export class Database {
             rechnung VARCHAR(255),
             lieferscheinNr VARCHAR(255),
             datenEingabe DATE,
+            gebucht TINYINT,
+            eingelagert TINYINT,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
 

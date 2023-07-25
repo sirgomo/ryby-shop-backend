@@ -19,15 +19,21 @@ export class Wareneingang {
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.wareneingaenge)
   lieferant: Lieferant;
 
-  @Column()
+  @Column('date')
   empfangsdatum: Date;
 
-  @Column()
+  @Column('varchar')
   rechnung: string;
 
-  @Column()
+  @Column('varchar')
   lieferscheinNr: string;
 
-  @Column()
+  @Column('date')
   datenEingabe: Date;
+
+  @Column('tinyint')
+  gebucht: boolean;
+
+  @Column('tinyint')
+  eingelagert: boolean;
 }
