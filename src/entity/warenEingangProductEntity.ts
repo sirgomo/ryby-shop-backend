@@ -29,4 +29,7 @@ export class WareneingangProduct {
 
   @Column('int')
   mwst: number;
+  @Column('int')
+  mengeEingelagert: number
+
 }

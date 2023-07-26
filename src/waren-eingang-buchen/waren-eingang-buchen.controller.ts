@@ -10,14 +10,14 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 @UseGuards(JwtAuthGuard)
 export class WarenEingangBuchenController {
     constructor(private readonly warenEingangBuchenService: WarenEingangBuchenService) {}
+    @Get()
+    async getAll(): Promise<Wareneingang[]> {
+      return await this.warenEingangBuchenService.getAll();
+    }
 
     @Get(':id')
     async getWareneingang(@Param('id') id: number): Promise<Wareneingang> {
-      const wareneingang = await this.warenEingangBuchenService.findById(id);
-      if (!wareneingang) {
-        throw new NotFoundException('Wareneingang nicht gefunden');
-      }
-      return wareneingang;
+      return await this.warenEingangBuchenService.findById(id);   
     }
   
     @Post()

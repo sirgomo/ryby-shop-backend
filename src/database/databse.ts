@@ -123,6 +123,7 @@ export class Database {
             menge INT,
             preis DECIMAL(10,2),
             mwst INT,
+            mengeEingelagert INT,
             FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id)
           );
           CREATE TABLE IF NOT EXISTS kunde (

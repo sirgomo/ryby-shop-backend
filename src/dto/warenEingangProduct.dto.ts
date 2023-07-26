@@ -17,4 +17,6 @@ export class WarenEingangProductDto {
     preis: number;
     @IsNumber()
     mwst: number;
+    @IsNumber()
+    mengeEingelagert: number;
 }

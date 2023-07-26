@@ -15,7 +15,16 @@ export class WarenEingangBuchenService {
     @InjectRepository(WareneingangProduct)
     private readonly warenEingangProductRepository: Repository<WareneingangProduct>,
   ) {}
-
+  async getAll(): Promise<Wareneingang[]> {
+    try {
+      return await this.warenEingangRepository.createQueryBuilder('buchungen')
+      .leftJoinAndSelect('buchungen.lieferant', 'lieferant')
+      .getMany();
+    } catch (err) {
+      throw new Error(err.message);
+    }
+    
+  }
   async findById(id: number): Promise<Wareneingang> {
     try {
       const wareneingang = await this.warenEingangRepository.findOne({ where: { id: id }, relations: { products: true }});

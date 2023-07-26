@@ -61,6 +61,7 @@ export class ProductDto{
     mindestmenge: number;
     @IsNumber()
     currentmenge: number;
+    //A product symbol from a supplier
     @IsOptional()
     product_sup_id: string;
   
