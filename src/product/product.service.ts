@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductDto } from 'src/dto/product.dto';
 import { Produkt } from 'src/entity/produktEntity';
-import { DeleteResult, Like, Repository } from 'typeorm';
+import { DeleteResult, Like, NumericType, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -218,6 +218,24 @@ export class ProductService {
           return true;
         } catch (err) {
           return err;
+        }
+      }
+      async getProduktsForBuchung(lieferantId: number) {
+        try {
+          if(lieferantId === 0) {
+            return await this.produktRepository.find();
+          }
+          return await this.produktRepository.find({
+            where: {
+              lieferant: {
+                id: lieferantId,
+              }
+            },
+            relations: {
+              lieferant: true,
+          }})
+        } catch (err ) {
+          return new HttpException(err.message, HttpStatus.BAD_REQUEST);
         }
       }
 }

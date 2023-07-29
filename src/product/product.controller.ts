@@ -84,5 +84,10 @@ export class ProductController {
 
        return 0;
     }
+    @Get('lieferant/:id')
+    @UseGuards(JwtAuthGuard)
+    async getAllProduktsForBuchung(@Param('id') id: number) {
+      return await this.productService.getProduktsForBuchung(id);
+    }
 
 }

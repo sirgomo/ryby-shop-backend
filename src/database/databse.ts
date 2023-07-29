@@ -52,7 +52,7 @@ export class Database {
             ansprechpartner VARCHAR(255),
             zahlart VARCHAR(255),
             umsatzsteuerIdentifikationsnummer VARCHAR(255),
-            FOREIGN KEY (adresseId) REFERENCES address_kunde (id)
+            FOREIGN KEY (adresseId) REFERENCES address_kunde (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           CREATE TABLE IF NOT EXISTS produkt (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -124,7 +124,8 @@ export class Database {
             preis DECIMAL(10,2),
             mwst INT,
             mengeEingelagert INT,
-            FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id)
+            color VARCHAR(255),
+            FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           CREATE TABLE IF NOT EXISTS kunde (
             id INT AUTO_INCREMENT PRIMARY KEY,

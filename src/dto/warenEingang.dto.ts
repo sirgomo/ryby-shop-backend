@@ -12,8 +12,9 @@ export class WarenEingangDto {
     empfangsdatum: Date;
     @IsNotEmpty()
     rechnung: string;
-    @IsNotEmpty()
+
     lieferscheinNr: string;
+    //buchungs datum
     datenEingabe: Date;
     gebucht: boolean;
     eingelagert: boolean;

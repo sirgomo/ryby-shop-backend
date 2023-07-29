@@ -27,7 +27,9 @@ export class WarenEingangBuchenService {
   }
   async findById(id: number): Promise<Wareneingang> {
     try {
-      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: id }, relations: { products: true }});
+      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: id }, relations: { 
+       products: true,
+      lieferant: true }});
       if (!wareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
       }
@@ -40,7 +42,10 @@ export class WarenEingangBuchenService {
   async create(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const wareneingang = this.warenEingangRepository.create(wareneingangDto);
-      const createdWareneingang = await this.warenEingangRepository.save(wareneingang);
+      const createdWareneingang = await this.warenEingangRepository.save(wareneingang).catch((err) => {
+        console.log(err)
+        return err;
+      });
       return createdWareneingang;
     } catch (error) {
       throw new HttpException('Fehler beim Erstellen des Wareneingangs', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -49,7 +54,9 @@ export class WarenEingangBuchenService {
 
   async update(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
-      const foundWareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangDto.id }});
+      const foundWareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangDto.id }, relations: {
+        lieferant: true,
+      }});
       
       if (!foundWareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
@@ -100,7 +107,11 @@ export class WarenEingangBuchenService {
       }
       const product = this.warenEingangProductRepository.create(productDto);
       wareneingang.products.push(product);
-      const saved = await this.warenEingangRepository.save(wareneingang);
+     
+      const saved = await this.warenEingangRepository.save(wareneingang).catch(err => {
+        console.log(err);
+        return err;
+      });
       return saved.products[saved.products.length -1];
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -113,22 +124,28 @@ export class WarenEingangBuchenService {
 
   async updateProduct(wareneingangId: number, productId: number, productDto: WarenEingangProductDto): Promise<WareneingangProduct> {
     try {
+      
       const wareneingang = await this.warenEingangRepository.findOne({ where: { id : wareneingangId }});
+      
       if (!wareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
       }
       if (wareneingang.gebucht) {
         throw new HttpException('Produkt kann nicht in einem bereits gebuchten Wareneingang aktualisiert werden', HttpStatus.BAD_REQUEST);
       }
-      const product = await this.warenEingangProductRepository.findOne({where: { id: productId }});
+      const product = await this.warenEingangProductRepository.findOne({where: { id: productId }}).catch(err => {
+        console.log(err)
+      });
+      console.log(productId)
       if (!product) {
         throw new NotFoundException('Produkt nicht gefunden');
       }
       const merged = await this.warenEingangProductRepository.merge(product, productDto);
       return await this.warenEingangProductRepository.save(merged);
     } catch (error) {
+      
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('Wareneingang nicht gefunden');
+        throw new NotFoundException(error.message);
       } else {
         throw new HttpException('Fehler beim Aktualisieren des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
       }

@@ -14,7 +14,7 @@ export class WareneingangProduct {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Wareneingang, (wareneingang) => wareneingang.products)
+  @ManyToOne(() => Wareneingang, (wareneingang) => wareneingang.products )
   wareneingang: Wareneingang;
 
   @ManyToMany(() => Produkt)
@@ -30,6 +30,8 @@ export class WareneingangProduct {
   @Column('int')
   mwst: number;
   @Column('int')
-  mengeEingelagert: number
+  mengeEingelagert: number;
+  @Column('varchar')
+  color: string;
 
 }

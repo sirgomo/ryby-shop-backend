@@ -1,11 +1,10 @@
 import { Wareneingang } from "src/entity/warenEingangEntity";
 import { ProductDto } from "./product.dto";
 import { Optional } from "@nestjs/common";
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, isNotEmpty } from "class-validator";
 
 export class WarenEingangProductDto {
     @Optional()
-    @IsNumber()
     id: number;
     @IsNotEmpty()
     wareneingang: Wareneingang;
@@ -19,4 +18,6 @@ export class WarenEingangProductDto {
     mwst: number;
     @IsNumber()
     mengeEingelagert: number;
+    @IsNotEmpty()
+    color: string;
 }
