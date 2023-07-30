@@ -1,7 +1,9 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProductDto } from 'src/dto/product.dto';
 import { WarenEingangDto } from 'src/dto/warenEingang.dto';
 import { WarenEingangProductDto } from 'src/dto/warenEingangProduct.dto';
+import { Produkt } from 'src/entity/produktEntity';
 import { Wareneingang } from 'src/entity/warenEingangEntity';
 import { WareneingangProduct } from 'src/entity/warenEingangProductEntity';
 import { Repository } from 'typeorm';
@@ -27,9 +29,17 @@ export class WarenEingangBuchenService {
   }
   async findById(id: number): Promise<Wareneingang> {
     try {
-      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: id }, relations: { 
-       products: true,
-      lieferant: true }});
+      const wareneingang = await this.warenEingangRepository.findOne({ 
+        
+        where: { id: id }, 
+        relations: {
+          products: { produkt: true },
+          lieferant: true,
+        }
+    }).catch((err) => {
+      console.log(err)
+    });
+   
       if (!wareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
       }
@@ -98,16 +108,18 @@ export class WarenEingangBuchenService {
 
   async addProduct(wareneingangId: number, productDto: WarenEingangProductDto): Promise<WareneingangProduct> {
     try {
-      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { products: true }});
+      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { products: { produkt: true } }});
       if (!wareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
       }
       if (wareneingang.gebucht) {
         throw new HttpException('Produkt kann nicht zu einem bereits gebuchten Wareneingang hinzugefügt werden', HttpStatus.BAD_REQUEST);
       }
+      
       const product = this.warenEingangProductRepository.create(productDto);
+      product.produkt = productDto.produkt as unknown as Produkt[];
       wareneingang.products.push(product);
-     
+ 
       const saved = await this.warenEingangRepository.save(wareneingang).catch(err => {
         console.log(err);
         return err;
@@ -147,13 +159,14 @@ export class WarenEingangBuchenService {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
-        throw new HttpException('Fehler beim Aktualisieren des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
 
   async deleteProduct(wareneingangId: number, productId: number): Promise<number> {
     try {
+    
       const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { 
           products: true,
       }});
@@ -163,16 +176,18 @@ export class WarenEingangBuchenService {
       if (wareneingang.gebucht) {
         throw new HttpException('Produkt kann nicht aus einem bereits gebuchten Wareneingang gelöscht werden', HttpStatus.BAD_REQUEST);
       }
-      const product = wareneingang.products.find((product) => product.id === productId);
+     
+      const product = wareneingang.products.find((product) => product.id == productId);
       if (!product) {
         throw new NotFoundException('Produkt nicht gefunden');
       }
-     return (await this.warenEingangProductRepository.delete(productId)).affected;
+    
+     return await (await this.warenEingangProductRepository.delete(productId)).affected;
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('Wareneingang nicht gefunden');
+        throw new NotFoundException(error.message);
       } else {
-        throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }

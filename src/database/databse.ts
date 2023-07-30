@@ -255,7 +255,7 @@ export class Database {
             FOREIGN KEY (stellplatze_id) REFERENCES stellplatze (id)
           );
           
-          CREATE TABLE IF NOT EXISTS produkt_wareneingang_waren_eingang_product (
+          CREATE TABLE IF NOT EXISTS waren_eingang_product_produkt_produkt (
             warenEingangProductId INT,
             produktId INT,
             FOREIGN KEY (warenEingangProductId) REFERENCES waren_eingang_product (id),
