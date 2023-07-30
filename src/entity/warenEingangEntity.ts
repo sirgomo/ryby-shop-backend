@@ -13,7 +13,7 @@ export class Wareneingang {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => WareneingangProduct, (product) => product.wareneingang, { cascade: true })
+  @OneToMany(() => WareneingangProduct, (product) => product.wareneingang, { cascade: true, onDelete: 'CASCADE' })
   products: WareneingangProduct[];
 
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.wareneingaenge)

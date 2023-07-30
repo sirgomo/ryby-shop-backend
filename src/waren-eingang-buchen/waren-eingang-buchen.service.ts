@@ -178,6 +178,9 @@ export class WarenEingangBuchenService {
       }
      
       const product = wareneingang.products.find((product) => product.id == productId);
+      const index = wareneingang.products.findIndex((tmp) => tmp.id == productId);
+      wareneingang.products.splice(index, 1);
+      await this.warenEingangRepository.save(wareneingang);
       if (!product) {
         throw new NotFoundException('Produkt nicht gefunden');
       }
