@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductDto } from 'src/dto/product.dto';
+import { ColorDto } from 'src/dto/color.dto';
+
 import { WarenEingangDto } from 'src/dto/warenEingang.dto';
 import { WarenEingangProductDto } from 'src/dto/warenEingangProduct.dto';
 import { Produkt } from 'src/entity/produktEntity';
@@ -16,6 +17,8 @@ export class WarenEingangBuchenService {
     private readonly warenEingangRepository: Repository<Wareneingang>,
     @InjectRepository(WareneingangProduct)
     private readonly warenEingangProductRepository: Repository<WareneingangProduct>,
+    @InjectRepository(Produkt)
+    private readonly prodRepo: Repository<Produkt>
   ) {}
   async getAll(): Promise<Wareneingang[]> {
     try {
@@ -65,6 +68,7 @@ export class WarenEingangBuchenService {
   async update(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const foundWareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangDto.id }, relations: {
+        products: { produkt: true },
         lieferant: true,
       }});
       
@@ -76,13 +80,52 @@ export class WarenEingangBuchenService {
       }
   
       const merged = await this.warenEingangRepository.merge(foundWareneingang, wareneingangDto);
+      if(wareneingangDto.gebucht)
+      {
+       const items = foundWareneingang.products;
+       const itemsSave: Produkt[] = [];
+       console.log(items)
+        for (let i = 0; i < items.length; i++) {
+          const wcolor: ColorDto[] = JSON.parse(items[i].color);
+          const pcolor: ColorDto[] = JSON.parse(items[i].produkt[0].color);
+     
+          let currentMenge = items[i].produkt[0].currentmenge;
+
+          if(wcolor.length === 1 && pcolor.length === 0) {
+            currentMenge += wcolor[0].menge;
+            pcolor.push(wcolor[0]);
+          } else {
+            
+            for (let y = 0; y < wcolor.length; y++) {
+                  currentMenge += wcolor[y].menge;
+                  pcolor[y].menge += wcolor[y].menge; 
+              }
+          }
+       
+          items[i].produkt[0].currentmenge = currentMenge;
+          items[i].produkt[0].verfgbarkeit = true;
+          items[i].produkt[0].color = JSON.stringify(pcolor);
+       
+          itemsSave.push(items[i].produkt[0]);
+        }
+    
+          return await this.prodRepo.manager.transaction( async (transactionEntityManager) => {
+            await transactionEntityManager.save(itemsSave);
+            const updatedItem =  await transactionEntityManager.save(merged);
+            return updatedItem;
+          })
+      
+      
+      }
+
       const updatedWareneingang = await this.warenEingangRepository.save(merged);
       return updatedWareneingang;
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('Wareneingang nicht gefunden');
+        throw new NotFoundException(error.message);
       } else {
-        throw new HttpException('Fehler beim Aktualisieren des Wareneingangs', HttpStatus.INTERNAL_SERVER_ERROR);
+
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
@@ -96,12 +139,12 @@ export class WarenEingangBuchenService {
       if (foundWareneingang.gebucht) {
         throw new HttpException('Bereits gebuchter Wareneingang kann nicht gelöscht werden', HttpStatus.BAD_REQUEST);
       }
-     return (await this.warenEingangRepository.delete(id)).affected;
+     return await (await this.warenEingangRepository.delete(id)).affected;
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('Wareneingang nicht gefunden');
+        throw new NotFoundException(error.message);
       } else {
-        throw new HttpException('Fehler beim Löschen des Wareneingangs', HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
@@ -127,9 +170,9 @@ export class WarenEingangBuchenService {
       return saved.products[saved.products.length -1];
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('Wareneingang nicht gefunden');
+        throw new NotFoundException(error.message);
       } else {
-        throw new HttpException('Fehler beim Hinzufügen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
   }
