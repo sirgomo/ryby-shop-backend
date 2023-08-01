@@ -191,7 +191,7 @@ export class WarenEingangBuchenService {
       const product = await this.warenEingangProductRepository.findOne({where: { id: productId }}).catch(err => {
         console.log(err)
       });
-      console.log(productId)
+      
       if (!product) {
         throw new NotFoundException('Produkt nicht gefunden');
       }

@@ -69,6 +69,8 @@ export class Database {
             mindestmenge INT,
             currentmenge INT,
             product_sup_id VARCHAR(255),
+            lange INT,
+            gewicht INT, 
             verkaufteAnzahl INT,
             mehrwehrsteuer INT,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)

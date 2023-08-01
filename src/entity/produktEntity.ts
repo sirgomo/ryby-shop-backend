@@ -72,6 +72,11 @@ export class Produkt {
   @Column('varchar')
   product_sup_id: string;
 
+  @Column('int')
+  lange: number;
+  @Column('int')
+  gewicht: number;
+
 
   @Column('int')
   verkaufteAnzahl: number;
