@@ -78,7 +78,7 @@ export class ProductService {
                   return await this.produktRepository.find({ where: {
                     name: Like(`%${search}%`),
                     kategorie: {
-                      id: katid
+                      id: katid,
                     },
                     verfgbarkeit: true,
                   },

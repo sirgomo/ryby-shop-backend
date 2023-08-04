@@ -76,6 +76,11 @@ export class ProductController {
       const imageStream = await this.photoService.getPhoto(id, false);
       imageStream.pipe(res as any);
     }
+    @Get('thumbnails/:id')
+    async getThumbnails(@Param('id') id, @Res() res: Response) {
+      const imageStream = await this.photoService.getPhoto(id, true);
+      imageStream.pipe(res as any);
+    }
     @Post('file-delete')
     @UseGuards(JwtAuthGuard)
     async deleteFile(@Body() delFile: DeleteFileDto) {

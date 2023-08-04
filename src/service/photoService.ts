@@ -25,13 +25,28 @@ export class PhotoService {
       const originalName = `${uniqueName}.${ext}`;
      
       const originalFilePath = path.join(uploadPath, originalName);
-      this.fsExtra.writeFileSync(originalFilePath, file.buffer);
-  
+     // this.fsExtra.writeFileSync(originalFilePath, file.buffer);
+     sharp(file.buffer)
+     .resize({
+      fit: sharp.fit.contain,
+      height: 2024,
+      width: 2024
+     })
+     .toFile(originalFilePath, (error) => {
+       if (error) {
+           throw new HttpException('Fehler beim Erstellen des Bildes.', HttpStatus.BAD_REQUEST);
+       }
+     });
+
      
     
       const thumbnailFilePath = path.join(thumbnailPath, originalName);
       sharp(file.buffer)
-        .resize(250, 250)
+      .resize({
+        fit: sharp.fit.contain,
+        height: 300,
+        width: 300
+       })
         .toFile(thumbnailFilePath, (error) => {
           if (error) {
               throw new HttpException('Fehler beim Erstellen des Thumbnails.', HttpStatus.BAD_REQUEST);
