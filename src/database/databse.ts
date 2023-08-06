@@ -264,6 +264,13 @@ export class Database {
             FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
+          CREATE TABLE IF NOT EXISTS produkt_wareneingang_waren_eingang_product (
+            wareneingangId INT,
+            productId INT,
+            FOREIGN KEY (wareneingangId) REFERENCES waren_eingang_product (id),
+            FOREIGN KEY (productId) REFERENCES produkt (id)
+          );
+
           CREATE TABLE IF NOT EXISTS waren_eingang_product_wareneingang (
             waren_eingang_productId INT,
             wareneingangId INT,
