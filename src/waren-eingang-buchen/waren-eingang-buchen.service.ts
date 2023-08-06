@@ -84,20 +84,27 @@ export class WarenEingangBuchenService {
       {
        const items = foundWareneingang.products;
        const itemsSave: Produkt[] = [];
-       console.log(items)
+     
         for (let i = 0; i < items.length; i++) {
+         
           const wcolor: ColorDto[] = JSON.parse(items[i].color);
           const pcolor: ColorDto[] = JSON.parse(items[i].produkt[0].color);
+         
+
+      
      
           let currentMenge = items[i].produkt[0].currentmenge;
+          let totalMenge = 0;
 
           if(wcolor.length === 1 && pcolor.length === 0) {
             currentMenge += wcolor[0].menge;
+            totalMenge += wcolor[0].menge;
             pcolor.push(wcolor[0]);
           } else {
             
             for (let y = 0; y < wcolor.length; y++) {
                   currentMenge += wcolor[y].menge;
+                  totalMenge += wcolor[y].menge;
                   pcolor[y].menge += wcolor[y].menge; 
               }
           }
@@ -105,7 +112,15 @@ export class WarenEingangBuchenService {
           items[i].produkt[0].currentmenge = currentMenge;
           items[i].produkt[0].verfgbarkeit = true;
           items[i].produkt[0].color = JSON.stringify(pcolor);
-       
+
+          let isItemAllready = false;
+          for (let x = 0; x < itemsSave.length; x++) {
+            if(items[i].produkt[0].id === itemsSave[x].id) {
+              isItemAllready = true;
+              itemsSave[x].currentmenge += totalMenge;
+            }
+          }
+          if(!isItemAllready)
           itemsSave.push(items[i].produkt[0]);
         }
     
