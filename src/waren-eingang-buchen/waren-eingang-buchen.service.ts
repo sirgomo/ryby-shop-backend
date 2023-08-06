@@ -54,12 +54,15 @@ export class WarenEingangBuchenService {
 
   async create(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
-      const wareneingang = this.warenEingangRepository.create(wareneingangDto);
+      const wareneingang = await this.warenEingangRepository.create(wareneingangDto);
       const createdWareneingang = await this.warenEingangRepository.save(wareneingang).catch((err) => {
         console.log(err)
         return err;
       });
-      return createdWareneingang;
+      return await this.warenEingangRepository.findOne({ where: { id: createdWareneingang.id }, relations: {
+        products: { produkt: true },
+        lieferant: true,
+      }});
     } catch (error) {
       throw new HttpException('Fehler beim Erstellen des Wareneingangs', HttpStatus.INTERNAL_SERVER_ERROR);
     }
