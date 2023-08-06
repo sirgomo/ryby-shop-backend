@@ -129,6 +129,7 @@ export class ProductService {
       }
     
       async getProduktById(id: number): Promise<Produkt> {
+  
         try {
           return await this.produktRepository.findOne({where: { id: id }, relations: {
             bestellungen: true,
@@ -150,9 +151,7 @@ export class ProductService {
     
       async createProdukt(productDto: ProductDto): Promise<Produkt> {
         try {
-          console.log(productDto)
           const produkt = await this.produktRepository.create(productDto);
-          console.log(produkt)
           return await this.produktRepository.save(produkt).catch((err) => {
             console.log(err)
             throw err;
