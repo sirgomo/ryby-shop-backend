@@ -59,7 +59,7 @@ export class Database {
             name VARCHAR(255),
             preis DECIMAL(10,2),
             artid INT NOT NULL UNIQUE,
-            beschreibung VARCHAR(255),
+            beschreibung MEDIUMTEXT,
             color VARCHAR(255),
             foto VARCHAR(255),
             thumbnail VARCHAR(255),

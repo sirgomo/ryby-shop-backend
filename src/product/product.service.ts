@@ -163,13 +163,17 @@ export class ProductService {
       }
     
       async updateProdukt(id: number, productDto: ProductDto): Promise<Produkt> {
+        console.log(productDto)
         try {
           const produkt = await this.produktRepository.findOne({where: { id: id }});
           if (!produkt) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
           }
-        await this.produktRepository.merge(produkt, productDto);
-          return await this.produktRepository.save(produkt);
+          await this.produktRepository.merge(produkt, productDto);
+          return await this.produktRepository.save(produkt).catch((err) => {
+            console.log(err)
+            return err;
+          });
         } catch (error) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
         }
