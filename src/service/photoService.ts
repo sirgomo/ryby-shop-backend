@@ -29,8 +29,8 @@ export class PhotoService {
      sharp(file.buffer)
      .resize({
       fit: sharp.fit.contain,
-      height: 2024,
-      width: 2024
+      height: 1024,
+      width: 1024
      })
      .toFile(originalFilePath, (error) => {
        if (error) {

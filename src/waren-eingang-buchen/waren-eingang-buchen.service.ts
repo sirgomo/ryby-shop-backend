@@ -83,6 +83,7 @@ export class WarenEingangBuchenService {
       }
   
       const merged = await this.warenEingangRepository.merge(foundWareneingang, wareneingangDto);
+      let updatedWareneingang; 
       if(wareneingangDto.gebucht)
       {
        const items = foundWareneingang.products;
@@ -130,13 +131,14 @@ export class WarenEingangBuchenService {
           return await this.prodRepo.manager.transaction( async (transactionEntityManager) => {
             await transactionEntityManager.save(itemsSave);
             const updatedItem =  await transactionEntityManager.save(merged);
+            updatedWareneingang =  await this.warenEingangRepository.save(merged);
             return updatedItem;
           })
       
       
       }
 
-      const updatedWareneingang = await this.warenEingangRepository.save(merged);
+    
       return updatedWareneingang;
     } catch (error) {
       if (error instanceof NotFoundException) {
