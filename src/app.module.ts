@@ -27,6 +27,8 @@ import { KategorieModule } from './kategorie/kategorie.module';
 import { LiferantModule } from './liferant/liferant.module';
 import { ProductModule } from './product/product.module';
 import { WarenEingangBuchenModule } from './waren-eingang-buchen/waren-eingang-buchen.module';
+import { CompanyDataEntity } from './entity/companyDataEntity';
+import { CompanyModule } from './company/company.module';
 
 
 
@@ -58,6 +60,7 @@ import { WarenEingangBuchenModule } from './waren-eingang-buchen/waren-eingang-b
         WareneingangProduct,
         Reservierung,
         Stellplatze,
+        CompanyDataEntity
       ],
       synchronize: false,
     }),
@@ -67,6 +70,7 @@ import { WarenEingangBuchenModule } from './waren-eingang-buchen/waren-eingang-b
     LiferantModule,
     ProductModule,
     WarenEingangBuchenModule,
+    CompanyModule,
     
   ],
   controllers: [AppController],

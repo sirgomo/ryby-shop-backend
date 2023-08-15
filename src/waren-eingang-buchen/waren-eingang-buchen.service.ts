@@ -33,7 +33,6 @@ export class WarenEingangBuchenService {
   async findById(id: number): Promise<Wareneingang> {
     try {
       const wareneingang = await this.warenEingangRepository.findOne({ 
-        
         where: { id: id }, 
         relations: {
           products: { produkt: true },
@@ -86,55 +85,7 @@ export class WarenEingangBuchenService {
       let updatedWareneingang; 
       if(wareneingangDto.gebucht)
       {
-       const items = foundWareneingang.products;
-       const itemsSave: Produkt[] = [];
-     
-        for (let i = 0; i < items.length; i++) {
-         
-          const wcolor: ColorDto[] = JSON.parse(items[i].color);
-          const pcolor: ColorDto[] = JSON.parse(items[i].produkt[0].color);
-         
-
-      
-     
-          let currentMenge = items[i].produkt[0].currentmenge;
-          let totalMenge = 0;
-
-          if(wcolor.length === 1 && pcolor.length === 0) {
-            currentMenge += wcolor[0].menge;
-            totalMenge += wcolor[0].menge;
-            pcolor.push(wcolor[0]);
-          } else {
-            
-            for (let y = 0; y < wcolor.length; y++) {
-                  currentMenge += wcolor[y].menge;
-                  totalMenge += wcolor[y].menge;
-                  pcolor[y].menge += wcolor[y].menge; 
-              }
-          }
-       
-          items[i].produkt[0].currentmenge = currentMenge;
-          items[i].produkt[0].verfgbarkeit = true;
-          items[i].produkt[0].color = JSON.stringify(pcolor);
-
-          let isItemAllready = false;
-          for (let x = 0; x < itemsSave.length; x++) {
-            if(items[i].produkt[0].id === itemsSave[x].id) {
-              isItemAllready = true;
-              itemsSave[x].currentmenge += totalMenge;
-            }
-          }
-          if(!isItemAllready)
-          itemsSave.push(items[i].produkt[0]);
-        }
-    
-          return await this.prodRepo.manager.transaction( async (transactionEntityManager) => {
-            await transactionEntityManager.save(itemsSave);
-            const updatedItem =  await transactionEntityManager.save(merged);
-            return updatedItem;
-          })
-      
-      
+       return this.bookWareneingang(foundWareneingang, merged);
       }
 
       updatedWareneingang =  await this.warenEingangRepository.save(merged);
@@ -147,6 +98,56 @@ export class WarenEingangBuchenService {
         throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  private async bookWareneingang(foundWareneingang: Wareneingang, merged: Wareneingang) {
+    const items = foundWareneingang.products;
+    const itemsSave: Produkt[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+
+      const wcolor: ColorDto[] = JSON.parse(items[i].color);
+      const pcolor: ColorDto[] = JSON.parse(items[i].produkt[0].color);
+
+
+
+
+      let currentMenge = items[i].produkt[0].currentmenge;
+      let totalMenge = 0;
+
+      if (wcolor.length === 1 && pcolor.length === 0) {
+        currentMenge += wcolor[0].menge;
+        totalMenge += wcolor[0].menge;
+        pcolor.push(wcolor[0]);
+      } else {
+
+        for (let y = 0; y < wcolor.length; y++) {
+          currentMenge += wcolor[y].menge;
+          totalMenge += wcolor[y].menge;
+          pcolor[y].menge += wcolor[y].menge;
+        }
+      }
+
+      items[i].produkt[0].currentmenge = currentMenge;
+      items[i].produkt[0].verfgbarkeit = true;
+      items[i].produkt[0].color = JSON.stringify(pcolor);
+
+      let isItemAllready = false;
+      for (let x = 0; x < itemsSave.length; x++) {
+        if (items[i].produkt[0].id === itemsSave[x].id) {
+          isItemAllready = true;
+          itemsSave[x].currentmenge += totalMenge;
+        }
+      }
+      if (!isItemAllready)
+        itemsSave.push(items[i].produkt[0]);
+    }
+
+    return await this.prodRepo.manager.transaction(async (transactionEntityManager) => {
+      await transactionEntityManager.save(itemsSave);
+      const updatedItem = await transactionEntityManager.save(merged);
+      return updatedItem;
+    });
   }
 
   async delete(id: number): Promise<number> {

@@ -24,7 +24,18 @@ export class Database {
         .query(
           `CREATE DATABASE IF NOT EXISTS ${env.db};
           USE ${env.db};
-         
+
+          CREATE TABLE IF NOT EXISTS company (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(255) NOT NULL,
+            company_name VARCHAR(255) NOT NULL,
+            address VARCHAR(255) NOT NULL,
+            city VARCHAR(255) NOT NULL,
+            country VARCHAR(255) NOT NULL,
+            phone VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            isKleinUnternehmen TINYINT NOT NULL
+        );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,
             strasse VARCHAR(255),
