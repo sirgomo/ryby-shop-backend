@@ -29,7 +29,7 @@ export class Kunde {
   @JoinColumn()
   adresse: AdresseKunde;
 
-  @OneToOne(() => Lieferadresse, { cascade: true })
+  @OneToOne(() => Lieferadresse, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   lieferadresse: Lieferadresse;
 

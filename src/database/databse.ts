@@ -169,6 +169,8 @@ export class Database {
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL(10,2),
             zahlungsstatus VARCHAR(255),
+            shipping_addresseId INT,
+            FOREIGN KEY (shipping_addresseId) REFERENCES liefer_addresse (id),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
           CREATE TABLE IF NOT EXISTS waren_ausgang (
