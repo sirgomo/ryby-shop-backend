@@ -81,6 +81,7 @@ import { NewPassword } from 'src/dto/newPassword.dto';
        // Create and associate the delivery address with the user, if provided
        if (reguser.l_hausnummer !== 'null') {
          const laddres = new Lieferadresse();
+         laddres.shipping_name = reguser.shipping_name;
          laddres.hausnummer = reguser.l_hausnummer;
          laddres.land = reguser.l_land;
          laddres.postleitzahl = reguser.l_postleitzahl;

@@ -30,6 +30,10 @@ export class RegisterUserDto {
 
   @IsNotEmpty()
   treuepunkte: number;
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  shipping_name: string;
 
   @IsNotEmpty()
   @IsString()

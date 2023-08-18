@@ -38,6 +38,7 @@ export class Database {
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            shipping_name VARCHAR(255),
             strasse VARCHAR(255),
             hausnummer VARCHAR(255),
             stadt VARCHAR(255),

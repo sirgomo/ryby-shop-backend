@@ -6,6 +6,8 @@ export class Lieferadresse {
   id: number;
 
   @Column()
+  shipping_name: string;
+  @Column()
   strasse: string;
 
   @Column()
