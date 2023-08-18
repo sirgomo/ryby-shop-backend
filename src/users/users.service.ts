@@ -100,7 +100,6 @@ export class UsersService {
           );
         });
       if (user) user.password = '';
-
       return user;
     } catch (err) {
       return err;
