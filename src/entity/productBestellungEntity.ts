@@ -25,6 +25,9 @@ export class ProduktInBestellung {
   @Column('int')
   menge: number;
 
+  @Column()
+  color: string;
+
   @Column('decimal')
   rabatt: number;
 
