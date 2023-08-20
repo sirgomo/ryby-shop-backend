@@ -264,11 +264,11 @@ export class Database {
             FOREIGN KEY (produkt_ruckgabe_id) REFERENCES product_ruckgabe (id)
           );
           
-          CREATE TABLE IF NOT EXISTS produkt_lagerorte (
-            produkt_id INT,
-            stellplatze_id INT,
-            FOREIGN KEY (produkt_id) REFERENCES produkt (id),
-            FOREIGN KEY (stellplatze_id) REFERENCES stellplatze (id)
+          CREATE TABLE IF NOT EXISTS produkt_lagerorte_stellplatze (
+            produktId INT,
+            stellplatzeId INT,
+            FOREIGN KEY (produktId) REFERENCES produkt (id),
+            FOREIGN KEY (stellplatzeId) REFERENCES stellplatze (id)
           );
           
           CREATE TABLE IF NOT EXISTS waren_eingang_product_produkt_produkt (
