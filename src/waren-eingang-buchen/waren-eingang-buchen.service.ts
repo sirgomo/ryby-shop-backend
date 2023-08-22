@@ -31,7 +31,7 @@ export class WarenEingangBuchenService {
       .leftJoinAndSelect('buchungen.lieferant', 'lieferant')
       .getMany();
     } catch (err) {
-      throw new Error(err.message);
+      throw new HttpException('Fehler beim Abrufen der Daten', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
   }
@@ -309,7 +309,7 @@ export class WarenEingangBuchenService {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw error;
       }
     }
   }

@@ -10,7 +10,6 @@ import { ProductController } from './product.controller';
 import { Lieferant } from 'src/entity/lifernatEntity';
 import { LieferantDto } from 'src/dto/liferant.dto';
 import { PhotoService } from 'src/service/photoService';
-import { AuthModule } from 'src/auth/auth.module';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 
 describe('ProductController (e2e)', () => {
@@ -69,7 +68,11 @@ describe('ProductController (e2e)', () => {
         reservation: [],
         bewertung: [],
         artid: 3243124,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       }
       const prod : Produkt = {
         id: 2,
@@ -93,7 +96,11 @@ describe('ProductController (e2e)', () => {
         reservation: [],
         bewertung: [],
         artid: 2123,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       }
       const mockProducts: Produkt[] = [
     prod, prod1
@@ -133,7 +140,11 @@ describe('ProductController (e2e)', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       };
       const productId = 1;
 
@@ -179,7 +190,9 @@ describe('ProductController (e2e)', () => {
         bewertung: [],
         id: 0,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       const newP: Produkt = new Produkt();
@@ -220,7 +233,9 @@ describe('ProductController (e2e)', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       await request(app.getHttpServer()).post('/product').send(productDto).expect(400);
@@ -252,7 +267,9 @@ describe('ProductController (e2e)', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
       const updatedProduct: Produkt = new Produkt();
       Object.assign(updatedProduct, productDto);
@@ -295,7 +312,9 @@ describe('ProductController (e2e)', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       jest.spyOn(productRepository, 'findOne').mockResolvedValue(null);
