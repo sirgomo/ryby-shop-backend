@@ -20,6 +20,11 @@ export class WarenEingangBuchenService {
     @InjectRepository(Produkt)
     private readonly prodRepo: Repository<Produkt>
   ) {}
+   /**
+ * Returns all wareneingang entries
+ * @returns {Promise<Wareneingang[]>} A promise that resolves to an array of wareneingang entries
+ * @throws {Error} If there is an error fetching the data
+ */
   async getAll(): Promise<Wareneingang[]> {
     try {
       return await this.warenEingangRepository.createQueryBuilder('buchungen')
@@ -30,6 +35,12 @@ export class WarenEingangBuchenService {
     }
     
   }
+  /**
+ * Finds a wareneingang entry by its id
+ * @param {number} id - The id of the wareneingang entry
+ * @returns {Promise<Wareneingang>} A promise that resolves to a wareneingang entry
+ * @throws {NotFoundException} If the wareneingang entry is not found
+ */
   async findById(id: number): Promise<Wareneingang> {
     try {
       const wareneingang = await this.warenEingangRepository.findOne({ 
@@ -50,7 +61,12 @@ export class WarenEingangBuchenService {
       throw new NotFoundException('Wareneingang nicht gefunden');
     }
   }
-
+/**
+ * Creates a new wareneingang entry
+ * @param {WarenEingangDto} wareneingangDto - The data for the new wareneingang entry
+ * @returns {Promise<Wareneingang>} A promise that resolves to the newly created wareneingang entry
+ * @throws {HttpException} If there is an error creating the wareneingang entry
+ */
   async create(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const wareneingang = await this.warenEingangRepository.create(wareneingangDto);
@@ -67,6 +83,13 @@ export class WarenEingangBuchenService {
     }
   }
 
+/**
+ * Updates a wareneingang entry
+ * @param {WarenEingangDto} wareneingangDto - The updated data for the wareneingang entry
+ * @returns {Promise<Wareneingang>} A promise that resolves to the updated wareneingang entry
+ * @throws {NotFoundException} If the wareneingang entry is not found
+ * @throws {HttpException} If there is an error updating the wareneingang entry
+ */
   async update(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const foundWareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangDto.id }, relations: {
@@ -99,7 +122,12 @@ export class WarenEingangBuchenService {
       }
     }
   }
-
+ /**
+ * Books a wareneingang entry by updating the associated products and saving the changes using a transaction
+ * @param {Wareneingang} foundWareneingang - The found wareneingang entry
+ * @param {Wareneingang} merged - The merged wareneingang entry with updated data
+ * @returns {Promise<Wareneingang>} A promise that resolves to the updated wareneingang entry
+ */
   private async bookWareneingang(foundWareneingang: Wareneingang, merged: Wareneingang) {
     const items = foundWareneingang.products;
     const itemsSave: Produkt[] = [];
@@ -149,7 +177,13 @@ export class WarenEingangBuchenService {
       return updatedItem;
     });
   }
-
+/**
+ * Deletes a wareneingang entry
+ * @param {number} id - The id of the wareneingang entry to delete
+ * @returns {Promise<number>} A promise that resolves to the number of affected rows (0 or 1)
+ * @throws {NotFoundException} If the wareneingang entry is not found
+ * @throws {HttpException} If there is an error deleting the wareneingang entry
+ */
   async delete(id: number): Promise<number> {
     try {
       const foundWareneingang = await this.warenEingangRepository.findOne( { where: { id : id } });
@@ -168,7 +202,14 @@ export class WarenEingangBuchenService {
       }
     }
   }
-
+/**
+ * Adds a product to a wareneingang entry
+ * @param {number} wareneingangId - The id of the wareneingang entry
+ * @param {WarenEingangProductDto} productDto - The data for the product to add
+ * @returns {Promise<WareneingangProduct>} A promise that resolves to the newly added product
+ * @throws {NotFoundException} If the wareneingang entry is not found
+ * @throws {HttpException} If there is an error adding the product
+ */
   async addProduct(wareneingangId: number, productDto: WarenEingangProductDto): Promise<WareneingangProduct> {
     try {
       const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { products: { produkt: true } }});
@@ -196,7 +237,15 @@ export class WarenEingangBuchenService {
       }
     }
   }
-
+/**
+ * Updates a product in a wareneingang entry
+ * @param {number} wareneingangId - The id of the wareneingang entry
+ * @param {number} productId - The id of the product to update
+ * @param {WarenEingangProductDto} productDto - The updated data for the product
+ * @returns {Promise<WareneingangProduct>} A promise that resolves to the updated product
+ * @throws {NotFoundException} If the wareneingang entry or product is not found
+ * @throws {HttpException} If there is an error updating the product
+ */
   async updateProduct(wareneingangId: number, productId: number, productDto: WarenEingangProductDto): Promise<WareneingangProduct> {
     try {
       
@@ -226,7 +275,14 @@ export class WarenEingangBuchenService {
       }
     }
   }
-
+/**
+ * Deletes a product from a wareneingang entry
+ * @param {number} wareneingangId - The id of the wareneingang entry
+ * @param {number} productId - The id of the product to delete
+ * @returns {Promise<number>} A promise that resolves to the number of affected rows (0 or 1)
+ * @throws {NotFoundException} If the wareneingang entry or product is not found
+ * @throws {HttpException} If there is an error deleting the product
+ */
   async deleteProduct(wareneingangId: number, productId: number): Promise<number> {
     try {
     
