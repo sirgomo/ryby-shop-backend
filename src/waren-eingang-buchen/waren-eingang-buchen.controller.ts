@@ -31,7 +31,7 @@ export class WarenEingangBuchenController {
     }
   
     @Delete(':id')
-    async deleteWareneingang(@Param('id') id: number): Promise<number> {
+    async deleteWareneingang(@Param('id') id: number): Promise<any> {
       return await this.warenEingangBuchenService.delete(id);
     }
   
@@ -56,7 +56,7 @@ export class WarenEingangBuchenController {
     async deleteProduct(
       @Param('wareneingangId') wareneingangId: number,
       @Param('productId') productId: number,
-    ): Promise<number> {
+    ): Promise<any> {
       return await this.warenEingangBuchenService.deleteProduct(wareneingangId, productId);
     }
 }

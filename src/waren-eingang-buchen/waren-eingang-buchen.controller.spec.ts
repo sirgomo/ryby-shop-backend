@@ -12,6 +12,7 @@ import { WareneingangProduct } from '../entity/warenEingangProductEntity';
 import { Lieferant } from 'src/entity/lifernatEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
+import { NOTFOUND } from 'dns';
 
 describe('WarenEingangBuchenController (e2e)', () => {
   let app: INestApplication;
@@ -63,10 +64,10 @@ describe('WarenEingangBuchenController (e2e)', () => {
           id: 1,
           products: [],
           lieferant: {} as Lieferant,
-          empfangsdatum: new Date(),
+          empfangsdatum: undefined,
           rechnung: '12345',
           lieferscheinNr: '67890',
-          datenEingabe: new Date(),
+          datenEingabe: undefined,
           gebucht: false,
           eingelagert: false,
         },
@@ -74,16 +75,21 @@ describe('WarenEingangBuchenController (e2e)', () => {
           id: 2,
           products: [],
           lieferant: {} as Lieferant,
-          empfangsdatum: new Date(),
+          empfangsdatum: undefined,
           rechnung: '54321',
           lieferscheinNr: '09876',
-          datenEingabe: new Date(),
+          datenEingabe: undefined,
           gebucht: false,
           eingelagert: false,
         },
       ];
 
-      jest.spyOn(warenEingangRepository, 'find').mockResolvedValueOnce(warenEingang);
+      const queryBuilder: any = { 
+        leftJoinAndSelect: () => queryBuilder,
+        getMany: () => warenEingang,
+      }
+    
+      jest.spyOn(warenEingangRepository, 'createQueryBuilder').mockImplementation(() => queryBuilder)
 
       const response = await request(app.getHttpServer()).get('/waren-eingang-buchen');
 
@@ -94,14 +100,15 @@ describe('WarenEingangBuchenController (e2e)', () => {
 
   describe('GET /waren-eingang-buchen/:id', () => {
     it('should return the specified warenEingang entry', async () => {
+   
       const warenEingang: Wareneingang = {
         id: 1,
         products: [],
         lieferant: {} as Lieferant,
-        empfangsdatum: new Date(),
+        empfangsdatum: undefined,
         rechnung: '12345',
         lieferscheinNr: '67890',
-        datenEingabe: new Date(),
+        datenEingabe: undefined,
         gebucht: false,
         eingelagert: false,
       };
@@ -120,7 +127,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
       const response = await request(app.getHttpServer()).get('/waren-eingang-buchen/1');
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden' });
+      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden', statusCode: 404, error: 'Not Found' });
     });
   });
 
@@ -129,15 +136,26 @@ describe('WarenEingangBuchenController (e2e)', () => {
       const warenEingangDto: WarenEingangDto = {
         products: [],
         lieferant: {} as Lieferant,
-        empfangsdatum: new Date(),
+        empfangsdatum: undefined,
         rechnung: '12345',
         lieferscheinNr: '67890',
-        datenEingabe: new Date(),
+        datenEingabe: undefined,
         gebucht: false,
         eingelagert: false,
         id: null,
       };
       const warenEingang: Wareneingang = {
+        id: undefined,
+        products: [],
+        lieferant: new Lieferant,
+        empfangsdatum: undefined,
+        rechnung: '12345',
+        lieferscheinNr: '67890',
+        datenEingabe: undefined,
+        gebucht: false,
+        eingelagert: false
+      };
+      const warenEingangSaved: Wareneingang = {
         id: 1,
         products: [],
         lieferant: new Lieferant,
@@ -149,14 +167,15 @@ describe('WarenEingangBuchenController (e2e)', () => {
         eingelagert: false
       };
       jest.spyOn(warenEingangRepository, 'create').mockReturnValueOnce(warenEingang);
-      jest.spyOn(warenEingangRepository, 'save').mockResolvedValueOnce(warenEingang);
+      jest.spyOn(warenEingangRepository, 'save').mockResolvedValueOnce(warenEingangSaved);
+      jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValueOnce(warenEingangSaved);
 
       const response = await request(app.getHttpServer())
         .post('/waren-eingang-buchen')
         .send(warenEingangDto);
 
       expect(response.status).toBe(201);
-      expect(response.body).toEqual(warenEingangDto);
+      expect(response.body).toEqual(warenEingangSaved);
     });
   });
 
@@ -166,10 +185,10 @@ describe('WarenEingangBuchenController (e2e)', () => {
         id: 1,
         products: [],
         lieferant: {} as Lieferant,
-        empfangsdatum: new Date(),
-        rechnung: '123456',
+        empfangsdatum: undefined,
+        rechnung: '12345',
         lieferscheinNr: '678906',
-        datenEingabe: new Date(),
+        datenEingabe: undefined,
         gebucht: false,
         eingelagert: false,
       };
@@ -189,7 +208,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         products: [],
         lieferant: new Lieferant,
         empfangsdatum: undefined,
-        rechnung: '123456',
+        rechnung: '12345',
         lieferscheinNr: '678906',
         datenEingabe: undefined,
         gebucht: false,
@@ -227,7 +246,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         .send(warenEingangDto);
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden' });
+      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden', statusCode: 404, error: 'Not Found' });
     });
 
     it('should return 400 if the warenEingang entry is already booked', async () => {
@@ -250,7 +269,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         rechnung: '123456',
         lieferscheinNr: '678906',
         datenEingabe: undefined,
-        gebucht: false,
+        gebucht: true,
         eingelagert: false
       };
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValueOnce(warenEingang1);
@@ -260,7 +279,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         .send(warenEingangDto);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: 'Bereits gebuchter Wareneingang kann nicht aktualisiert werden' });
+      expect(response.body).toEqual({ message: 'Bereits gebuchter Wareneingang kann nicht aktualisiert werden', statusCode: 400 });
     });
   });
 
@@ -293,7 +312,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
       const response = await request(app.getHttpServer()).delete('/waren-eingang-buchen/1');
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden' });
+      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden', statusCode: 404, error: 'Not Found'  });
     });
 
     it('should return 400 if the warenEingang entry is already booked', async () => {
@@ -314,7 +333,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
       const response = await request(app.getHttpServer()).delete('/waren-eingang-buchen/1');
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: 'Bereits gebuchter Wareneingang kann nicht gelöscht werden' });
+      expect(response.body).toEqual({ message: 'Bereits gebuchter Wareneingang kann nicht gelöscht werden', statusCode: 400 });
     });
   });
 
@@ -362,9 +381,20 @@ describe('WarenEingangBuchenController (e2e)', () => {
         mengeEingelagert: 0,
         color: 'Red',
       };
+      const warenEingangSaved: Wareneingang = {
+        id: 1,
+        products: [prod1],
+        lieferant: {} as Lieferant,
+        empfangsdatum: new Date(),
+        rechnung: '12345',
+        lieferscheinNr: '67890',
+        datenEingabe: new Date(),
+        gebucht: false,
+        eingelagert: false,
+      };
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValueOnce(warenEingang);
       jest.spyOn(warenEingangProductRepository, 'create').mockReturnValueOnce(prod);
-      jest.spyOn(warenEingangProductRepository, 'save').mockResolvedValueOnce(prod1);
+      jest.spyOn(warenEingangRepository, 'save').mockResolvedValueOnce(warenEingangSaved);
 
       const response = await request(app.getHttpServer())
         .post('/waren-eingang-buchen/1/products')
@@ -393,7 +423,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         .send(productDto);
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden' });
+      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden',  error: 'Not Found', statusCode: 404 });
     });
 
     it('should return 400 if the warenEingang entry is already booked', async () => {
@@ -427,7 +457,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         .send(productDto);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: 'Produkt kann nicht zu einem bereits gebuchten Wareneingang hinzugefügt werden' });
+      expect(response.body).toEqual({ message: 'Produkt kann nicht zu einem bereits gebuchten Wareneingang hinzugefügt werden',  "statusCode": 400 });
     });
   });
 
@@ -519,7 +549,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         .send(productDto);
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Wareneingang nicht gefunden' });
+      expect(response.body).toEqual( {"error": "Not Found", "message": "Wareneingang nicht gefunden", "statusCode": 404});
     });
 
     it('should return 404 if the product is not found', async () => {
@@ -554,7 +584,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
         .send(productDto);
 
  expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Produkt nicht gefunden' });
+      expect(response.body).toStrictEqual( {"error": "Not Found", "message": "Produkt nicht gefunden", "statusCode": 404});
     });
   });
 
@@ -592,14 +622,37 @@ describe('WarenEingangBuchenController (e2e)', () => {
         gebucht: false,
         eingelagert: false,
       };
-
+      const saved: Wareneingang = {
+        id: 1,
+        products: [
+          {
+            id: 2,
+            wareneingang: {} as Wareneingang,
+            produkt: [],
+            menge: 3,
+            preis: 30,
+            mwst: 5,
+            mengeEingelagert: 0,
+            color: 'Green',
+          },
+        ],
+        lieferant: {} as Lieferant,
+        empfangsdatum: new Date(),
+        rechnung: '12345',
+        lieferscheinNr: '67890',
+        datenEingabe: new Date(),
+        gebucht: false,
+        eingelagert: false,
+      };
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValueOnce(warenEingang);
-      jest.spyOn(warenEingangProductRepository, 'delete').mockResolvedValueOnce({ affected: 1 } as DeleteResult);
+      jest.spyOn(warenEingangRepository, 'save').mockImplementation();
+      jest.spyOn(warenEingangProductRepository, 'delete').mockResolvedValueOnce({ affected: 1, raw: '' } as DeleteResult);
 
       const response = await request(app.getHttpServer()).delete('/waren-eingang-buchen/1/products/1');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ affected: 1 });
+      expect(warenEingang).toStrictEqual(saved);
+      expect(response.body).toStrictEqual({ affected: 1, raw: '' } );
     });
 
     it('should return 404 if the warenEingang entry is not found', async () => {

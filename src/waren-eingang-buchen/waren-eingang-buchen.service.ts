@@ -7,7 +7,7 @@ import { WarenEingangProductDto } from 'src/dto/warenEingangProduct.dto';
 import { Produkt } from 'src/entity/produktEntity';
 import { Wareneingang } from 'src/entity/warenEingangEntity';
 import { WareneingangProduct } from 'src/entity/warenEingangProductEntity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 
 @Injectable()
@@ -79,7 +79,7 @@ export class WarenEingangBuchenService {
         lieferant: true,
       }});
     } catch (error) {
-      throw new HttpException('Fehler beim Erstellen des Wareneingangs', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw error;
     }
   }
 
@@ -117,8 +117,7 @@ export class WarenEingangBuchenService {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
-
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw error;
       }
     }
   }
@@ -180,11 +179,11 @@ export class WarenEingangBuchenService {
 /**
  * Deletes a wareneingang entry
  * @param {number} id - The id of the wareneingang entry to delete
- * @returns {Promise<number>} A promise that resolves to the number of affected rows (0 or 1)
+ * @returns {Promise<DeleteResult>} A promise that return affected rows (0 or 1)
  * @throws {NotFoundException} If the wareneingang entry is not found
  * @throws {HttpException} If there is an error deleting the wareneingang entry
  */
-  async delete(id: number): Promise<number> {
+  async delete(id: number): Promise<DeleteResult> {
     try {
       const foundWareneingang = await this.warenEingangRepository.findOne( { where: { id : id } });
       if (!foundWareneingang) {
@@ -193,12 +192,12 @@ export class WarenEingangBuchenService {
       if (foundWareneingang.gebucht) {
         throw new HttpException('Bereits gebuchter Wareneingang kann nicht gelöscht werden', HttpStatus.BAD_REQUEST);
       }
-     return await (await this.warenEingangRepository.delete(id)).affected;
+     return await this.warenEingangRepository.delete(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw error;
       }
     }
   }
@@ -233,7 +232,7 @@ export class WarenEingangBuchenService {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw error;
       }
     }
   }
@@ -271,7 +270,7 @@ export class WarenEingangBuchenService {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw error;
       }
     }
   }
@@ -283,7 +282,7 @@ export class WarenEingangBuchenService {
  * @throws {NotFoundException} If the wareneingang entry or product is not found
  * @throws {HttpException} If there is an error deleting the product
  */
-  async deleteProduct(wareneingangId: number, productId: number): Promise<number> {
+  async deleteProduct(wareneingangId: number, productId: number): Promise<DeleteResult> {
     try {
     
       const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { 
@@ -298,13 +297,14 @@ export class WarenEingangBuchenService {
      
       const product = wareneingang.products.find((product) => product.id == productId);
       const index = wareneingang.products.findIndex((tmp) => tmp.id == productId);
-      wareneingang.products.splice(index, 1);
-      await this.warenEingangRepository.save(wareneingang);
       if (!product) {
         throw new NotFoundException('Produkt nicht gefunden');
       }
+      wareneingang.products.splice(index, 1);
+      await this.warenEingangRepository.save(wareneingang);
+  
     
-     return await (await this.warenEingangProductRepository.delete(productId)).affected;
+     return await this.warenEingangProductRepository.delete(productId);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
