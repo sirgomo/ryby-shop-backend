@@ -350,7 +350,7 @@ describe('ProductController (e2e)', () => {
      jest.spyOn(photoService, 'savePhoto').mockReturnValue({ imageid: 'test.jpeg'})
 
       const response = await request(app.getHttpServer())
-        .post('/product/upload')
+        .post('/product/upload/1')
         .attach('photo', file.buffer, file.originalname)
         .expect(201);
         expect(response.text).toBe(JSON.stringify( { imageid: 'test.jpeg'}));
@@ -363,7 +363,7 @@ describe('ProductController (e2e)', () => {
       jest.spyOn(photoService, 'savePhoto').mockReturnValue( { imageid: 'test.png'})
 
       const response = await request(app.getHttpServer())
-        .post('/product/upload')
+        .post('/product/upload/1')
         .attach('photo', file.buffer, file.originalname)
         .expect(201);
 
@@ -377,7 +377,7 @@ describe('ProductController (e2e)', () => {
       };
 
       await request(app.getHttpServer())
-        .post('/product/upload')
+        .post('/product/upload/1')
         .attach('photo', file.buffer, file.originalname)
         .expect(415);
     });

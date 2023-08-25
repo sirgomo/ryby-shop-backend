@@ -50,7 +50,11 @@ describe('ProductService', () => {
           reservation: [],
           bewertung: [],
           artid: 0,
-          color: ''
+          color: '',
+          lange: 20,
+          gewicht: 30,
+          currentmenge: 10,
+          product_sup_id: 'ak20'
         },
         {
           id: 2,
@@ -74,7 +78,11 @@ describe('ProductService', () => {
           reservation: [],
           bewertung: [],
           artid: 0,
-          color: ''
+          color: '',
+          lange: 10,
+          gewicht: 20,
+          currentmenge: 15,
+          product_sup_id: 'ak30'
         },
       ];
 
@@ -106,7 +114,7 @@ describe('ProductService', () => {
         lieferant: null,
         lagerorte: [],
         bestellungen: [],
-        datumHinzugefuegt: new Date( '2021-01-01'),
+        datumHinzugefuegt: new Date('2021-01-01'),
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
@@ -118,7 +126,11 @@ describe('ProductService', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       };
 
       jest.spyOn(produktRepository, 'findOne').mockResolvedValue(product);
@@ -195,7 +207,9 @@ describe('ProductService', () => {
         bewertung: [],
         id: 0,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       const createdProduct: Produkt = {
@@ -208,7 +222,7 @@ describe('ProductService', () => {
         lieferant: null,
         lagerorte: [],
         bestellungen: [],
-        datumHinzugefuegt: new Date( '2021-01-01'),
+        datumHinzugefuegt: new Date('2021-01-01'),
         kategorie: [],
         verfgbarkeit: true,
         mindestmenge: 5,
@@ -220,7 +234,11 @@ describe('ProductService', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       };
 
       jest.spyOn(produktRepository, 'create').mockReturnValue(createdProduct);
@@ -256,7 +274,9 @@ describe('ProductService', () => {
         bewertung: [],
         id: undefined,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
       const productEn: Produkt = {
         name: 'Product 1',
@@ -280,7 +300,11 @@ describe('ProductService', () => {
         bewertung: [],
         id: undefined,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       }
 
       jest.spyOn(produktRepository, 'create').mockReturnValue(productEn);
@@ -316,7 +340,9 @@ describe('ProductService', () => {
         bewertung: [],
         id: 1,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       const updatedProduct: Produkt = {
@@ -341,7 +367,11 @@ describe('ProductService', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       };
       const mergedEntity: Produkt = {
         id: 1,
@@ -365,7 +395,11 @@ describe('ProductService', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: '',
+        lange: 0,
+        gewicht: 0
       };
 
       jest.spyOn(produktRepository, 'findOne').mockResolvedValue(updatedProduct);
@@ -410,7 +444,9 @@ describe('ProductService', () => {
         bewertung: [],
         id: 0,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       jest.spyOn(produktRepository, 'findOne').mockResolvedValue(null);
@@ -442,7 +478,9 @@ describe('ProductService', () => {
         bewertung: [],
         id: 0,
         artid: 0,
-        color: ''
+        color: '',
+        currentmenge: 0,
+        product_sup_id: ''
       };
 
       jest.spyOn(produktRepository, 'findOne').mockRejectedValue(new Error('Test Error'));

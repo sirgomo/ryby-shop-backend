@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
 export class CompanyService {
@@ -20,12 +20,16 @@ export class CompanyService {
     
       async getCompanyById(id: number): Promise<CompanyDataEntity> {
         try {
-          return await this.companyRepository.findOne({where: { id: id },
+          const item = await this.companyRepository.findOne({where: { id: id },
           select: {
             isKleinUnternehmen: true,
           }});
+          if(!item)
+            throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
+
+            return item;
         } catch (error) {
-            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+            throw error;
         }
       }
     
@@ -51,19 +55,19 @@ export class CompanyService {
           await this.companyRepository.update(id, companyData);
           return await this.companyRepository.findOne({where : { id: id }});
         } catch (error) {
-            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+            throw error;
         }
       }
     
-      async deleteCompany(id: number): Promise<number> {
+      async deleteCompany(id: number): Promise<DeleteResult> {
         try {
           const company = await this.companyRepository.findOne({where: { id: id}});
           if (!company) {
             throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
           }
-         return await (await this.companyRepository.delete(id)).affected;
+         return await (await this.companyRepository.delete(id));
         } catch (error) {
-            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+            throw error;
         }
       }
 }

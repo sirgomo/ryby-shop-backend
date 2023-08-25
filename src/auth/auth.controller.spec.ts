@@ -75,6 +75,7 @@ describe('AuthController', () => {
         adresseStadt: '',
         adressePostleitzahl: '',
         adresseLand: '',
+        shipping_name: ''
       };
 
       jest

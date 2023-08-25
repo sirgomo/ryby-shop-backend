@@ -192,7 +192,10 @@ export class WarenEingangBuchenService {
       if (foundWareneingang.gebucht) {
         throw new HttpException('Bereits gebuchter Wareneingang kann nicht gelöscht werden', HttpStatus.BAD_REQUEST);
       }
-     return await this.warenEingangRepository.delete(id);
+     return await this.warenEingangRepository.delete(id).catch((err) => {
+      console.log(err);
+      throw new HttpException('Es ist ein Feheler aufgetreten, Produkt würde nicht gelöscht', HttpStatus.INTERNAL_SERVER_ERROR);
+     });
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -225,7 +228,7 @@ export class WarenEingangBuchenService {
  
       const saved = await this.warenEingangRepository.save(wareneingang).catch(err => {
         console.log(err);
-        return err;
+        throw new HttpException('Es ist ein Fehler aufgetreten beim Speichern vom Produkt, abgebrochen', HttpStatus.INTERNAL_SERVER_ERROR);
       });
       return saved.products[saved.products.length -1];
     } catch (error) {

@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nes
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { CompanyService } from './company.service';
+import { DeleteResult } from 'typeorm';
 
 @Controller('company')
 
@@ -33,7 +34,7 @@ export class CompanyController {
   
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
-    async deleteCompany(@Param('id') id: number): Promise<number> {
+    async deleteCompany(@Param('id') id: number): Promise<DeleteResult> {
       return await this.companyService.deleteCompany(id);
     }
 }

@@ -136,7 +136,8 @@ describe('WarenEingangBuchenService', () => {
 
     it('should throw an HttpException if there is an error creating the wareneingang entry', async () => {
       jest.spyOn(warenEingangRepository, 'create').mockReturnValue(mockCreatedWareneingang);
-      jest.spyOn(warenEingangRepository, 'save').mockRejectedValue(new Error('Internal Server Error'));
+      jest.spyOn(warenEingangRepository, 'save').mockRejectedValue(new HttpException('Internal Server Error', HttpStatus.BAD_GATEWAY));
+      jest.spyOn(warenEingangRepository, 'findOne').mockRejectedValue(new HttpException('Internal Server Error', HttpStatus.BAD_GATEWAY));
 
       await expect(service.create(mockWareneingangDto)).rejects.toThrowError(HttpException);
     });
@@ -220,7 +221,7 @@ describe('WarenEingangBuchenService', () => {
     it('should throw a HttpException if there is an error updating the wareneingang entry', async () => {
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValue(mockFoundWareneingang);
       jest.spyOn(warenEingangRepository, 'merge').mockReturnValue(mockMergedWareneingang);
-      jest.spyOn(warenEingangRepository, 'save').mockRejectedValue(new Error('Internal Server Error'));
+      jest.spyOn(warenEingangRepository, 'save').mockRejectedValue(new HttpException('Internal Server Error', HttpStatus.BAD_REQUEST));
 
       await expect(service.update(mockWareneingangDto)).rejects.toThrowError(HttpException);
     });
@@ -244,7 +245,7 @@ describe('WarenEingangBuchenService', () => {
 
       const result = await service.delete(1);
 
-      expect(result).toEqual(1);
+      expect(result).toStrictEqual({ affected: 1 } as DeleteResult);
     });
 
     it('should throw a NotFoundException if the wareneingang entry is not found', async () => {
@@ -271,7 +272,7 @@ describe('WarenEingangBuchenService', () => {
 
     it('should throw a HttpException if there is an error deleting the wareneingang entry', async () => {
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValue(mockFoundWareneingang);
-      jest.spyOn(warenEingangRepository, 'delete').mockRejectedValue(new Error('Internal Server Error'));
+      jest.spyOn(warenEingangRepository, 'delete').mockRejectedValue(new HttpException('Es ist ein Feheler aufgetreten, Produkt würde nicht gelöscht', HttpStatus.INTERNAL_SERVER_ERROR));
 
       await expect(service.delete(1)).rejects.toThrowError(HttpException);
     });
@@ -338,22 +339,46 @@ describe('WarenEingangBuchenService', () => {
 
     it('should throw a HttpException if the wareneingang entry is already gebucht', async () => {
       const foundWareneingang: Wareneingang = {
-        id: 1, gebucht: true,
+        id: 1, 
+        gebucht: true,
         products: [],
         lieferant: new Lieferant,
         empfangsdatum: undefined,
         rechnung: '',
         lieferscheinNr: '',
         datenEingabe: undefined,
-        eingelagert: false
+        eingelagert: false,
+       
+      };
+      const mockProduct: WareneingangProduct = {
+        id: null,
+        wareneingang: new Wareneingang,
+        produkt: [],
+        menge: 2,
+        preis: 2.2,
+        mwst: 0,
+        mengeEingelagert: 0,
+        color: ''
       };
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValue(foundWareneingang);
+     
 
       await expect(service.addProduct(mockWareneingangId, mockProductDto)).rejects.toThrowError(HttpException);
     });
 
     it('should throw a HttpException if there is an error adding the product', async () => {
+      const mockProduct: WareneingangProduct = {
+        id: null,
+        wareneingang: new Wareneingang,
+        produkt: [],
+        menge: 2,
+        preis: 2.2,
+        mwst: 0,
+        mengeEingelagert: 0,
+        color: ''
+      };
       jest.spyOn(warenEingangRepository, 'findOne').mockResolvedValue(mockWareneingang);
+      jest.spyOn(warenEingangProductRepository, 'create').mockReturnValue(mockProduct);
       jest.spyOn(warenEingangRepository, 'save').mockRejectedValue(new Error('Internal Server Error'));
 
       await expect(service.addProduct(mockWareneingangId, mockProductDto)).rejects.toThrowError(HttpException);

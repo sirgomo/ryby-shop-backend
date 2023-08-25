@@ -306,7 +306,11 @@ describe('KategorieService', () => {
         reservation: [],
         bewertung: [],
         artid: 0,
-        color: ''
+        color: '',
+        lange: 20,
+        gewicht: 30,
+        currentmenge: 10,
+        product_sup_id: 'ak20'
       };
 
       jest.spyOn(kategorieRepository, 'findOne').mockResolvedValue(category);
@@ -414,7 +418,11 @@ describe('KategorieService', () => {
             reservation: [],
             bewertung: [],
             artid: 0,
-            color: ''
+            color: '',
+            lange: 20,
+            gewicht: 30,
+            currentmenge: 10,
+            product_sup_id: 'ak20'
           },
         ],
         parent_id: 0,

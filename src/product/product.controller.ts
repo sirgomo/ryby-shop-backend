@@ -52,7 +52,7 @@ export class ProductController {
     @UseInterceptors(FileInterceptor('photo'))
     async uploadPhoto(@UploadedFile( 
         new ParseFilePipeBuilder().addFileTypeValidator({
-          fileType: 'jpeg|png',
+          fileType: '.(png|jpeg|jpg)',
         })
         .build({
             errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE

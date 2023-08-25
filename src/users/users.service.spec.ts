@@ -65,6 +65,7 @@ describe('UsersService', () => {
         role: 'USER',
         registrierungsdatum: new Date(Date.now()),
         treuepunkte: 0,
+        shipping_name: ''
       };
 
       const user = new Kunde();
@@ -121,6 +122,7 @@ describe('UsersService', () => {
         role: '',
         registrierungsdatum: new Date(Date.now()),
         treuepunkte: 0,
+        shipping_name: ''
       };
 
       const user = new Kunde();
