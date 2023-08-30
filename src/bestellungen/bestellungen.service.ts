@@ -12,6 +12,7 @@ export class BestellungenService {
 
     async createBestellung(bestellungData: OrderDto): Promise<Bestellung> {
         try {
+        
           const bestellung = this.bestellungRepository.create(bestellungData);
           return await this.bestellungRepository.save(bestellung);
         } catch (error) {
