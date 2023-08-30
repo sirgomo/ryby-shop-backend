@@ -43,10 +43,15 @@ export class Bestellung {
   @Column()
   zahlungsstatus: string;
 
-
+  @Column({ type: 'varchar', nullable: false})
+  bestellungstatus: string;
 
   @OneToOne(() => Reservierung, (reservierung) => reservierung.bestellung)
   reservation: Reservierung;
  
+}
 
+export enum BESTELLUNGSSTATUS {
+  INBEARBEITUNG = 'INBEARBEITUNG',
+  VERSCHICKT = 'VERSCHICKT',
 }

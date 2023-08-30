@@ -29,6 +29,8 @@ import { ProductModule } from './product/product.module';
 import { WarenEingangBuchenModule } from './waren-eingang-buchen/waren-eingang-buchen.module';
 import { CompanyDataEntity } from './entity/companyDataEntity';
 import { CompanyModule } from './company/company.module';
+import { WarenAusgangBuchenModule } from './waren-ausgang-buchen/waren-ausgang-buchen.module';
+import { BestellungenModule } from './bestellungen/bestellungen.module';
 
 
 
@@ -71,6 +73,8 @@ import { CompanyModule } from './company/company.module';
     ProductModule,
     WarenEingangBuchenModule,
     CompanyModule,
+    WarenAusgangBuchenModule,
+    BestellungenModule,
     
   ],
   controllers: [AppController],

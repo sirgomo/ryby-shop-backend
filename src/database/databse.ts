@@ -110,7 +110,7 @@ export class Database {
           
           CREATE TABLE IF NOT EXISTS reservierung (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            menge INT
+            color_menge VARCHAR(255)
           );
           
           CREATE TABLE IF NOT EXISTS aktion (
@@ -170,6 +170,7 @@ export class Database {
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL(10,2),
             zahlungsstatus VARCHAR(255),
+            bestellungstatus VARCHAR(255) NOT NULL,
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
           CREATE TABLE IF NOT EXISTS waren_ausgang (

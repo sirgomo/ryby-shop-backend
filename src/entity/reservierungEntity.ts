@@ -22,5 +22,5 @@ export class Reservierung {
   produkt: Produkt[];
 
   @Column()
-  menge: number;
+  color_menge: string;
 }
