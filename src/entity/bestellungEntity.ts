@@ -3,8 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
-  OneToOne,
+  OneToMany
 } from 'typeorm';
 import { Kunde } from './kundeEntity';
 import { ProduktInBestellung } from './productBestellungEntity';

@@ -83,7 +83,8 @@ export class ProductService {
                     verfgbarkeit: true,
                   },
                 relations: {
-                  kategorie: true
+                  kategorie: true,
+                  promocje: true,
                 },
                 take: end, 
                 skip: start,
@@ -96,6 +97,9 @@ export class ProductService {
                 return await this.produktRepository.find({ where: {
                   name: Like(`%${search}%`),
                   verfgbarkeit: true,
+                },
+                relations: {
+                  promocje: true,
                 },
               take: end, 
               skip: start,
@@ -111,7 +115,8 @@ export class ProductService {
             verfgbarkeit: true,
           },
         relations: {
-          kategorie: true
+          kategorie: true,
+          promocje: true,
         },
         take: end, 
         skip: start,
