@@ -47,7 +47,7 @@ describe('ProductService', () => {
           warenausgang: [],
           mehrwehrsteuer: 0,
           promocje: [],
-          reservation: [],
+        
           bewertung: [],
           artid: 0,
           color: '',
@@ -75,7 +75,7 @@ describe('ProductService', () => {
           warenausgang: [],
           mehrwehrsteuer: 0,
           promocje: [],
-          reservation: [],
+          
           bewertung: [],
           artid: 0,
           color: '',
@@ -123,7 +123,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+        
         bewertung: [],
         artid: 0,
         color: '',
@@ -145,7 +145,7 @@ describe('ProductService', () => {
         warenausgang: true,
         wareneingang: true,
         promocje: true,
-        reservation: true,
+       
         bewertung: true,
       } });
     });
@@ -161,7 +161,7 @@ describe('ProductService', () => {
         warenausgang: true,
         wareneingang: true,
         promocje: true,
-        reservation: true,
+      
         bewertung: true,
       } });
     });
@@ -177,7 +177,7 @@ describe('ProductService', () => {
         warenausgang: true,
         wareneingang: true,
         promocje: true,
-        reservation: true,
+       
         bewertung: true,
       } });
     });
@@ -203,7 +203,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+     
         bewertung: [],
         id: 0,
         artid: 0,
@@ -231,7 +231,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+    
         bewertung: [],
         artid: 0,
         color: '',
@@ -270,7 +270,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+     
         bewertung: [],
         id: undefined,
         artid: 0,
@@ -296,7 +296,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+       
         bewertung: [],
         id: undefined,
         artid: 0,
@@ -336,7 +336,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+       
         bewertung: [],
         id: 1,
         artid: 0,
@@ -364,7 +364,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+      
         bewertung: [],
         artid: 0,
         color: '',
@@ -392,7 +392,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+       
         bewertung: [],
         artid: 0,
         color: '',
@@ -440,7 +440,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+      
         bewertung: [],
         id: 0,
         artid: 0,
@@ -474,7 +474,7 @@ describe('ProductService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+      
         bewertung: [],
         id: 0,
         artid: 0,

@@ -65,7 +65,7 @@ describe('ProductController (e2e)', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+       
         bewertung: [],
         artid: 3243124,
         color: '',
@@ -93,7 +93,7 @@ describe('ProductController (e2e)', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+       
         bewertung: [],
         artid: 2123,
         color: '',
@@ -137,7 +137,6 @@ describe('ProductController (e2e)', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
         bewertung: [],
         artid: 0,
         color: '',
@@ -186,7 +185,6 @@ describe('ProductController (e2e)', () => {
         wareneingang: [],
         warenausgang: [],
         promocje: [],
-        reservation: [],
         bewertung: [],
         id: 0,
         artid: 0,
@@ -230,7 +228,7 @@ describe('ProductController (e2e)', () => {
         wareneingang: [],
         warenausgang: [],
         promocje: [],
-        reservation: [],
+
         bewertung: [],
         artid: 0,
         color: '',
@@ -264,7 +262,7 @@ describe('ProductController (e2e)', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+    
         bewertung: [],
         artid: 0,
         color: '',
@@ -309,7 +307,7 @@ describe('ProductController (e2e)', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+    
         bewertung: [],
         artid: 0,
         color: '',

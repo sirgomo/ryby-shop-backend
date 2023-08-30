@@ -3,7 +3,6 @@ import { LieferantDto } from "./liferant.dto";
 import { WareneingangProduct } from "src/entity/warenEingangProductEntity";
 import { Kundenbewertung } from "src/entity/kundenBewertungEntity";
 import { Aktion } from "src/entity/aktionEntity";
-import { Reservierung } from "src/entity/reservierungEntity";
 import { Stellplatze } from "src/entity/stellplatzeEntity";
 import { WarenausgangProduct } from "src/entity/warenAusgangProductEntity";
 import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsOptional } from "class-validator";
@@ -80,10 +79,6 @@ export class ProductDto{
 
     promocje: Aktion[];
   
-
-    reservation: Reservierung[];
-  
-
     bewertung: Kundenbewertung[];
 }
       

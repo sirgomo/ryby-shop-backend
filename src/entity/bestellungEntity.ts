@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Kunde } from './kundeEntity';
 import { ProduktInBestellung } from './productBestellungEntity';
-import { Reservierung } from './reservierungEntity';
+
 
 
 @Entity('bestellung')
@@ -45,9 +45,6 @@ export class Bestellung {
 
   @Column({ type: 'varchar', nullable: false})
   bestellungstatus: string;
-
-  @OneToOne(() => Reservierung, (reservierung) => reservierung.bestellung)
-  reservation: Reservierung;
  
 }
 

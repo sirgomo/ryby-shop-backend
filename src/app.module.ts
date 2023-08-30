@@ -19,7 +19,6 @@ import { Warenausgang } from './entity/warenAusgangEntity';
 import { WarenausgangProduct } from './entity/warenAusgangProductEntity';
 import { Wareneingang } from './entity/warenEingangEntity';
 import { WareneingangProduct } from './entity/warenEingangProductEntity';
-import { Reservierung } from './entity/reservierungEntity';
 import { Stellplatze } from './entity/stellplatzeEntity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -60,7 +59,6 @@ import { BestellungenModule } from './bestellungen/bestellungen.module';
         WarenausgangProduct,
         Wareneingang,
         WareneingangProduct,
-        Reservierung,
         Stellplatze,
         CompanyDataEntity
       ],

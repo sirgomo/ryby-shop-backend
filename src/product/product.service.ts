@@ -138,7 +138,6 @@ export class ProductService {
             warenausgang: true,
             wareneingang: true,
             promocje: true,
-            reservation: true,
             bewertung: true,
           }}).catch((err) => {
             console.log(err)

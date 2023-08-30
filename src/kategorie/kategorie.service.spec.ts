@@ -303,7 +303,7 @@ describe('KategorieService', () => {
         warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-        reservation: [],
+      
         bewertung: [],
         artid: 0,
         color: '',
@@ -415,7 +415,7 @@ describe('KategorieService', () => {
             warenausgang: [],
             mehrwehrsteuer: 0,
             promocje: [],
-            reservation: [],
+            
             bewertung: [],
             artid: 0,
             color: '',

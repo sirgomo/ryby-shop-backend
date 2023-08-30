@@ -1,5 +1,4 @@
 import { Kunde } from "src/entity/kundeEntity";
-import { Reservierung } from "src/entity/reservierungEntity";
 import { ProductBestellungDto } from "./productBestellung.dto";
 import { BESTELLUNGSSTATUS } from "src/entity/bestellungEntity";
 import { IsArray, IsObject, IsOptional } from "class-validator";
@@ -18,5 +17,4 @@ export class OrderDto {
     gesamtwert: number;
     zahlungsstatus: string;
     bestellungstatus: BESTELLUNGSSTATUS;
-    reservation: Reservierung;
 }

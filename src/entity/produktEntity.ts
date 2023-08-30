@@ -15,7 +15,6 @@ import { Kategorie } from './kategorieEntity';
 import { WareneingangProduct } from './warenEingangProductEntity';
 import { WarenausgangProduct } from './warenAusgangProductEntity';
 import { Aktion } from './aktionEntity';
-import { Reservierung } from './reservierungEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 
 @Entity('produkt')
@@ -96,9 +95,6 @@ export class Produkt {
   @JoinTable()
   promocje: Aktion[];
 
-  @ManyToMany(() => Reservierung)
-  @JoinTable()
-  reservation: Reservierung[];
 
   @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.produkt)
   @JoinTable()

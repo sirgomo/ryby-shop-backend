@@ -108,10 +108,6 @@ export class Database {
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
           
-          CREATE TABLE IF NOT EXISTS reservierung (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            color_menge VARCHAR(255)
-          );
           
           CREATE TABLE IF NOT EXISTS aktion (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -239,15 +235,6 @@ export class Database {
             aktionId INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id),
             FOREIGN KEY (aktionId) REFERENCES aktion (id)
-          );
-          
-          CREATE TABLE IF NOT EXISTS produkt_reservation_reservierung (
-            reservierungId INT,
-            bestellungId INT,
-            produktId INT,
-            FOREIGN KEY (reservierungId) REFERENCES reservierung (id),
-            FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
-            FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
           CREATE TABLE IF NOT EXISTS produkt_bestellungen_product_in_bestellung (
