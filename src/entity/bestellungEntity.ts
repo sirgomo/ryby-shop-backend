@@ -44,6 +44,10 @@ export class Bestellung {
 
   @Column({ type: 'varchar', nullable: false})
   bestellungstatus: string;
+  @Column({ type: 'varchar', nullable: false})
+  versandart: string;
+  @Column({type: 'decimal', nullable: false })
+  versandprice: number;
  
 }
 

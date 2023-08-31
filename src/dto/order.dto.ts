@@ -17,4 +17,6 @@ export class OrderDto {
     gesamtwert: number;
     zahlungsstatus: string;
     bestellungstatus: BESTELLUNGSSTATUS;
+    versandart: string;
+    versandprice: number;
 }
