@@ -31,9 +31,9 @@ export class BestellungenController {
         }
     }
     @Post('capture')
-    async capturePayment(@Body() id: Payid ) {
+    async capturePayment(@Body() data: Payid ) {
         try {
-            return await this.service.capturePayment(id.orderID);
+            return await this.service.capturePayment(data);
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -1,12 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Color } from 'sharp';
 import { ColorDto } from 'src/dto/color.dto';
 import { OrderDto } from 'src/dto/order.dto';
+import { Payid } from 'src/dto/payId.dto';
+import { PaypalItem } from 'src/dto/paypalItem.dto';
 import { BESTELLUNGSSTATUS, Bestellung } from 'src/entity/bestellungEntity';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { env } from 'src/env/env';
-import { Repository } from 'typeorm';
+import { JsonContains, Repository } from 'typeorm';
 
 @Injectable()
 export class BestellungenService {
@@ -16,7 +19,7 @@ export class BestellungenService {
 
     async createOrder(bestellungData: OrderDto): Promise<any> {
         try {
-          console.log(JSON.stringify(bestellungData))
+        
          const itemsToSave: Promise<Produkt[]> = this.isPriceMengeChecked(bestellungData);
          bestellungData.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
          bestellungData.bestelldatum = new Date(Date.now());
@@ -24,7 +27,7 @@ export class BestellungenService {
 
          const purchaseAmount = bestellungData.gesamtwert;
 
-
+      
          const accessToken  = await this.generateAccessToken();
          const url = `${env.PAYPAL_URL}/v2/checkout/orders`;
         
@@ -38,10 +41,38 @@ export class BestellungenService {
               intent: 'CAPTURE',
               purchase_units: [
                 {
+                  items: this.getPaypalItems(bestellungData),
                   amount: {
                     currency_code: 'EUR',
                     value: purchaseAmount,
+                    breakdown: {
+                      item_total: {
+                        currency_code: 'EUR',
+                        value: ( purchaseAmount - bestellungData.versandprice - this.getTotalTax(bestellungData) ),
+                      },
+                      shipping: {
+                        currency_code: 'EUR',
+                        value: bestellungData.versandprice,
+                      },
+                      tax_total: {
+                        currency_code: 'EUR',
+                        value: this.getTotalTax(bestellungData),
+                      }
+                    }
                   },
+                  shipping: {
+                    type:  bestellungData.versandart === 'Selbstabholung' ? 'PICKUP_IN_PERSON' : 'SHIPPING',
+                    name: {
+                      full_name: bestellungData.kunde.lieferadresse ? bestellungData.kunde.lieferadresse.shipping_name : bestellungData.kunde.vorname + ' ' + bestellungData.kunde.nachname,
+                    },
+                    address: {
+                      address_line_1: bestellungData.kunde.lieferadresse ? bestellungData.kunde.lieferadresse.strasse : bestellungData.kunde.adresse.strasse,
+                      address_line_2: bestellungData.kunde.lieferadresse ? bestellungData.kunde.lieferadresse.hausnummer: bestellungData.kunde.adresse.hausnummer,
+                      admin_area_2: bestellungData.kunde.lieferadresse ? bestellungData.kunde.lieferadresse.stadt: bestellungData.kunde.adresse.stadt,
+                      postal_code: bestellungData.kunde.lieferadresse ? bestellungData.kunde.lieferadresse.postleitzahl : bestellungData.kunde.adresse.postleitzahl,
+                      country_code: 'DE',
+                    }
+                  }
                 },
               ],
             }),
@@ -59,6 +90,8 @@ export class BestellungenService {
         }
       }
     
+
+
       async getBestellung(id: number): Promise<Bestellung> {
         try {
           return await this.bestellungRepository.findOne({ where: { id: id }});
@@ -90,6 +123,40 @@ export class BestellungenService {
         } catch (error) {
           throw new HttpException('Error deleting bestellung', HttpStatus.INTERNAL_SERVER_ERROR);
         }
+      }
+
+      private getTotalTax(bestellungData: OrderDto): number {
+        let tax = 0;
+        for(let i = 0; i < bestellungData.produkte.length; i++) {
+          tax += this.getTax(bestellungData, i);
+        }
+        return tax;
+      }
+      private getPaypalItems(bestellungData: OrderDto) : PaypalItem[] {
+        const items: PaypalItem[] = [];
+        for (let i = 0; i < bestellungData.produkte.length; i++) {
+          const colors: ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
+          for (let y = 0; y < colors.length; y++) {
+            const item = {} as PaypalItem;
+            item.name = bestellungData.produkte[i].produkt[0].name;
+            //  item.description = bestellungData.produkte[i].produkt[0].beschreibung;
+            item.quantity = colors[y].menge;
+            item.sku = bestellungData.produkte[i].produkt[0].product_sup_id;
+            console.log('price ' + this.getPiceNettoPrice(bestellungData, i));
+            item.unit_amount = {
+              currency_code: 'EUR',
+              value: this.getPiceNettoPrice(bestellungData, i),
+            };
+            item.tax = {
+              currency_code: 'EUR',
+              value: this.getTax(bestellungData, i),
+            };
+            items.push(item);
+          }
+    
+        }
+        console.log(items)
+        return items;
       }
       private async isPriceMengeChecked(data: OrderDto) {
         const items: Produkt[] = [];
@@ -151,11 +218,10 @@ export class BestellungenService {
     if (bestellungData.produkte[i].produkt[0] && bestellungData.produkte[i].produkt[0].mehrwehrsteuer > 0)
       tax = picePrice * bestellungData.produkte[i].produkt[0].mehrwehrsteuer / 100;
 
-    return tax;
+    return Number(tax.toFixed(2));
   }
 
   private getPiceNettoPrice(bestellungData: OrderDto, i: number): number {
-    console.log(bestellungData.produkte[i])
     let picePrice = Number(bestellungData.produkte[i].produkt[0].preis);
     if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent)
       picePrice -= picePrice * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
@@ -178,7 +244,7 @@ export class BestellungenService {
   private async handleResponse(response: Response) {
     if(response.status === 200 || response.status === 201 ) {
       const jsonResponse = await response.json();
-      console.log(jsonResponse);
+     
     return jsonResponse;
     }
      
@@ -187,10 +253,10 @@ export class BestellungenService {
     throw new Error(errorMessage);
   }
   //capture Payment
-  async capturePayment(orderId) {
+  async capturePayment(data: Payid) {
   
     const accessToken = await this.generateAccessToken();
-    const url = `${env.PAYPAL_URL}/v2/checkout/orders/${orderId}/capture`;
+    const url = `${env.PAYPAL_URL}/v2/checkout/orders/${data.orderID}/capture`;
     const response = await fetch(url, {
       method: 'post',
       headers: {
@@ -199,7 +265,10 @@ export class BestellungenService {
       },
     })
   
-    return this.handleResponse(response);
+    const respons = await this.handleResponse(response);
+    if(respons.id === data.orderID && respons.status === 'COMPLETED')
+     console.log(JSON.stringify(data.data))
+    return respons;
   }
   // generate client token
  async generateClientToken() {
@@ -212,7 +281,7 @@ export class BestellungenService {
       'Content-Type': 'application/json',
     },
   })
-  console.log('response', response.status);
+  
   const jsonData = await response.json();
   return jsonData.client_token;
 }
