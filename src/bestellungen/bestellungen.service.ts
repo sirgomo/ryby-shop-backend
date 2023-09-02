@@ -6,10 +6,12 @@ import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
 import { PaypalItem } from 'src/dto/paypalItem.dto';
 import { BESTELLUNGSSTATUS, Bestellung } from 'src/entity/bestellungEntity';
+import { Kunde } from 'src/entity/kundeEntity';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { env } from 'src/env/env';
-import { JsonContains, Repository } from 'typeorm';
+import { EntityManager, JsonContains, Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class BestellungenService {
@@ -19,10 +21,8 @@ export class BestellungenService {
 
     async createOrder(bestellungData: OrderDto): Promise<any> {
         try {
-        
-         const itemsToSave: Promise<Produkt[]> = this.isPriceMengeChecked(bestellungData);
-         bestellungData.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
-         bestellungData.bestelldatum = new Date(Date.now());
+         await this.isPriceMengeChecked(bestellungData);
+     
          bestellungData.gesamtwert = Number((this.getTotalPrice(bestellungData) + bestellungData.versandprice).toFixed(2));
 
          const purchaseAmount = bestellungData.gesamtwert;
@@ -48,7 +48,7 @@ export class BestellungenService {
                     breakdown: {
                       item_total: {
                         currency_code: 'EUR',
-                        value: ( purchaseAmount - bestellungData.versandprice - this.getTotalTax(bestellungData) ),
+                        value:  this.getTotalValue(bestellungData),
                       },
                       shipping: {
                         currency_code: 'EUR',
@@ -61,7 +61,7 @@ export class BestellungenService {
                     }
                   },
                   shipping: {
-                    type:  bestellungData.versandart === 'Selbstabholung' ? 'PICKUP_IN_PERSON' : 'SHIPPING',
+                //    type:  bestellungData.versandart === 'Selbstabholung' ? 'PICKUP_IN_PERSON' : 'SHIPPING',
                     name: {
                       full_name: bestellungData.kunde.lieferadresse ? bestellungData.kunde.lieferadresse.shipping_name : bestellungData.kunde.vorname + ' ' + bestellungData.kunde.nachname,
                     },
@@ -83,20 +83,84 @@ export class BestellungenService {
   
 
           return this.handleResponse(response);
-         // return await this.bestellungRepository.save(bestellung);
+     
         } catch (error) {
           console.log(error)
-          throw new HttpException('Error creating bestellung', HttpStatus.INTERNAL_SERVER_ERROR);
+          throw error;
         }
       }
+  
+  getTotalValue(bestellungData: OrderDto) {
+    let total = 0;
+    for (let i = 0; i < bestellungData.produkte.length; i++) {
+      const color :ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
+      for (let y = 0; y < color.length; y++) {
+        total += this.getPiceNettoPrice(bestellungData, i) * color[y].menge;
+      }
+    }
+    return total.toFixed(2);
+  }
     
+  async saveOrder(readyBesttelung: OrderDto) {
+     try {
+      readyBesttelung.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
+      readyBesttelung.bestelldatum = new Date(Date.now());
+      readyBesttelung.gesamtwert = Number((this.getTotalPrice(readyBesttelung) + readyBesttelung.versandprice).toFixed(2));
 
+      const itemsTosave = await this.isPriceMengeChecked(readyBesttelung);
+  
+
+      await this.bestellungRepository.manager.transaction(async (transactionalEntityMange) => {
+      
+        if(readyBesttelung.kunde.id) {
+          const kunde = await transactionalEntityMange.findOne(Kunde, { where: {
+            email: readyBesttelung.kunde.email,
+          },
+          relations: {
+            adresse: true,
+            lieferadresse: true,
+          }
+        })
+        readyBesttelung.kunde = kunde;
+      } else {
+       
+        readyBesttelung.kunde.role = 'USER';
+        readyBesttelung.kunde.password = await bcrypt.hash('sd(/&23630askjdhhhsd', 10);
+      
+
+        const kunde = await transactionalEntityMange.create(Kunde, readyBesttelung.kunde);
+        console.log(kunde)
+        const newKunde = await transactionalEntityMange.save(Kunde, kunde);
+        console.log(newKunde);
+ 
+
+        readyBesttelung.kunde = newKunde;
+      }
+      readyBesttelung.zahlungsart = 'PAYPAL'
+    
+        await transactionalEntityMange.save(itemsTosave).catch((er) => {
+          console.log(er);
+          throw er;
+        });
+        const best = await transactionalEntityMange.create(Bestellung,  readyBesttelung);
+        await transactionalEntityMange.save(Bestellung, best);
+   
+      });
+
+     } catch (err) {
+      console.log(err)
+      throw err;
+     }
+
+
+    
+  }
 
       async getBestellung(id: number): Promise<Bestellung> {
         try {
           return await this.bestellungRepository.findOne({ where: { id: id }});
         } catch (error) {
-          throw new HttpException('Error retrieving bestellung', HttpStatus.INTERNAL_SERVER_ERROR);
+          throw error;
         }
       }
     
@@ -109,7 +173,7 @@ export class BestellungenService {
           this.bestellungRepository.merge(bestellung, bestellungData);
           return await this.bestellungRepository.save(bestellung);
         } catch (error) {
-          throw new HttpException('Error updating bestellung', HttpStatus.INTERNAL_SERVER_ERROR);
+          throw error;
         }
       }
     
@@ -121,16 +185,20 @@ export class BestellungenService {
           }
           await this.bestellungRepository.remove(bestellung);
         } catch (error) {
-          throw new HttpException('Error deleting bestellung', HttpStatus.INTERNAL_SERVER_ERROR);
+          throw error;
         }
       }
 
       private getTotalTax(bestellungData: OrderDto): number {
         let tax = 0;
         for(let i = 0; i < bestellungData.produkte.length; i++) {
-          tax += this.getTax(bestellungData, i);
+          const colors: ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
+          for (let y = 0; y < colors.length; y++) {
+            tax += this.getTax(bestellungData, i) * colors[y].menge;
+          }
+        
         }
-        return tax;
+        return Number(tax.toFixed(2));
       }
       private getPaypalItems(bestellungData: OrderDto) : PaypalItem[] {
         const items: PaypalItem[] = [];
@@ -142,7 +210,6 @@ export class BestellungenService {
             //  item.description = bestellungData.produkte[i].produkt[0].beschreibung;
             item.quantity = colors[y].menge;
             item.sku = bestellungData.produkte[i].produkt[0].product_sup_id;
-            console.log('price ' + this.getPiceNettoPrice(bestellungData, i));
             item.unit_amount = {
               currency_code: 'EUR',
               value: this.getPiceNettoPrice(bestellungData, i),
@@ -155,47 +222,67 @@ export class BestellungenService {
           }
     
         }
-        console.log(items)
         return items;
       }
       private async isPriceMengeChecked(data: OrderDto) {
-        const items: Produkt[] = [];
-       try {
-        for (let i = 0; i < data.produkte.length; i++) {
-            const tmpItem = await this.productRepository.findOne({ 
-            where: { 
-              id: data.produkte[i].produkt[0].id 
-            },
-            relations: {
-                    promocje: true,
-                } 
-            });
-            if(!tmpItem)
-             throw new HttpException('Produkct ' + data.produkte[i].produkt[0].id + ' wurde nicht gefunden!', HttpStatus.NOT_FOUND);
+        try {
+          const items: Produkt[] = [];
+     
+          for (let i = 0; i < data.produkte.length; i++) {
 
-            data.produkte[i].produkt[0] = tmpItem;
+           const index = items.findIndex((item) => item.id === data.produkte[i].produkt[0].id);
+  
+               let tmpItem: Produkt;
+               let itemsInTmp: ColorDto[] = [];
 
-            const itemsInData: ColorDto[] = JSON.parse(data.produkte[i].color);
-            const itemsInTmp: ColorDto[] = JSON.parse(tmpItem.color);
+              if(index === -1) {
+                
+                tmpItem = await this.productRepository.findOne({ 
+                  where: { 
+                    id: data.produkte[i].produkt[0].id 
+                  },
+                  relations: {
+                          promocje: true,
+                      } 
+                  });
+                  if(!tmpItem)
+                   throw new HttpException('Produkct ' + data.produkte[i].produkt[0].id + ' wurde nicht gefunden!', HttpStatus.NOT_FOUND);
 
-            for (let y = 0; y < itemsInData.length; y ++) {
-                for (let z = 0; z < itemsInTmp.length; z++ ) {
-                    if( itemsInData[y].id == itemsInTmp[z].id) {
-                        itemsInTmp[z].menge -= itemsInData[y].menge;
-                        if(itemsInTmp[z].menge < 0)
-                          throw new HttpException('3000/' + itemsInTmp[z].menge, HttpStatus.NOT_ACCEPTABLE);
-                    }
-                }
-            }
-
-            tmpItem.color = JSON.stringify(itemsInTmp);
-
-            items.push(tmpItem);
+                data.produkte[i].produkt[0] = tmpItem;
+                itemsInTmp = JSON.parse(tmpItem.color);
+              } else {
+                data.produkte[i].produkt[0] = items[index];
+                itemsInTmp = JSON.parse(items[index].color);
+                tmpItem = items[index];
+              }
+  
+              const itemsInData: ColorDto[] = JSON.parse(data.produkte[i].color);
+          
+  
+              for (let y = 0; y < itemsInData.length; y ++) {
+                  for (let z = 0; z < itemsInTmp.length; z++ ) {
+                      if( itemsInData[y].id == itemsInTmp[z].id) {
+                          itemsInTmp[z].menge -= itemsInData[y].menge;
+                          tmpItem.currentmenge -=  itemsInData[y].menge;
+                          tmpItem.verkaufteAnzahl += itemsInData[y].menge;
+                          if(itemsInTmp[z].menge == 0)
+                            tmpItem.verfgbarkeit = false;
+                            
+                          if(itemsInTmp[z].menge < 0)
+                            throw new HttpException('3000/ ' + itemsInTmp[z].menge, HttpStatus.NOT_ACCEPTABLE);
+                      }
+                  }
+              }
+  
+              tmpItem.color = JSON.stringify(itemsInTmp);
+  
+              items.push(tmpItem);
+          }
+         return items;
+        } catch (err) {
+          throw err;
         }
-       } catch (error) {
-        throw error;
-       }
-       return items;
+
       }
   private getTotalPrice(bestellungData: OrderDto): number {
         let totalPrice = 0;
@@ -242,15 +329,20 @@ export class BestellungenService {
     return jsonData.access_token;
   }
   private async handleResponse(response: Response) {
-    if(response.status === 200 || response.status === 201 ) {
-      const jsonResponse = await response.json();
-     
-    return jsonResponse;
+    try {
+      if(response.status === 200 || response.status === 201 ) {
+        const jsonResponse = await response.json();
+       
+      return jsonResponse;
+      }
+       
+      const errorMessage = await response.text();
+      throw new Error(errorMessage);
+    } catch ( err) {
+      throw err;
     }
-     
+ 
 
-    const errorMessage = await response.text();
-    throw new Error(errorMessage);
   }
   //capture Payment
   async capturePayment(data: Payid) {
@@ -267,7 +359,8 @@ export class BestellungenService {
   
     const respons = await this.handleResponse(response);
     if(respons.id === data.orderID && respons.status === 'COMPLETED')
-     console.log(JSON.stringify(data.data))
+      await this.saveOrder(data.bestellung);
+
     return respons;
   }
   // generate client token

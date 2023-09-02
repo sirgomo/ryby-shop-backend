@@ -20,7 +20,7 @@ export class Bestellung {
 
   @OneToMany(
     () => ProduktInBestellung,
-    (produktInBestellung) => produktInBestellung.bestellung,
+    (produktInBestellung) => produktInBestellung.bestellung,  { cascade: true, onDelete: 'CASCADE'}
   )
   produkte: ProduktInBestellung[];
 

@@ -51,7 +51,7 @@ export class Produkt {
   lagerorte: Stellplatze[];
 
   @ManyToMany(() => ProduktInBestellung)
-  @JoinTable()
+  @JoinTable({ name: 'product_in_bestellung_produkt_produkt'})
   bestellungen: ProduktInBestellung[];
 
   @Column({ type: 'date' })

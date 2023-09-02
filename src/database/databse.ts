@@ -208,7 +208,7 @@ export class Database {
             rabatt DECIMAL(5,2),
             mengeGepackt INT,
             productRucgabeId INT,
-            FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
+            FOREIGN KEY (bestellungId) REFERENCES bestellung (id) ON DELETE CASCADE ON UPDATE CASCADE,
             FOREIGN KEY (produktId) REFERENCES produkt (id),
             FOREIGN KEY (productRucgabeId) REFERENCES product_ruckgabe (id)
           );
@@ -239,7 +239,7 @@ export class Database {
             FOREIGN KEY (aktionId) REFERENCES aktion (id)
           );
           
-          CREATE TABLE IF NOT EXISTS produkt_bestellungen_product_in_bestellung (
+          CREATE TABLE IF NOT EXISTS product_in_bestellung_produkt_produkt (
             productInBestellungId INT,
             produktId INT,
             FOREIGN KEY (productInBestellungId) REFERENCES product_in_bestellung (id),

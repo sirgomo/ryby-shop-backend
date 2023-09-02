@@ -12,30 +12,19 @@ export class BestellungenController {
     @Get()
     async getClinet() {
         const client_id = env.CLIENT_ID;
-        try {
+   
             const clientToken = await this.service.generateClientToken();
             return {
                 client_id,
                 clientToken
             }
-        } catch (err) {
-            throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
     @Post('create')
-    async createOrder(@Body() order: any) {
-        try {
+    async createOrder(@Body() order: any) {  
            return await this.service.createOrder(order);
-        } catch (err) {
-            throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
     @Post('capture')
     async capturePayment(@Body() data: Payid ) {
-        try {
             return await this.service.capturePayment(data);
-        } catch (err) {
-            throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 }

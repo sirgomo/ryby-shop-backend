@@ -36,7 +36,7 @@ export class ProduktInBestellung {
 
   @ManyToOne(
     () => ProduktRueckgabe,
-    (produktRueckgabe) => produktRueckgabe.produkte,
+    (produktRueckgabe) => produktRueckgabe.produkte, { nullable: true}
   )
   productRucgabe: ProduktRueckgabe;
 }
