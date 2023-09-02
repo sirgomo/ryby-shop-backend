@@ -156,7 +156,7 @@ export class WarenEingangBuchenService {
       }
 
       items[i].produkt[0].currentmenge = currentMenge;
-      items[i].produkt[0].verfgbarkeit = true;
+      items[i].produkt[0].verfgbarkeit = 1;
       items[i].produkt[0].color = JSON.stringify(pcolor);
 
       let isItemAllready = false;

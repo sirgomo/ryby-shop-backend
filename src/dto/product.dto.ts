@@ -53,8 +53,8 @@ export class ProductDto{
  
     kategorie: Kategorie[];
   
-    @IsBoolean()
-    verfgbarkeit: boolean;
+    @IsNumber()
+    verfgbarkeit: number;
   
     @IsNumber()
     mindestmenge: number;

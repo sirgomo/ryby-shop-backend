@@ -69,6 +69,7 @@ export class ProductService {
         }
       }
       async getAllProdukteForKunden(search: string, katid: number, pagecount: number, pagenr: number): Promise<Produkt[]> {
+      
         if(!isFinite(pagenr) || pagenr < 1)
         pagenr = 1;
         const start = pagecount * pagenr - pagecount;
@@ -80,7 +81,7 @@ export class ProductService {
                     kategorie: {
                       id: katid,
                     },
-                    verfgbarkeit: true,
+                    verfgbarkeit: 1,
                   },
                 relations: {
                   kategorie: true,
@@ -96,7 +97,7 @@ export class ProductService {
           console.log(search)
                 return await this.produktRepository.find({ where: {
                   name: Like(`%${search}%`),
-                  verfgbarkeit: true,
+                  verfgbarkeit: 1,
                 },
                 relations: {
                   promocje: true,
@@ -112,7 +113,7 @@ export class ProductService {
             kategorie: {
               id: katid
             },
-            verfgbarkeit: true,
+            verfgbarkeit: 1,
           },
         relations: {
           kategorie: true,
@@ -127,7 +128,7 @@ export class ProductService {
         }
            
 
-          return await this.produktRepository.find( { where: { verfgbarkeit: true }});
+          return await this.produktRepository.find( { where: { verfgbarkeit: 1 }});
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }

@@ -62,7 +62,7 @@ export class Produkt {
   kategorie: Kategorie[];
 
   @Column('tinyint')
-  verfgbarkeit: boolean;
+  verfgbarkeit: number;
 
   @Column('int')
   mindestmenge: number;

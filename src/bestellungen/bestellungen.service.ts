@@ -156,15 +156,41 @@ export class BestellungenService {
     
   }
 
-      async getBestellung(id: number): Promise<Bestellung> {
+      async getOrderBeiId(id: number): Promise<Bestellung> {
         try {
-          return await this.bestellungRepository.findOne({ where: { id: id }});
+          return await this.bestellungRepository.findOne({ 
+            where: { id: id },
+            relations: { produkte: true, }
+          });
         } catch (error) {
           throw error;
         }
       }
-    
-      async updateBestellung(id: number, bestellungData: OrderDto): Promise<Bestellung> {
+      async getOrdersBeiKunde(kundeId: number): Promise<Bestellung[]> {
+        try {
+        return await this.bestellungRepository.find( { 
+          where: { kunde: {
+              id: kundeId,
+              }
+            },
+        relations: {
+          kunde: true,
+        }
+        })
+        
+        } catch (err) {
+          throw err;
+        }
+      }
+      async getOrders(): Promise<Bestellung[]> {
+        try {
+          return await this.bestellungRepository.find();
+        } catch (err) {
+          throw err;
+        }
+      }
+      
+      async updateOrder(id: number, bestellungData: OrderDto): Promise<Bestellung> {
         try {
           const bestellung = await this.bestellungRepository.findOne({ where: { id: id }});
           if (!bestellung) {
@@ -177,7 +203,7 @@ export class BestellungenService {
         }
       }
     
-      async deleteBestellung(id: number): Promise<void> {
+      async deleteOrder(id: number): Promise<void> {
         try {
           const bestellung = await this.bestellungRepository.findOne({ where: { id: id }});
           if (!bestellung) {
@@ -266,7 +292,7 @@ export class BestellungenService {
                           tmpItem.currentmenge -=  itemsInData[y].menge;
                           tmpItem.verkaufteAnzahl += itemsInData[y].menge;
                           if(itemsInTmp[z].menge == 0)
-                            tmpItem.verfgbarkeit = false;
+                            tmpItem.verfgbarkeit = 0;
                             
                           if(itemsInTmp[z].menge < 0)
                             throw new HttpException('3000/ ' + itemsInTmp[z].menge, HttpStatus.NOT_ACCEPTABLE);

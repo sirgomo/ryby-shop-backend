@@ -6,7 +6,6 @@ import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
 
 @Controller('order')
-//@UseGuards(JwtAuthGuard)
 export class BestellungenController {
     constructor(private readonly service: BestellungenService){}
     @Get()
@@ -26,5 +25,20 @@ export class BestellungenController {
     @Post('capture')
     async capturePayment(@Body() data: Payid ) {
             return await this.service.capturePayment(data);
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('/:id')
+    async getOrderById(@Param('id') id: number) {
+        return await this.service.getOrderBeiId(id);
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('/kunde/:id')
+    async getOrderByKundeId(@Param('id') id: number) {
+        return await this.service.getOrdersBeiKunde(id);
+    }
+    @UseGuards(JwtAuthGuard)
+    @Get('order/all')
+    async getAllOrders() {
+        return await this.service.getOrders();
     }
 }
