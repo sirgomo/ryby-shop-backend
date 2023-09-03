@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { BestellungenService } from './bestellungen.service';
 import { env } from 'src/env/env';
@@ -19,11 +19,11 @@ export class BestellungenController {
             }
     }
     @Post('create')
-    async createOrder(@Body() order: any) {  
+    async createOrder(@Body(ValidationPipe) order: OrderDto) {  
            return await this.service.createOrder(order);
     }
     @Post('capture')
-    async capturePayment(@Body() data: Payid ) {
+    async capturePayment(@Body(ValidationPipe) data: Payid ) {
             return await this.service.capturePayment(data);
     }
     @UseGuards(JwtAuthGuard)
@@ -37,8 +37,13 @@ export class BestellungenController {
         return await this.service.getOrdersBeiKunde(id);
     }
     @UseGuards(JwtAuthGuard)
-    @Get('order/all')
+    @Get('all')
     async getAllOrders() {
         return await this.service.getOrders();
+    }
+    @UseGuards(JwtAuthGuard)
+    @Post('update')
+    async updateOrder(@Body(ValidationPipe) body: OrderDto ) {
+        return await this.service.updateOrder(body.id, body);
     }
 }

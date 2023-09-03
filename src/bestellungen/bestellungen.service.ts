@@ -5,7 +5,7 @@ import { ColorDto } from 'src/dto/color.dto';
 import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
 import { PaypalItem } from 'src/dto/paypalItem.dto';
-import { BESTELLUNGSSTATUS, Bestellung } from 'src/entity/bestellungEntity';
+import { BESTELLUNGSSTATE, BESTELLUNGSSTATUS, Bestellung } from 'src/entity/bestellungEntity';
 import { Kunde } from 'src/entity/kundeEntity';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { Produkt } from 'src/entity/produktEntity';
@@ -21,6 +21,8 @@ export class BestellungenService {
 
     async createOrder(bestellungData: OrderDto): Promise<any> {
         try {
+          //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order, 
+          //quantity cannot be less than 0.
          await this.isPriceMengeChecked(bestellungData);
      
          bestellungData.gesamtwert = Number((this.getTotalPrice(bestellungData) + bestellungData.versandprice).toFixed(2));
@@ -100,16 +102,17 @@ export class BestellungenService {
     }
     return total.toFixed(2);
   }
-    
+    //Paid, now save the order and current list of products in the transaction
   async saveOrder(readyBesttelung: OrderDto) {
      try {
       readyBesttelung.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
       readyBesttelung.bestelldatum = new Date(Date.now());
       readyBesttelung.gesamtwert = Number((this.getTotalPrice(readyBesttelung) + readyBesttelung.versandprice).toFixed(2));
-
+      //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order, 
+      //quantity cannot be less than 0.
       const itemsTosave = await this.isPriceMengeChecked(readyBesttelung);
   
-
+      readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
       await this.bestellungRepository.manager.transaction(async (transactionalEntityMange) => {
       
         if(readyBesttelung.kunde.id) {
@@ -175,6 +178,7 @@ export class BestellungenService {
             },
         relations: {
           kunde: true,
+          produkte: true,
         }
         })
         
@@ -192,24 +196,17 @@ export class BestellungenService {
       
       async updateOrder(id: number, bestellungData: OrderDto): Promise<Bestellung> {
         try {
-          const bestellung = await this.bestellungRepository.findOne({ where: { id: id }});
-          if (!bestellung) {
+          const bestellung: Bestellung = await this.bestellungRepository.findOne({ 
+            where: { id: id },
+          });
+          if (!bestellung) 
             throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
-          }
+          
+          if(bestellung.status == BESTELLUNGSSTATE.ABGEBROCHEN || bestellung.status == BESTELLUNGSSTATE.ARCHIVED)
+            throw new HttpException('Bestellung kann nicht geändert werden!', HttpStatus.BAD_REQUEST);
+
           this.bestellungRepository.merge(bestellung, bestellungData);
           return await this.bestellungRepository.save(bestellung);
-        } catch (error) {
-          throw error;
-        }
-      }
-    
-      async deleteOrder(id: number): Promise<void> {
-        try {
-          const bestellung = await this.bestellungRepository.findOne({ where: { id: id }});
-          if (!bestellung) {
-            throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
-          }
-          await this.bestellungRepository.remove(bestellung);
         } catch (error) {
           throw error;
         }

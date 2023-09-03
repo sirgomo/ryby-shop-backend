@@ -48,10 +48,19 @@ export class Bestellung {
   versandart: string;
   @Column({type: 'decimal', nullable: false })
   versandprice: number;
+  @Column({type: 'varchar'})
+  varsandnr: string;
  
 }
 
 export enum BESTELLUNGSSTATUS {
   INBEARBEITUNG = 'INBEARBEITUNG',
   VERSCHICKT = 'VERSCHICKT',
+}
+
+export enum BESTELLUNGSSTATE {
+  ABGEBROCHEN = 'ABGEBROCHEN',
+  BEZAHLT = 'BEZAHLT',
+  COMPLETE = 'COMPLETE',
+  ARCHIVED = 'ARCHIVED',
 }

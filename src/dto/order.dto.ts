@@ -19,4 +19,5 @@ export class OrderDto {
     bestellungstatus: BESTELLUNGSSTATUS;
     versandart: string;
     versandprice: number;
+    varsandnr: string;
 }

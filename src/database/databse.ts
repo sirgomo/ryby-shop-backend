@@ -169,6 +169,7 @@ export class Database {
             bestellungstatus VARCHAR(255) NOT NULL,
             versandart VARCHAR(255) NOT NULL,
             versandprice DECIMAL(10,2) NOT NULL,
+            varsandnr VARCHAR(255),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
           CREATE TABLE IF NOT EXISTS waren_ausgang (
