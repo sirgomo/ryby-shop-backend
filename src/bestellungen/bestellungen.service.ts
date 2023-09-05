@@ -188,7 +188,11 @@ export class BestellungenService {
       }
       async getOrders(): Promise<Bestellung[]> {
         try {
-          return await this.bestellungRepository.find();
+          console.log('find')
+          return await this.bestellungRepository.find().catch((err) => {
+            console.log(err);
+            return err;
+          });
         } catch (err) {
           throw err;
         }
