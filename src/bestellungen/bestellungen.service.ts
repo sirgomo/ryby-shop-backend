@@ -163,7 +163,11 @@ export class BestellungenService {
         try {
           return await this.bestellungRepository.findOne({ 
             where: { id: id },
-            relations: { produkte: true, }
+            relations: { 
+              produkte: {
+                produkt: true,
+               } 
+            }
           });
         } catch (error) {
           throw error;

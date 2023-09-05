@@ -31,7 +31,7 @@ export class Bestellung {
   status: string;
 
   @Column()
-  lieferdatum: Date;
+  versand_datum: Date;
 
   @Column()
   zahlungsart: string;

@@ -12,7 +12,7 @@ export class OrderDto {
     produkte: ProductBestellungDto[];
     bestelldatum: Date;
     status: string;
-    lieferdatum: Date;
+    versand_datum: Date;
     zahlungsart: string;
     gesamtwert: number;
     zahlungsstatus: string;

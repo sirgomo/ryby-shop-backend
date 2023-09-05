@@ -162,7 +162,7 @@ export class Database {
             kundeId INT,
             bestelldatum DATE,
             status VARCHAR(255),
-            lieferdatum DATE,
+            versand_datum DATE,
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL(10,2),
             zahlungsstatus VARCHAR(255),
