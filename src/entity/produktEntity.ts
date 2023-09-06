@@ -16,6 +16,7 @@ import { WareneingangProduct } from './warenEingangProductEntity';
 import { WarenausgangProduct } from './warenAusgangProductEntity';
 import { Aktion } from './aktionEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
+import { EanEntity } from './eanEntity';
 
 @Entity('produkt')
 export class Produkt {
@@ -75,8 +76,7 @@ export class Produkt {
   lange: number;
   @Column('int')
   gewicht: number;
-
-
+  
   @Column('int')
   verkaufteAnzahl: number;
 
@@ -99,4 +99,8 @@ export class Produkt {
   @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.produkt)
   @JoinTable()
   bewertung: Kundenbewertung[];
+
+  @OneToMany(() => EanEntity, (ean) => ean.product, {cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @JoinTable()
+  eans: EanEntity[];
 }

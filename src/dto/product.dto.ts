@@ -7,6 +7,7 @@ import { Stellplatze } from "src/entity/stellplatzeEntity";
 import { WarenausgangProduct } from "src/entity/warenAusgangProductEntity";
 import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsOptional } from "class-validator";
 import { ProduktInBestellung } from "src/entity/productBestellungEntity";
+import { EanEntity } from "src/entity/eanEntity";
 
 export class ProductDto{
     id: number | undefined;
@@ -80,5 +81,6 @@ export class ProductDto{
     promocje: Aktion[];
   
     bewertung: Kundenbewertung[];
+    eans: EanEntity[];
 }
       

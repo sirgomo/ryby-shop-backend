@@ -30,6 +30,7 @@ import { CompanyDataEntity } from './entity/companyDataEntity';
 import { CompanyModule } from './company/company.module';
 import { WarenAusgangBuchenModule } from './waren-ausgang-buchen/waren-ausgang-buchen.module';
 import { BestellungenModule } from './bestellungen/bestellungen.module';
+import { EanEntity } from './entity/eanEntity';
 
 
 
@@ -60,7 +61,8 @@ import { BestellungenModule } from './bestellungen/bestellungen.module';
         Wareneingang,
         WareneingangProduct,
         Stellplatze,
-        CompanyDataEntity
+        CompanyDataEntity,
+        EanEntity
       ],
       synchronize: false,
     }),

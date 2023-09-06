@@ -145,6 +145,7 @@ export class ProductService {
             wareneingang: true,
             promocje: true,
             bewertung: true,
+            eans: true,
           }}).catch((err) => {
             console.log(err)
             throw err;
@@ -157,6 +158,7 @@ export class ProductService {
       async createProdukt(productDto: ProductDto): Promise<Produkt> {
         try {
           const produkt = await this.produktRepository.create(productDto);
+    
           return await this.produktRepository.save(produkt).catch((err) => {
             console.log(err)
             throw err;
@@ -168,18 +170,29 @@ export class ProductService {
       }
     
       async updateProdukt(id: number, productDto: ProductDto): Promise<Produkt> {
-        console.log(productDto)
+     
         try {
           const produkt = await this.produktRepository.findOne({where: { id: id }});
           if (!produkt) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
           }
+     
+         
           await this.produktRepository.merge(produkt, productDto);
+          if(productDto.eans && productDto.eans.length > 0) {
+            for (let i = 0; i < productDto.eans.length; i++) {
+           
+                    produkt.eans[i].product = { id: produkt.id } as Produkt;
+            }
+          }
+        
+         
           return await this.produktRepository.save(produkt).catch((err) => {
             console.log(err)
             return err;
           });
         } catch (error) {
+          console.log(error)
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
         }
       }

@@ -225,6 +225,12 @@ export class Database {
             FOREIGN KEY (kundeId) REFERENCES kunde (id),
             FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
+          CREATE TABLE IF NOT EXISTS ean (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            productId INT,
+            eanCode VARCHAR(255),
+            FOREIGN KEY (productId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
+          );
           
           CREATE TABLE IF NOT EXISTS produkt_kategorie_kategorie (
             produktId INT,
