@@ -94,5 +94,10 @@ export class ProductController {
     async getAllProduktsForBuchung(@Param('id') id: number) {
       return await this.productService.getProduktsForBuchung(id);
     }
+    @Delete('ean/:id')
+    @UseGuards(JwtAuthGuard)
+    async deleteEanById(@Param('id') id: number) {
+      return await this.productService.deleteEan(id);
+    }
 
 }

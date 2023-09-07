@@ -5,7 +5,7 @@ import { Produkt } from "./produktEntity";
 export class EanEntity {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column()
+    @Column({ type: 'varchar', unique: true })
     eanCode: string;
 
     @ManyToOne(() => Produkt, (product) => product.eans)

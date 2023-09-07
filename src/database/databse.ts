@@ -228,7 +228,7 @@ export class Database {
           CREATE TABLE IF NOT EXISTS ean (
             id INT AUTO_INCREMENT PRIMARY KEY,
             productId INT,
-            eanCode VARCHAR(255),
+            eanCode VARCHAR(255) UNIQUE,
             FOREIGN KEY (productId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           

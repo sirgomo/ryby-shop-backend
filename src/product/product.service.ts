@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductDto } from 'src/dto/product.dto';
+import { EanEntity } from 'src/entity/eanEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { DeleteResult, Like, NumericType, Repository } from 'typeorm';
 
@@ -10,6 +11,7 @@ export class ProductService {
     constructor(
         @InjectRepository(Produkt)
         private produktRepository: Repository<Produkt>,
+        @InjectRepository(EanEntity) private readonly eanRepo: Repository<EanEntity>,
       ) {}
     
       async getAllProdukte(search: string, katid: number, pagecount: number, pagenr: number): Promise<Produkt[]> {
@@ -172,20 +174,17 @@ export class ProductService {
       async updateProdukt(id: number, productDto: ProductDto): Promise<Produkt> {
      
         try {
-          const produkt = await this.produktRepository.findOne({where: { id: id }});
+          const produkt = await this.produktRepository.findOne({where: { id: id },
+          relations: {
+            eans: true,
+          }});
           if (!produkt) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
           }
      
-         
-          await this.produktRepository.merge(produkt, productDto);
-          if(productDto.eans && productDto.eans.length > 0) {
-            for (let i = 0; i < productDto.eans.length; i++) {
-           
-                    produkt.eans[i].product = { id: produkt.id } as Produkt;
-            }
-          }
         
+          await this.produktRepository.merge(produkt, productDto);
+ 
          
           return await this.produktRepository.save(produkt).catch((err) => {
             console.log(err)
@@ -197,6 +196,7 @@ export class ProductService {
         }
       }
     
+
       async deleteProdukt(id: number): Promise<DeleteResult> {
         try {
           return await this.produktRepository.delete(id).catch((err) => {
@@ -257,6 +257,13 @@ export class ProductService {
           }})
         } catch (err ) {
           return new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        }
+      }
+      async deleteEan(id: number): Promise<DeleteResult> {
+        try {
+          return this.eanRepo.delete({ 'id': id});
+        } catch (err) {
+          throw err;
         }
       }
 }

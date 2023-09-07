@@ -5,5 +5,5 @@ export class EanDto {
     @IsOptional()
     id: number;
     eanCode: string;
-    product: Produkt;
+
 }
