@@ -112,13 +112,7 @@ export class BestellungenService {
       //quantity cannot be less than 0.
       const itemsTosave = await this.isPriceMengeChecked(readyBesttelung);
 
-      for( let i = 0 ; i < readyBesttelung.produkte.length; i++) {
-        readyBesttelung.produkte[i].menge = 0;
-        const colors: ColorDto[] = JSON.parse(readyBesttelung.produkte[i].color);
-        for (let z = 0; z < colors.length; z++) {
-          readyBesttelung.produkte[i].menge += colors[z].menge;
-        }
-      }
+      this.setProduktQuanity(readyBesttelung);
   
       readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
       await this.bestellungRepository.manager.transaction(async (transactionalEntityMange) => {
@@ -161,6 +155,16 @@ export class BestellungenService {
 
 
     
+  }
+
+  private setProduktQuanity(readyBesttelung: OrderDto) {
+    for (let i = 0; i < readyBesttelung.produkte.length; i++) {
+      readyBesttelung.produkte[i].menge = 0;
+      const colors: ColorDto[] = JSON.parse(readyBesttelung.produkte[i].color);
+      for (let z = 0; z < colors.length; z++) {
+        readyBesttelung.produkte[i].menge += colors[z].menge;
+      }
+    }
   }
 
       async getOrderBeiId(id: number): Promise<Bestellung> {
@@ -292,11 +296,15 @@ export class BestellungenService {
                    throw new HttpException('Produkct ' + data.produkte[i].produkt[0].id + ' wurde nicht gefunden!', HttpStatus.NOT_FOUND);
 
                 data.produkte[i].produkt[0] = tmpItem;
+                if(tmpItem.promocje && tmpItem.promocje[0])
+                  data.produkte[i].rabatt = tmpItem.promocje[0].rabattProzent;
                 itemsInTmp = JSON.parse(tmpItem.color);
               } else {
                 data.produkte[i].produkt[0] = items[index];
                 itemsInTmp = JSON.parse(items[index].color);
                 tmpItem = items[index];
+                if(items[index].promocje && items[index].promocje[0])
+                data.produkte[i].rabatt = items[index].promocje[0].rabattProzent;
               }
   
               const itemsInData: ColorDto[] = JSON.parse(data.produkte[i].color);
