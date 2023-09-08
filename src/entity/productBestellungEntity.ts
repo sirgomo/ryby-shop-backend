@@ -25,8 +25,10 @@ export class ProduktInBestellung {
   @Column('int')
   menge: number;
 
-  @Column()
+  @Column('varchar')
   color: string;
+  @Column('varchar')
+  color_gepackt: string;
 
   @Column('decimal')
   rabatt: number;

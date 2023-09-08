@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Res, UseGuards, ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { BestellungenService } from './bestellungen.service';
 import { env } from 'src/env/env';
@@ -35,7 +35,7 @@ export class BestellungenController {
       return await this.service.getOrders();
     }
  
-    @Post('update')
+    @Patch('update')
     @UseGuards(JwtAuthGuard)
     async updateOrder(@Body(ValidationPipe) body: OrderDto ) {
         return await this.service.updateOrder(body.id, body);

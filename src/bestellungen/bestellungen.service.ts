@@ -111,6 +111,14 @@ export class BestellungenService {
       //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order, 
       //quantity cannot be less than 0.
       const itemsTosave = await this.isPriceMengeChecked(readyBesttelung);
+
+      for( let i = 0 ; i < readyBesttelung.produkte.length; i++) {
+        readyBesttelung.produkte[i].menge = 0;
+        const colors: ColorDto[] = JSON.parse(readyBesttelung.produkte[i].color);
+        for (let z = 0; z < colors.length; z++) {
+          readyBesttelung.produkte[i].menge += colors[z].menge;
+        }
+      }
   
       readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
       await this.bestellungRepository.manager.transaction(async (transactionalEntityMange) => {
@@ -132,11 +140,7 @@ export class BestellungenService {
       
 
         const kunde = await transactionalEntityMange.create(Kunde, readyBesttelung.kunde);
-        console.log(kunde)
         const newKunde = await transactionalEntityMange.save(Kunde, kunde);
-        console.log(newKunde);
- 
-
         readyBesttelung.kunde = newKunde;
       }
       readyBesttelung.zahlungsart = 'PAYPAL'
@@ -166,7 +170,8 @@ export class BestellungenService {
             relations: { 
               produkte: {
                 produkt: true,
-               } 
+               },
+               kunde: true, 
             }
           });
         } catch (error) {
@@ -209,6 +214,13 @@ export class BestellungenService {
           });
           if (!bestellung) 
             throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
+
+
+          if(bestellungData.status === BESTELLUNGSSTATE.ABGEBROCHEN && bestellung.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT)
+           throw new HttpException('Bestellung kann nicht abgebrochen werden wenn es bereits verschickt wurde', HttpStatus.BAD_REQUEST);
+
+          if( (bestellungData.status === BESTELLUNGSSTATE.COMPLETE || bestellungData.status === BESTELLUNGSSTATE.ARCHIVED) && bestellung.bestellungstatus === BESTELLUNGSSTATUS.INBEARBEITUNG)
+           throw new HttpException('Bestellung ist nocht nicht verschickt', HttpStatus.BAD_REQUEST);
           
           if(bestellung.status == BESTELLUNGSSTATE.ABGEBROCHEN || bestellung.status == BESTELLUNGSSTATE.ARCHIVED)
             throw new HttpException('Bestellung kann nicht geändert werden!', HttpStatus.BAD_REQUEST);

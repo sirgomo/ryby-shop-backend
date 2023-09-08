@@ -206,6 +206,7 @@ export class Database {
             produktId INT,
             menge INT,
             color VARCHAR(255),
+            color_gepackt(255),
             rabatt DECIMAL(5,2),
             mengeGepackt INT,
             productRucgabeId INT,

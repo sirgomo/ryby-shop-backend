@@ -8,6 +8,7 @@ export class ProductBestellungDto {
     produkt: Produkt[];
     menge: number;
     color: string;
+    color_gepackt:string;
     rabatt: number;
     mengeGepackt: number;
     productRucgabe: ProduktRueckgabe;
