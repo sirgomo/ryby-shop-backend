@@ -15,8 +15,6 @@ import { Produkt } from './entity/produktEntity';
 import { ProduktInBestellung } from './entity/productBestellungEntity';
 import { ProduktRueckgabe } from './entity/productRuckgabeEntity';
 import { Aktion } from './entity/aktionEntity';
-import { Warenausgang } from './entity/warenAusgangEntity';
-import { WarenausgangProduct } from './entity/warenAusgangProductEntity';
 import { Wareneingang } from './entity/warenEingangEntity';
 import { WareneingangProduct } from './entity/warenEingangProductEntity';
 import { Stellplatze } from './entity/stellplatzeEntity';
@@ -28,7 +26,6 @@ import { ProductModule } from './product/product.module';
 import { WarenEingangBuchenModule } from './waren-eingang-buchen/waren-eingang-buchen.module';
 import { CompanyDataEntity } from './entity/companyDataEntity';
 import { CompanyModule } from './company/company.module';
-import { WarenAusgangBuchenModule } from './waren-ausgang-buchen/waren-ausgang-buchen.module';
 import { BestellungenModule } from './bestellungen/bestellungen.module';
 import { EanEntity } from './entity/eanEntity';
 
@@ -56,8 +53,6 @@ import { EanEntity } from './entity/eanEntity';
         ProduktInBestellung,
         ProduktRueckgabe,
         Aktion,
-        Warenausgang,
-        WarenausgangProduct,
         Wareneingang,
         WareneingangProduct,
         Stellplatze,
@@ -73,7 +68,6 @@ import { EanEntity } from './entity/eanEntity';
     ProductModule,
     WarenEingangBuchenModule,
     CompanyModule,
-    WarenAusgangBuchenModule,
     BestellungenModule,
     
   ],

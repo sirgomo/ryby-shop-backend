@@ -172,23 +172,7 @@ export class Database {
             varsandnr VARCHAR(255),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
-          CREATE TABLE IF NOT EXISTS waren_ausgang (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            bestellungId INT,
-            ausgangsdatum DATE,
-            rechnung VARCHAR(255),
-            datenEingabe DATE,
-            zahlungsstatus VARCHAR(255),
-            FOREIGN KEY (bestellungId) REFERENCES bestellung (id)
-          );
-          CREATE TABLE IF NOT EXISTS waren_ausgang_product (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            warenausgangId INT,
-            menge INT,
-            preis DECIMAL(10,2),
-            mwst INT,
-            FOREIGN KEY (warenausgangId) REFERENCES waren_ausgang (id)
-          );
+        
           CREATE TABLE IF NOT EXISTS product_ruckgabe (
             id INT AUTO_INCREMENT PRIMARY KEY,
             bestellungId INT,
@@ -288,21 +272,7 @@ export class Database {
             FOREIGN KEY (waren_eingang_productId) REFERENCES waren_eingang_product (id),
             FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id)
           );
-          
-          CREATE TABLE IF NOT EXISTS produkt_warenausgang_waren_ausgang_product (
-            warenAusgangProductId INT,
-            produktId INT,
-            FOREIGN KEY (warenAusgangProductId) REFERENCES waren_ausgang_product (id),
-            FOREIGN KEY (produktId) REFERENCES produkt (id)
-          );
-          
-        
-          CREATE TABLE IF NOT EXISTS waren_ausgang_product_warenausgang (
-            waren_ausgang_product_id INT,
-            warenausgang_id INT,
-            FOREIGN KEY (waren_ausgang_product_id) REFERENCES waren_ausgang_product (id),
-            FOREIGN KEY (warenausgang_id) REFERENCES waren_ausgang (id)
-          );
+      
           
           CREATE TABLE IF NOT EXISTS stellplatze_produkt (
             stellplatze_id INT,

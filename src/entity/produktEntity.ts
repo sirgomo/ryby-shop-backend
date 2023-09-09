@@ -13,7 +13,6 @@ import { Stellplatze } from './stellplatzeEntity';
 import { ProduktInBestellung } from './productBestellungEntity';
 import { Kategorie } from './kategorieEntity';
 import { WareneingangProduct } from './warenEingangProductEntity';
-import { WarenausgangProduct } from './warenAusgangProductEntity';
 import { Aktion } from './aktionEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 import { EanEntity } from './eanEntity';
@@ -84,9 +83,6 @@ export class Produkt {
   @JoinTable()
   wareneingang: WareneingangProduct[];
 
-  @ManyToMany(() => WarenausgangProduct)
-  @JoinTable()
-  warenausgang: WarenausgangProduct[];
 
   @Column('int')
   mehrwehrsteuer: number;

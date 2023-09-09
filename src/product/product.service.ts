@@ -143,7 +143,6 @@ export class ProductService {
             bestellungen: true,
             lieferant: true,
             kategorie: true,
-            warenausgang: true,
             wareneingang: true,
             promocje: true,
             bewertung: true,
