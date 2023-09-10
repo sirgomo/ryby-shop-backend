@@ -4,6 +4,8 @@ import { BestellungenService } from './bestellungen.service';
 import { env } from 'src/env/env';
 import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
+import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
+
 
 @Controller('order')
 export class BestellungenController {
@@ -29,10 +31,10 @@ export class BestellungenController {
         return await this.service.getOrdersBeiKunde(id);
     }
 
-    @Get('all/get')
+    @Post('all/get/:sitenr')
     @UseGuards(JwtAuthGuard)
-    async getAllOrders() {
-      return await this.service.getOrders();
+    async getAllOrders(@Body(ValidationPipe) items: GetOrderSettingsDto, @Param('sitenr') sitenr: number) {
+      return await this.service.getOrders(items, sitenr);
     }
  
     @Patch('update')

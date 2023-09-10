@@ -12,6 +12,7 @@ import { Produkt } from 'src/entity/produktEntity';
 import { env } from 'src/env/env';
 import { EntityManager, JsonContains, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
+import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 
 @Injectable()
 export class BestellungenService {
@@ -199,10 +200,18 @@ export class BestellungenService {
           throw err;
         }
       }
-      async getOrders(): Promise<Bestellung[]> {
+      async getOrders(getSettings: GetOrderSettingsDto, sitenr: number): Promise<Bestellung[]> {
+        console.log(getSettings)
         try {
-          console.log('find')
-          return await this.bestellungRepository.find().catch((err) => {
+          const skip = sitenr * getSettings.itemsProSite - getSettings.itemsProSite;
+          return await this.bestellungRepository.findAndCount({
+            where: {
+              status: getSettings.state,
+              bestellungstatus: getSettings.status,
+            },
+            take: getSettings.itemsProSite,
+            skip: skip
+          }).catch((err) => {
             console.log(err);
             return err;
           });
@@ -230,6 +239,7 @@ export class BestellungenService {
             throw new HttpException('Bestellung kann nicht geändert werden!', HttpStatus.BAD_REQUEST);
 
           this.bestellungRepository.merge(bestellung, bestellungData);
+          console.log(bestellung)
           return await this.bestellungRepository.save(bestellung);
         } catch (error) {
           throw error;
