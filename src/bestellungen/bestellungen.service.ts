@@ -201,7 +201,7 @@ export class BestellungenService {
         }
       }
       async getOrders(getSettings: GetOrderSettingsDto, sitenr: number): Promise<Bestellung[]> {
-        console.log(getSettings)
+       
         try {
           const skip = sitenr * getSettings.itemsProSite - getSettings.itemsProSite;
           return await this.bestellungRepository.findAndCount({

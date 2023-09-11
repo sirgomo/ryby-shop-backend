@@ -36,6 +36,13 @@ export class ProduktInBestellung {
   @Column('int')
   mengeGepackt: number;
 
+  @Column('decimal')
+  verkauf_price: number;
+  @Column('decimal')
+  verkauf_rabat: number;
+  @Column('decimal')
+  verkauf_steuer: number;
+
   @ManyToOne(
     () => ProduktRueckgabe,
     (produktRueckgabe) => produktRueckgabe.produkte, { nullable: true}
