@@ -13,6 +13,8 @@ export class CompanyDataEntity {
     @Column({type: 'varchar', nullable: false})
     city: string;
     @Column({type: 'varchar', nullable: false})
+    postleitzahl: string;
+    @Column({type: 'varchar', nullable: false})
     country: string;
     @Column({type: 'varchar', nullable: false})
     phone: string;
@@ -20,4 +22,14 @@ export class CompanyDataEntity {
     email: string;
     @Column({type: 'tinyint', nullable: false})
     isKleinUnternehmen: number;
+    @Column({ type: 'varchar', nullable: false})
+    ustNr: string;
+    @Column('varchar')
+    fax: string;
+    @Column('text')
+    eu_komm_hinweis: string;
+    @Column('text')
+    agb: string;
+    @Column('text')
+    daten_schutzt: string;
 }

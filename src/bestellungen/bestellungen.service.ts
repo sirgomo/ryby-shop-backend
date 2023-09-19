@@ -51,7 +51,7 @@ export class BestellungenService {
                     breakdown: {
                       item_total: {
                         currency_code: 'EUR',
-                        value:  this.getTotalValue(bestellungData),
+                        value:  this.getTotalNettoValue(bestellungData),
                       },
                       shipping: {
                         currency_code: 'EUR',
@@ -92,8 +92,8 @@ export class BestellungenService {
           throw error;
         }
       }
-  
-  getTotalValue(bestellungData: OrderDto) {
+  //get total netto value - promotion
+  getTotalNettoValue(bestellungData: OrderDto) {
     let total = 0;
     for (let i = 0; i < bestellungData.produkte.length; i++) {
       const color :ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
@@ -176,7 +176,10 @@ export class BestellungenService {
               produkte: {
                 produkt: true,
                },
-               kunde: true, 
+               kunde: {
+                adresse: true,
+                lieferadresse: true,
+               }, 
             }
           });
         } catch (error) {
@@ -184,6 +187,7 @@ export class BestellungenService {
         }
       }
       async getOrdersBeiKunde(kundeId: number): Promise<Bestellung[]> {
+       
         try {
         return await this.bestellungRepository.find( { 
           where: { kunde: {
@@ -281,6 +285,7 @@ export class BestellungenService {
         }
         return items;
       }
+      //Check if there is sufficient quantity of items, set the prices
       private async isPriceMengeChecked(data: OrderDto) {
         try {
           const items: Produkt[] = [];
@@ -308,6 +313,7 @@ export class BestellungenService {
                 data.produkte[i].produkt[0] = tmpItem;
                 if(tmpItem.promocje && tmpItem.promocje[0])
                   data.produkte[i].rabatt = tmpItem.promocje[0].rabattProzent;
+        
                 itemsInTmp = JSON.parse(tmpItem.color);
               } else {
                 data.produkte[i].produkt[0] = items[index];
@@ -315,8 +321,12 @@ export class BestellungenService {
                 tmpItem = items[index];
                 if(items[index].promocje && items[index].promocje[0])
                 data.produkte[i].rabatt = items[index].promocje[0].rabattProzent;
+            
               }
-  
+
+              data.produkte[i].verkauf_price = this.getPiceNettoPrice(data, i);
+              data.produkte[i].verkauf_rabat = this.getPromotionCost(data, i);
+              data.produkte[i].verkauf_steuer = this.getTax(data, i);
               const itemsInData: ColorDto[] = JSON.parse(data.produkte[i].color);
           
   
@@ -345,6 +355,7 @@ export class BestellungenService {
         }
 
       }
+      //get price - promotion % and + tax
   private getTotalPrice(bestellungData: OrderDto): number {
         let totalPrice = 0;
         for (let i = 0; i < bestellungData.produkte.length; i++) {
@@ -360,6 +371,7 @@ export class BestellungenService {
      
       return totalPrice;
     }
+    //get tax for item
  private getTax(bestellungData: OrderDto, i: number): number {
     let picePrice = Number(bestellungData.produkte[i].produkt[0].preis);
     let tax = 0;
@@ -368,13 +380,20 @@ export class BestellungenService {
 
     return Number(tax.toFixed(2));
   }
-
+//get netto price - promotion
   private getPiceNettoPrice(bestellungData: OrderDto, i: number): number {
     let picePrice = Number(bestellungData.produkte[i].produkt[0].preis);
     if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent)
       picePrice -= picePrice * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
 
       return picePrice;
+  }
+  //get promotion cost
+  private getPromotionCost(bestellungData: OrderDto, i: number): number {
+    let rabatCost = 0;
+    if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent > 0)
+    rabatCost = bestellungData.produkte[i].produkt[0].preis * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
+    return Number(rabatCost.toFixed(2));
   }
   // generate access token
   private async generateAccessToken() {

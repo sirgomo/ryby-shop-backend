@@ -34,7 +34,12 @@ export class Database {
             country VARCHAR(255) NOT NULL,
             phone VARCHAR(255) NOT NULL,
             email VARCHAR(255) NOT NULL,
-            isKleinUnternehmen TINYINT NOT NULL
+            isKleinUnternehmen TINYINT NOT NULL,
+            ustNr VARCHAR(255) NOT NULL,
+            fax VARCHAR(255),
+            eu_komm_hinsweis TEXT,
+            agb TEXT,
+            daten_schutzt TEXT
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,

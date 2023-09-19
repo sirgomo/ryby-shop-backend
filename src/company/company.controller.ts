@@ -10,7 +10,6 @@ export class CompanyController {
     constructor(private companyService: CompanyService) {}
 
     @Get()
-    @UseGuards(JwtAuthGuard)
     async getAllCompanies(): Promise<CompanyDataEntity[]> {
       return await this.companyService.getAllCompanies();
     }
