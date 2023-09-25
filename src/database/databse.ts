@@ -39,7 +39,8 @@ export class Database {
             fax VARCHAR(255),
             eu_komm_hinsweis TEXT,
             agb TEXT,
-            daten_schutzt TEXT
+            daten_schutzt TEXT,
+            cookie_info TEXT
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,

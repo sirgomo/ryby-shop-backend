@@ -32,4 +32,6 @@ export class CompanyDataEntity {
     agb: string;
     @Column('text')
     daten_schutzt: string;
+    @Column('text')
+    cookie_info: string;
 }

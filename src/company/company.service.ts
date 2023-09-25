@@ -70,4 +70,19 @@ export class CompanyService {
             throw error;
         }
       }
+      async getCookies(): Promise<CompanyDataEntity> {
+      
+        try {
+          return await this.companyRepository.findOne({ 
+            where: { id: 1},
+            select: { 
+              id: true,
+              cookie_info: true }
+          });
+        } catch (err) {
+          console.log(err);
+          throw new HttpException('Cookies not found', HttpStatus.NOT_FOUND);
+        }
+       
+      }
 }

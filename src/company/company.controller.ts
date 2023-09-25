@@ -36,4 +36,8 @@ export class CompanyController {
     async deleteCompany(@Param('id') id: number): Promise<DeleteResult> {
       return await this.companyService.deleteCompany(id);
     }
+    @Get('cookie/get')
+    async getCookies() {
+      return await this.companyService.getCookies();
+    }
 }
