@@ -27,7 +27,7 @@ export class EbayService {
 
             await this.renevToken(token);
         }
-        return await this.request.getRequest(env.ebay_api+'/sell/fulfillment/v1/orders', this.currentToken.access_token );
+        return await this.request.getRequest(env.ebay_api+'/sell/fulfillment/v1/order?limit=50&offset=0', this.currentToken.access_token );
 
         } catch (err) {
             console.log(err);

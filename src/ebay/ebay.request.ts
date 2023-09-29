@@ -19,16 +19,17 @@ export class EbayRequest {
         
     }
     async getRequest(endpoint: string, token) {
+      
       const  headers = {
         'Accept': 'application/json',
-        'Authorization': token
+        'Authorization': 'Bearer '+ token
     }
       try {
         const res = await fetch(endpoint, {
           headers: headers,
           method: 'GET',
         });
-        console.log(res)
+       
         return res.json();
       } catch (err) {
         return err;
