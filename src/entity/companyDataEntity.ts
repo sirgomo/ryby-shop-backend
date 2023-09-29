@@ -34,4 +34,6 @@ export class CompanyDataEntity {
     daten_schutzt: string;
     @Column('text')
     cookie_info: string;
+    @Column('varchar')
+    ebay_refresh_token: string;
 }

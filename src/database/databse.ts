@@ -40,7 +40,8 @@ export class Database {
             eu_komm_hinsweis TEXT,
             agb TEXT,
             daten_schutzt TEXT,
-            cookie_info TEXT
+            cookie_info TEXT,
+            ebay_refresh_token VARCHAR(255),
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,

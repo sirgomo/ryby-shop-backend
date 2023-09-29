@@ -28,6 +28,7 @@ import { CompanyDataEntity } from './entity/companyDataEntity';
 import { CompanyModule } from './company/company.module';
 import { BestellungenModule } from './bestellungen/bestellungen.module';
 import { EanEntity } from './entity/eanEntity';
+import { EbayModule } from './ebay/ebay.module';
 
 
 
@@ -69,6 +70,7 @@ import { EanEntity } from './entity/eanEntity';
     WarenEingangBuchenModule,
     CompanyModule,
     BestellungenModule,
+    EbayModule,
     
   ],
   controllers: [AppController],

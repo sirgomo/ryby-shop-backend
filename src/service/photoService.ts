@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { v4 as uuidv4 } from 'uuid';
 import * as path from "path";
 
-import * as sharp from "sharp";
+//import * as sharp from "sharp";
 import { createReadStream, unlinkSync } from "fs";
 import { DeleteFileDto } from "src/dto/deleteFilde.dto";
 
@@ -10,7 +10,8 @@ import { DeleteFileDto } from "src/dto/deleteFilde.dto";
 export class PhotoService {
   fsExtra = require('fs-extra');
 
-   savePhoto(file): { imageid: string} {
+  async savePhoto(file): Promise<{ imageid: string}> {
+    const sharp = (await import('sharp')).default;
     try {
       const uniqueName = uuidv4();
       const uploadPath = path.resolve(__dirname, '../../', 'uploads');
