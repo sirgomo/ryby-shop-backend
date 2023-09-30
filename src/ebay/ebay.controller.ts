@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { EbayService } from './ebay.service';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 
@@ -18,4 +18,12 @@ export class EbayController {
     async getUserAccesToken(@Body() code : { code: string }) {
         return await this.service.getAccessToken(code.code);
     }
+    @Get('redirect/consent?')
+    async userEbayAcceptConsent(
+        @Query('state') state: number,
+        @Query('code') code: string,
+        @Query('expires_in') expires_in: number
+         ) {
+            await this.service.getAccessToken(code);
+         }
 }
