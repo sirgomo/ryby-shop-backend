@@ -30,7 +30,7 @@ export class CompanyDataEntity {
     eu_komm_hinweis: string;
     @Column('text')
     agb: string;
-    @Column('text')
+    @Column('mediumtext')
     daten_schutzt: string;
     @Column('text')
     cookie_info: string;

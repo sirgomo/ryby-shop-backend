@@ -40,7 +40,7 @@ export class Database {
             fax VARCHAR(255),
             eu_komm_hinweis TEXT,
             agb TEXT,
-            daten_schutzt TEXT,
+            daten_schutzt MEDIUMTEXT,
             cookie_info TEXT,
             ebay_refresh_token VARCHAR(255)
         );
@@ -80,7 +80,7 @@ export class Database {
             preis DECIMAL(10,2),
             artid INT NOT NULL UNIQUE,
             beschreibung MEDIUMTEXT,
-            color VARCHAR(255),
+            color VARCHAR(1000),
             foto VARCHAR(255),
             thumbnail VARCHAR(255),
             lieferantId INT,
@@ -142,7 +142,7 @@ export class Database {
             preis DECIMAL(10,2),
             mwst INT,
             mengeEingelagert INT,
-            color VARCHAR(255),
+            color VARCHAR(1000),
             FOREIGN KEY (wareneingangId) REFERENCES waren_eingang (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           CREATE TABLE IF NOT EXISTS kunde (
@@ -197,8 +197,8 @@ export class Database {
             bestellungId INT,
             produktId INT,
             menge INT,
-            color VARCHAR(255),
-            color_gepackt VARCHAR(255),
+            color VARCHAR(1000),
+            color_gepackt VARCHAR(1000),
             rabatt DECIMAL(5,2),
             mengeGepackt INT,
             verkauf_price DECIMAL(10,2),
