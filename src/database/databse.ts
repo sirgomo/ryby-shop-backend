@@ -26,22 +26,23 @@ export class Database {
           USE ${env.db};
 
           CREATE TABLE IF NOT EXISTS company (
-            id INT PRIMARY KEY AUTO_INCREMENT,
+            id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             company_name VARCHAR(255) NOT NULL,
             address VARCHAR(255) NOT NULL,
             city VARCHAR(255) NOT NULL,
+            postleitzahl VARCHAR(255) NOT NULL,
             country VARCHAR(255) NOT NULL,
             phone VARCHAR(255) NOT NULL,
             email VARCHAR(255) NOT NULL,
             isKleinUnternehmen TINYINT NOT NULL,
             ustNr VARCHAR(255) NOT NULL,
             fax VARCHAR(255),
-            eu_komm_hinsweis TEXT,
+            eu_komm_hinweis TEXT,
             agb TEXT,
             daten_schutzt TEXT,
             cookie_info TEXT,
-            ebay_refresh_token VARCHAR(255),
+            ebay_refresh_token VARCHAR(255)
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -197,7 +198,7 @@ export class Database {
             produktId INT,
             menge INT,
             color VARCHAR(255),
-            color_gepackt(255),
+            color_gepackt VARCHAR(255),
             rabatt DECIMAL(5,2),
             mengeGepackt INT,
             verkauf_price DECIMAL(10,2),
