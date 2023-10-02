@@ -73,7 +73,7 @@ export class Produkt {
 
   @Column('int')
   lange: number;
-  @Column('int')
+  @Column('decimal')
   gewicht: number;
   
   @Column('int')

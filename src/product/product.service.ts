@@ -224,7 +224,7 @@ export class ProductService {
           return err;
         }
       }
-      async addImage(image: string, productid: number) {
+      async addImage(image: string, productid: number): Promise<boolean> {
         try {
           const item = await this.produktRepository.findOne({where: { id : productid }});
           if(!item)

@@ -58,18 +58,25 @@ export class ProductController {
             errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE
         })
     ) file: Express.Multer.File, @Param('id') id: number): Promise<{ imageid: string }> {
-      const saved = await this.photoService.savePhoto(file);
-      if(!this.productService.addImage(saved.imageid, id)) {
-        const del : DeleteFileDto = {
-          produktid: id,
-          fileid: saved.imageid,
-        }
-        await this.productService.deleteImage(del);
-        await this.photoService.deletePhoto(del);
-        throw new HttpException('Image wurde nicht gespeichert', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+      try {
 
-      return saved;
+        const saved = await this.photoService.savePhoto(file);
+        const dbsave = await this.productService.addImage(saved.imageid, id);
+        if(!dbsave) {
+          const del : DeleteFileDto = {
+            produktid: id,
+            fileid: saved.imageid,
+          }
+          await this.productService.deleteImage(del);
+          await this.photoService.deletePhoto(del);
+          throw new HttpException('Image wurde nicht gespeichert', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+  
+        return saved;
+      } catch (err) {
+        console.log(err);
+        return err;
+      }
     }
     @Get('uploads/:id')
     async getImage(@Param('id') id, @Res() res: Response) {

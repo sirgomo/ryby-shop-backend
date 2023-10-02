@@ -81,7 +81,7 @@ export class Database {
             artid INT NOT NULL UNIQUE,
             beschreibung MEDIUMTEXT,
             color VARCHAR(1000),
-            foto VARCHAR(255),
+            foto VARCHAR(2000),
             thumbnail VARCHAR(255),
             lieferantId INT,
             datumHinzugefuegt DATE,
@@ -90,7 +90,7 @@ export class Database {
             currentmenge INT,
             product_sup_id VARCHAR(255),
             lange INT,
-            gewicht INT, 
+            gewicht DECIMAL(5,2), 
             verkaufteAnzahl INT,
             mehrwehrsteuer INT,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)

@@ -27,7 +27,7 @@ export class PhotoService {
      
       const originalFilePath = path.join(uploadPath, originalName);
      // this.fsExtra.writeFileSync(originalFilePath, file.buffer);
-     sharp(file.buffer)
+     await sharp(file.buffer)
      .resize({
       fit: sharp.fit.contain,
       height: 1024,
@@ -42,7 +42,7 @@ export class PhotoService {
      
     
       const thumbnailFilePath = path.join(thumbnailPath, originalName);
-      sharp(file.buffer)
+      await sharp(file.buffer)
       .resize({
         fit: sharp.fit.contain,
         height: 300,
