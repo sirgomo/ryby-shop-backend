@@ -95,7 +95,16 @@ export class EbayService {
     //get url to accept for user consent
     async getUserConsent() {
         try {
-            return { address: `${env.ebay_oauth_autorize}?client_id=${env.ebay_app_id}&redirect_uri=${env.ebay_redirect}&response_type=code&scope=${env.ebay_default_body.scope}&state=111sd2a1`};
+            const scopeArr = env.ebay_default_body.scope.split(' ');
+            let scope = '';
+            for (let i = 0; i < scopeArr.length; i++) {
+                if(i > 0) {
+                    scope = scope + '%20'+scopeArr[i];
+                } else {
+                    scope = scopeArr[i];
+                }
+            }
+            return { address: `${env.ebay_oauth_autorize}?client_id=${env.ebay_app_id}&redirect_uri=${env.ebay_redirect}&response_type=code&scope=${scope}&state=111sd2a1`};
         } catch (err) {
             console.log(err)
         }

@@ -35,6 +35,7 @@ export class PhotoService {
      })
      .toFile(originalFilePath, (error) => {
        if (error) {
+        console.log(error)
            throw new HttpException('Fehler beim Erstellen des Bildes.', HttpStatus.BAD_REQUEST);
        }
      });
@@ -50,6 +51,7 @@ export class PhotoService {
        })
         .toFile(thumbnailFilePath, (error) => {
           if (error) {
+            console.log(error)
               throw new HttpException('Fehler beim Erstellen des Thumbnails.', HttpStatus.BAD_REQUEST);
           }
         });
