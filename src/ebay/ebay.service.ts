@@ -6,12 +6,15 @@ import { EbayApplicationAccessTokenDto } from 'src/dto/ebayApplicationAccessToke
 import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { Repository } from 'typeorm';
+import { PublicEbayKeyDto } from 'src/dto/publicEbayKey.dto';
 @Injectable()
 export class EbayService {
   request = new EbayRequest();
   currentToken: EbayApplicationAccessTokenDto = new EbayApplicationAccessTokenDto();
   token_vaild: number | null = null;
   refresh_token: string | null = null;
+  ebay_public_key : PublicEbayKeyDto | null = null;
+  ebay_public_key_time: number | null = null;
     constructor(@InjectRepository(CompanyDataEntity) private readonly repo: Repository<CompanyDataEntity>) {}
 
 
@@ -19,14 +22,7 @@ export class EbayService {
     async getEbaySoldOrders() {
       try {
         
-        if(!this.refresh_token) {
-            const token = (await this.repo.findOne({where: { id: 1 }})).ebay_refresh_token;
-
-            if(!token)
-                throw new HttpException('Refresh Token not found', HttpStatus.NOT_FOUND);
-
-            await this.renevToken(token);
-        }
+        await this.checkAccessToken();
         return await this.request.getRequest(env.ebay_api+'/sell/fulfillment/v1/order?limit=50&offset=0', this.currentToken.access_token );
 
         } catch (err) {
@@ -35,6 +31,17 @@ export class EbayService {
         }
         
     }
+  async checkAccessToken() {
+    if (!this.refresh_token) {
+      const token = (await this.repo.findOne({ where: { id: 1 } })).ebay_refresh_token;
+
+      if (!token)
+        throw new HttpException('Refresh Token not found', HttpStatus.NOT_FOUND);
+
+      await this.renevToken(token);
+    }
+  }
+
     //get first acces tocken
     async getAccessToken(code: string) {
         const qs = (await import('query-string')).default;

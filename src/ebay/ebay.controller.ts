@@ -4,6 +4,7 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { Request, Response } from 'express';
 import { createHash } from 'crypto';
 import { env } from 'src/env/env';
+import { ebayProccess } from './notifications/ebay.process.notification';
 
 @Controller('ebay')
 export class EbayController {
@@ -18,11 +19,7 @@ export class EbayController {
     async getUserConsent() {
         return await this.service.getUserConsent();
     }
-    @Post()
-    @UseGuards(JwtAuthGuard)
-    async getUserAccesToken(@Body() code : { code: string }) {
-        return await this.service.getAccessToken(code.code);
-    }
+   
     @Get('redirect/consent')
     async userEbayAcceptConsent(
         @Query('state') state: number,
@@ -32,8 +29,7 @@ export class EbayController {
             await this.service.getAccessToken(code);
          }
     @Get('deletion')
-    //@Header('Content-type', 'application/json')
-    async getDeletionEbayResponse(@Query('challenge_code') challenge: string, @Res() res: Response) {
+    getDeletionEbayResponse(@Query('challenge_code') challenge: string, @Res() res: Response) {
         const respo = res;
         const hash = createHash('sha256');
         hash.update(challenge);
@@ -43,13 +39,17 @@ export class EbayController {
         console.log({"challengeResponse": resHash.toString()});
        
         res.set('Content-type', 'application/json').json({ challengeResponse: resHash.toString()});
-        return res;
+      return res;
        
+    }
+    @Post('deletion')
+    async postDeletionEbay(@Req() req: Request, @Res() res: Response) {
+      const proc = await  ebayProccess(req.body, req.headers['x-ebay-signature'], this.service);
+      return res.status(proc).send();
     }
     @Post('notifi')
     async postNotificationFromEbay(@Req() req: Request, @Res() res: Response) {
-        console.log(req.body)
-
-        return res.status(200).send();
+        const proc = await ebayProccess(req.body, req.headers['x-ebay-signature'], this.service);
+        return res.status(proc).send();
     }
 }
