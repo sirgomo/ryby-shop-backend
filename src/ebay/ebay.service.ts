@@ -2,11 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { env } from 'src/env/env';
 import { EbayRequest, base64Encode } from './ebay.request';
-import { EbayApplicationAccessTokenDto } from 'src/dto/ebayApplicationAccessToken.dto';
+import { EbayApplicationAccessTokenDto } from 'src/dto/ebay/ebayApplicationAccessToken.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { Repository } from 'typeorm';
-import { PublicEbayKeyDto } from 'src/dto/publicEbayKey.dto';
+import { PublicEbayKeyDto } from 'src/dto/ebay/publicEbayKey.dto';
 @Injectable()
 export class EbayService {
   request = new EbayRequest();
@@ -32,6 +32,8 @@ export class EbayService {
         
     }
   async checkAccessToken() {
+
+    
     if (!this.refresh_token) {
       const token = (await this.repo.findOne({ where: { id: 1 } })).ebay_refresh_token;
 
@@ -116,7 +118,14 @@ export class EbayService {
             console.log(err)
         }
     }
-
+  async getSubscriptions() {
+      try {
+        await this.checkAccessToken();
+      } catch (err) {
+        console.log(err);
+        return err;
+      }
+  }
 }
 
 

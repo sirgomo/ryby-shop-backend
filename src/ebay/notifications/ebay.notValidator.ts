@@ -48,7 +48,6 @@ export const getPublicKey = async (keyid, ebay_Service: EbayService) => {
 
     const request = new EbayRequest;
     const key = await request.getRequest(env.ebay_publicKey_api+keyid, ebay_Service.currentToken.access_token);
-    console.log('request public shit 1 h egain')
     return key;
     } catch (err) {
         console.log(err)
