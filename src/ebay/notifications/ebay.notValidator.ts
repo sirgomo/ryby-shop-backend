@@ -1,7 +1,7 @@
 import { env } from "src/env/env";
 import { EbayRequest } from "../ebay.request";
 import { EbayService } from "../ebay.service";
-import { PublicEbayKeyDto } from "src/dto/publicEbayKey.dto";
+import { PublicEbayKeyDto } from "src/dto/ebay/publicEbayKey.dto";
 
 const crypto = require('crypto');
 export const validateSignature = async (message, sigHeader, ebay_Service: EbayService) => {

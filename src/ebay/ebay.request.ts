@@ -1,4 +1,4 @@
-import { EbayApplicationAccessTokenDto } from "src/dto/ebayApplicationAccessToken.dto";
+import { EbayApplicationAccessTokenDto } from "src/dto/ebay/ebayApplicationAccessToken.dto";
 
 export class EbayRequest {
     async sendRequest(endpoint: string, method: string, token: string, plusHeaders, body): Promise<EbayApplicationAccessTokenDto> {

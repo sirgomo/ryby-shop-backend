@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Header, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { EbayService } from './ebay.service';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { Request, Response } from 'express';
@@ -9,17 +9,21 @@ import { ebayProccess } from './notifications/ebay.process.notification';
 @Controller('ebay')
 export class EbayController {
     constructor(private readonly service: EbayService) {}
+
     @Get()
     @UseGuards(JwtAuthGuard)
     async getEbaySoldOrders() {
         return await this.service.getEbaySoldOrders();
     }
+
+    //get url for user consent
     @Get('consent')
     @UseGuards(JwtAuthGuard)
     async getUserConsent() {
         return await this.service.getUserConsent();
     }
-   
+
+    //get automatic access token and refreshtoken after user has consent
     @Get('redirect/consent')
     async userEbayAcceptConsent(
         @Query('state') state: number,
@@ -28,6 +32,7 @@ export class EbayController {
          ) {
             await this.service.getAccessToken(code);
          }
+
     @Get('deletion')
     getDeletionEbayResponse(@Query('challenge_code') challenge: string, @Res() res: Response) {
         const respo = res;
