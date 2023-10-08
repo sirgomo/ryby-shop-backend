@@ -2,6 +2,7 @@ import { env } from "src/env/env";
 import { EbayRequest } from "../ebay.request";
 import { EbayService } from "../ebay.service";
 import { PublicEbayKeyDto } from "src/dto/ebay/publicEbayKey.dto";
+import { createHash } from "crypto";
 
 const crypto = require('crypto');
 export const validateSignature = async (message, sigHeader, ebay_Service: EbayService) => {
@@ -56,9 +57,17 @@ export const getPublicKey = async (keyid, ebay_Service: EbayService) => {
 }
 const formatKey = (key) => {
     try {
-       const updatedKey = `-----BEGIN PUBLIC KEY-----\n${key.split('-----')[2]}\n-----END PUBLIC KEY-----`;
-         return updatedKey;
+       return `-----BEGIN PUBLIC KEY-----\n${key.split('-----')[2]}\n-----END PUBLIC KEY-----`;
     } catch (exception) {
         return new Error(`Invalid key format`);
     }
 };
+export const verifyChalange = async (chalngeCode: string, endpoint: string, verCode: string) => {
+
+    const hash = createHash('sha256');
+    hash.update(chalngeCode);
+    hash.update(verCode);
+    hash.update(endpoint);
+    const resHash = hash.digest('hex');
+    return resHash.toString();
+}

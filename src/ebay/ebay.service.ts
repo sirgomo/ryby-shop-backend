@@ -33,7 +33,9 @@ export class EbayService {
         
     }
   async checkAccessToken() {
-
+    //token is 7200 second valid
+    if(this.token_vaild && (this.token_vaild - 600 * 1000) > Date.now())
+      return;
     
     if (!this.refresh_token) {
       const token = (await this.repo.findOne({ where: { id: 1 } })).ebay_refresh_token;

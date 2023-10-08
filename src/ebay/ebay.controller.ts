@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import { createHash } from 'crypto';
 import { env } from 'src/env/env';
 import { ebayProccess } from './notifications/ebay.process.notification';
+import { verifyChalange } from './notifications/ebay.notValidator';
 
 @Controller('ebay')
 export class EbayController {
@@ -36,14 +37,14 @@ export class EbayController {
     @Get('deletion')
     getDeletionEbayResponse(@Query('challenge_code') challenge: string, @Res() res: Response) {
         const respo = res;
-        const hash = createHash('sha256');
+     /*   const hash = createHash('sha256');
         hash.update(challenge);
         hash.update(env.ebay_deletion_VerificationToken);
         hash.update(env.ebay_deletion_Link);
         const resHash = hash.digest('hex');
-        console.log({"challengeResponse": resHash.toString()});
+        console.log({"challengeResponse": resHash.toString()});*/
        
-        res.set('Content-type', 'application/json').json({ challengeResponse: resHash.toString()});
+        res.set('Content-type', 'application/json').json({ challengeResponse: verifyChalange(challenge, env.ebay_deletion_Link, env.ebay_deletion_VerificationToken)});
       return res;
        
     }
@@ -56,5 +57,11 @@ export class EbayController {
     async postNotificationFromEbay(@Req() req: Request, @Res() res: Response) {
         const proc = await ebayProccess(req.body, req.headers['x-ebay-signature'], this.service);
         return res.status(proc).send();
+    }
+    @Get('notifi')
+    async getNotificationFromEbay(@Query('challenge_code') challenge: string, @Res() res: Response) {
+        const respo = res;
+        res.set('Content-type', 'application/json').json({ challengeResponse: verifyChalange(challenge, env.ebay_notifi_Link, env.ebay_notifi_VerificationToken)});
+      return res;
     }
 }
