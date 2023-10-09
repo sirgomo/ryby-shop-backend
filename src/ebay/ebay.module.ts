@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { AuthModule } from 'src/auth/auth.module';
 import { SubsController } from './subs.controller';
+import { EbayInventoryController } from './ebay-inventory/ebay-inventory.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CompanyDataEntity]), AuthModule],
   providers: [EbayService],
-  controllers: [EbayController, SubsController]
+  controllers: [EbayController, SubsController, EbayInventoryController]
 })
 export class EbayModule {}

@@ -8,8 +8,8 @@ export const ebayProccess = async (message, signature, ebay_Service: EbayService
     const response = await validateSignature(message, signature, ebay_Service);
    
     if(response) {
-    
-        console.log( JSON.stringify(message));
+            if(message.metadata.topic !== 'MARKETPLACE_ACCOUNT_DELETION')
+                
         //NO_CONTENT 
         return 204;
     }

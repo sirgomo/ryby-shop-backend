@@ -22,6 +22,8 @@ export class EbayRequest {
       
       const  headers = {
         'Accept': 'application/json',
+        'Accept-Language': 'de-DE',
+        'Accept-Encoding': 'application/gzip',
         'Authorization': 'Bearer '+ token
     }
       try {
