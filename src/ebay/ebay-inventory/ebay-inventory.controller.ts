@@ -5,13 +5,13 @@ import { env } from 'src/env/env';
 import { EbayService } from '../ebay.service';
 
 @Controller('ebay-inventory')
+@UseGuards(JwtAuthGuard)
 export class EbayInventoryController {
 
     request = new EbayRequest();
     constructor (private readonly ebayServ: EbayService) {}
   
     @Get('/:limit/:offset')
-    @UseGuards(JwtAuthGuard)
     async getCurrentListedItems(@Param('limit') limit: number, @Param('offset') offset: number) {
         try {
             await this.ebayServ.checkAccessToken();
@@ -27,7 +27,6 @@ export class EbayInventoryController {
         }
     }
     @Post('/listing')
-    @UseGuards(JwtAuthGuard)
     async importItmsToInventory(@Body() payload: { listings: string}) {
       try {
         await this.ebayServ.checkAccessToken();
@@ -51,4 +50,5 @@ export class EbayInventoryController {
         return err;
       }
     }
+
 }
