@@ -77,6 +77,8 @@ export class Database {
           CREATE TABLE IF NOT EXISTS produkt (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
+            sku VARCHAR(255),
+            ebay_group VARCHAR(255),
             preis DECIMAL(10,2),
             artid INT NOT NULL UNIQUE,
             beschreibung MEDIUMTEXT,

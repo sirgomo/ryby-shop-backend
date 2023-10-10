@@ -14,6 +14,14 @@ export class ProductDto{
     @IsNotEmpty()
     @IsString()
     name: string;
+    
+    @IsString()
+    @IsOptional()
+    sku: string;
+
+    @IsString()
+    @IsOptional()
+    ebay_group: string;
   
     @IsNotEmpty()
     @IsNumber()

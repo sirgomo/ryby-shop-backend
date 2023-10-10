@@ -25,6 +25,12 @@ export class Produkt {
   @Column()
   name: string;
 
+  @Column('varchar')
+  sku: string;
+
+  @Column('varchar')
+  ebay_group: string
+
   @Column('decimal')
   preis: number;
 
