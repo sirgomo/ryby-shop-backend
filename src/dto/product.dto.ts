@@ -71,10 +71,13 @@ export class ProductDto{
     //A product symbol from a supplier
     @IsOptional()
     product_sup_id: string;
-  
+    @IsOptional()
+    lange:number;
+    @IsOptional()
+    ebay: number;
     @IsNumber()
     verkaufteAnzahl: number;
-  
+ 
 
     wareneingang: WareneingangProduct[];
   

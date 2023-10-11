@@ -79,6 +79,8 @@ export class Produkt {
 
   @Column('int')
   lange: number;
+  @Column({type: 'tinyint', default: 0 })
+  ebay:number;
   @Column('decimal')
   gewicht: number;
   

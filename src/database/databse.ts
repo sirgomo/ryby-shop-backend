@@ -92,6 +92,7 @@ export class Database {
             currentmenge INT,
             product_sup_id VARCHAR(255),
             lange INT,
+            ebay TINYINT DEFAULT 0,
             gewicht DECIMAL(5,2), 
             verkaufteAnzahl INT,
             mehrwehrsteuer INT,
