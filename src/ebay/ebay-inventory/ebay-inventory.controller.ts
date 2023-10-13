@@ -3,14 +3,23 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { EbayRequest } from '../ebay.request';
 import { env } from 'src/env/env';
 import { EbayService } from '../ebay.service';
+import { ProductService } from 'src/product/product.service';
 
 @Controller('ebay-inventory')
 @UseGuards(JwtAuthGuard)
 export class EbayInventoryController {
 
     request = new EbayRequest();
-    constructor (private readonly ebayServ: EbayService) {}
-  
+    constructor (private readonly ebayServ: EbayService, private readonly productService: ProductService) {}
+    @Get('/sku/:id')
+    async getProduktBeiId(@Param('id') sku: string) {
+      return this.productService.getProduktBeiSku(sku);
+    }
+    @Get('/group/:id')
+    async getProuktBeiEbay_Group(@Param('id') group: string) {
+      return this.productService.getProduktBeiEbayGroup(group);
+    }
+
     @Get('/:limit/:offset')
     async getCurrentListedItems(@Param('limit') limit: number, @Param('offset') offset: number) {
         try {

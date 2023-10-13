@@ -265,4 +265,20 @@ export class ProductService {
           throw err;
         }
       }
+      async getProduktBeiSku(sku: string) {
+        try {
+          return (await this.produktRepository.findOne({ where: { sku: sku}})).sku;
+        } catch (err) {
+          console.log(err);
+          return err;
+        }
+      }
+      async getProduktBeiEbayGroup(ebay_group: string) {
+        try {
+          return (await this.produktRepository.findOne({ where: { ebay_group: ebay_group }})).ebay_group;
+        } catch (err) {
+          console.log(err);
+          return err;
+        }
+      }
 }
