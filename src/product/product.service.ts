@@ -28,7 +28,7 @@ export class ProductService {
                     }
                   },
                 relations: {
-                  kategorie: true
+                  kategorie: true,
                 },
                 take: end, 
                 skip: start,
@@ -147,6 +147,7 @@ export class ProductService {
             promocje: true,
             bewertung: true,
             eans: true,
+            variations: true,
           }}).catch((err) => {
             console.log(err)
             throw err;
@@ -265,6 +266,7 @@ export class ProductService {
           throw err;
         }
       }
+      //get item by sku
       async getProduktBeiSku(sku: string) {
         try {
           return (await this.produktRepository.findOne({ where: { sku: sku}})).sku;
@@ -273,9 +275,10 @@ export class ProductService {
           return err;
         }
       }
+      //get items by qby_grop (its sku to but for group, ebay return it as ebay_group id)
       async getProduktBeiEbayGroup(ebay_group: string) {
         try {
-          return (await this.produktRepository.findOne({ where: { ebay_group: ebay_group }})).ebay_group;
+          return (await this.produktRepository.findOne({ where: { sku: ebay_group }})).sku;
         } catch (err) {
           console.log(err);
           return err;

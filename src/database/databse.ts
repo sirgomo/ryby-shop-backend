@@ -78,7 +78,6 @@ export class Database {
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
             sku VARCHAR(255),
-            ebay_group VARCHAR(255),
             preis DECIMAL(10,2),
             artid INT NOT NULL UNIQUE,
             beschreibung MEDIUMTEXT,
@@ -118,7 +117,15 @@ export class Database {
             FOREIGN KEY (lagerId) REFERENCES lager (id),
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
-          
+          CREATE TABLE variations (
+            sku VARCHAR(500) NOT NULL PRIMARY KEY,
+            produktId INT,
+            variations_name VARCHAR(255),
+            hint VARCHAR(255),
+            value VARCHAR(255),
+            unit VARCHAR(255),
+            FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
+        );
           
           CREATE TABLE IF NOT EXISTS aktion (
             id INT AUTO_INCREMENT PRIMARY KEY,

@@ -5,8 +5,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  OneToMany,
-  PrimaryColumn,
+  OneToMany
 } from 'typeorm';
 import { Lieferant } from './lifernatEntity';
 import { Stellplatze } from './stellplatzeEntity';
@@ -16,6 +15,7 @@ import { WareneingangProduct } from './warenEingangProductEntity';
 import { Aktion } from './aktionEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 import { EanEntity } from './eanEntity';
+import { ProduktVariations } from './produktVariations';
 
 @Entity('produkt')
 export class Produkt {
@@ -27,9 +27,6 @@ export class Produkt {
 
   @Column('varchar')
   sku: string;
-
-  @Column('varchar')
-  ebay_group: string
 
   @Column('decimal')
   preis: number;
@@ -107,4 +104,8 @@ export class Produkt {
   @OneToMany(() => EanEntity, (ean) => ean.product, {cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
   @JoinTable()
   eans: EanEntity[];
+
+  @OneToMany(() => ProduktVariations, (vari) => vari.produkt, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @JoinTable()
+  variations: ProduktVariations[];
 }

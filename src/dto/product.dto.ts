@@ -7,6 +7,7 @@ import { Stellplatze } from "src/entity/stellplatzeEntity";
 import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsOptional } from "class-validator";
 import { ProduktInBestellung } from "src/entity/productBestellungEntity";
 import { EanEntity } from "src/entity/eanEntity";
+import { ProduktVariations } from "src/entity/produktVariations";
 
 export class ProductDto{
     id: number | undefined;
@@ -18,10 +19,6 @@ export class ProductDto{
     @IsString()
     @IsOptional()
     sku: string;
-
-    @IsString()
-    @IsOptional()
-    ebay_group: string;
   
     @IsNotEmpty()
     @IsNumber()
@@ -90,5 +87,6 @@ export class ProductDto{
   
     bewertung: Kundenbewertung[];
     eans: EanEntity[];
+    variations: ProduktVariations[];
 }
       
