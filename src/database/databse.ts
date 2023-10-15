@@ -124,6 +124,7 @@ export class Database {
             hint VARCHAR(255),
             value VARCHAR(255),
             unit VARCHAR(255),
+            image VARCHAR(1000),
             FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
         );
           

@@ -12,7 +12,10 @@ export class VariationService {
 
     async findAll() {
         try {
-            return await this.produktVariationsRepository.find();
+        return await this.produktVariationsRepository.createQueryBuilder()
+        .select()
+        .where('vavariations_name=(SELECT MIN(variations_name) FROM variations GROUP BY variations_name )')
+        .getMany();
         } catch (err) {
             return err;
         }
