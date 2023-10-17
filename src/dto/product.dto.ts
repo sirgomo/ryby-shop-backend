@@ -32,7 +32,7 @@ export class ProductDto{
     @IsString()
     beschreibung: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     color: string;
   

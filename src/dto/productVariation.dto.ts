@@ -15,6 +15,6 @@ export class ProductVariationDto {
     value: string;
     @IsOptional()
     unit: string;
-    @IsNotEmpty()
+    @IsOptional()
     image: string;
 }

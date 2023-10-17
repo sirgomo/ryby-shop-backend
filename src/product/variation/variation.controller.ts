@@ -10,7 +10,7 @@ export class VariationController {
 
     @Get()
     findAll() {
-        return this.produktVariationsService.findAll();
+        return this.produktVariationsService.findAllforSelect();
     }
 
     @Get(':variations_name')

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProductVariationDto } from 'src/dto/productVariation.dto';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { Repository } from 'typeorm';
 
@@ -10,12 +11,12 @@ export class VariationService {
         private produktVariationsRepository: Repository<ProduktVariations>,
     ) {}
 
-    async findAll() {
+    async findAllforSelect() {
         try {
         return await this.produktVariationsRepository.createQueryBuilder()
-        .select()
-        .where('vavariations_name=(SELECT MIN(variations_name) FROM variations GROUP BY variations_name )')
-        .getMany();
+        .select('variations_name')
+        .groupBy('variations_name')
+        .getRawMany();
         } catch (err) {
             return err;
         }
@@ -44,9 +45,10 @@ export class VariationService {
  
     }
 
-    async create(produktVariations: ProduktVariations) {
+    async create(produktVariations: ProductVariationDto) {
         try {
-            return await this.produktVariationsRepository.save(produktVariations);
+            const item = await this.produktVariationsRepository.create(produktVariations);
+            return await this.produktVariationsRepository.save(item);
         } catch (err) {
 
         }
