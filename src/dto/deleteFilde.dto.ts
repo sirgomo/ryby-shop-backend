@@ -1,4 +1,4 @@
 export class DeleteFileDto {
-  produktid: number;
+  produktid: string;
   fileid: string;
 }

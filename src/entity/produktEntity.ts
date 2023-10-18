@@ -28,23 +28,13 @@ export class Produkt {
   @Column('varchar')
   sku: string;
 
-  @Column('decimal')
-  preis: number;
+
 
   @Column({ unique: true, nullable: false, type: 'int' })
   artid: number;
 
   @Column()
   beschreibung: string;
-  
-  @Column()
-  color: string;
-
-  @Column()
-  foto: string;
-
-  @Column()
-  thumbnail: string;
 
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.produkte)
   lieferant: Lieferant;
@@ -67,22 +57,12 @@ export class Produkt {
   @Column('tinyint')
   verfgbarkeit: number;
 
-  @Column('int')
-  mindestmenge: number;
-  @Column('int')
-  currentmenge: number;
   @Column('varchar')
   product_sup_id: string;
 
-  @Column('int')
-  lange: number;
   @Column({type: 'tinyint', default: 0 })
   ebay:number;
-  @Column('decimal')
-  gewicht: number;
-  
-  @Column('int')
-  verkaufteAnzahl: number;
+
 
   @ManyToMany(() => WareneingangProduct)
   @JoinTable()

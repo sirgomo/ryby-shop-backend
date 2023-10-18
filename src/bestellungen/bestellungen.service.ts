@@ -1,7 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Color } from 'sharp';
-import { ColorDto } from 'src/dto/color.dto';
 import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
 import { PaypalItem } from 'src/dto/paypalItem.dto';
@@ -10,7 +8,7 @@ import { Kunde } from 'src/entity/kundeEntity';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { env } from 'src/env/env';
-import { EntityManager, JsonContains, Repository } from 'typeorm';
+import {  Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
 import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 
@@ -95,12 +93,7 @@ export class BestellungenService {
   //get total netto value - promotion
   getTotalNettoValue(bestellungData: OrderDto) {
     let total = 0;
-    for (let i = 0; i < bestellungData.produkte.length; i++) {
-      const color :ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
-      for (let y = 0; y < color.length; y++) {
-        total += this.getPiceNettoPrice(bestellungData, i) * color[y].menge;
-      }
-    }
+ 
     return total.toFixed(2);
   }
     //Paid, now save the order and current list of products in the transaction
@@ -159,13 +152,7 @@ export class BestellungenService {
   }
 
   private setProduktQuanity(readyBesttelung: OrderDto) {
-    for (let i = 0; i < readyBesttelung.produkte.length; i++) {
-      readyBesttelung.produkte[i].menge = 0;
-      const colors: ColorDto[] = JSON.parse(readyBesttelung.produkte[i].color);
-      for (let z = 0; z < colors.length; z++) {
-        readyBesttelung.produkte[i].menge += colors[z].menge;
-      }
-    }
+    
   }
 
       async getOrderBeiId(id: number): Promise<Bestellung> {
@@ -253,10 +240,7 @@ export class BestellungenService {
       private getTotalTax(bestellungData: OrderDto): number {
         let tax = 0;
         for(let i = 0; i < bestellungData.produkte.length; i++) {
-          const colors: ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
-          for (let y = 0; y < colors.length; y++) {
-            tax += this.getTax(bestellungData, i) * colors[y].menge;
-          }
+         
         
         }
         return Number(tax.toFixed(2));
@@ -264,23 +248,7 @@ export class BestellungenService {
       private getPaypalItems(bestellungData: OrderDto) : PaypalItem[] {
         const items: PaypalItem[] = [];
         for (let i = 0; i < bestellungData.produkte.length; i++) {
-          const colors: ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
-          for (let y = 0; y < colors.length; y++) {
-            const item = {} as PaypalItem;
-            item.name = bestellungData.produkte[i].produkt[0].name;
-            //  item.description = bestellungData.produkte[i].produkt[0].beschreibung;
-            item.quantity = colors[y].menge;
-            item.sku = bestellungData.produkte[i].produkt[0].product_sup_id;
-            item.unit_amount = {
-              currency_code: 'EUR',
-              value: this.getPiceNettoPrice(bestellungData, i),
-            };
-            item.tax = {
-              currency_code: 'EUR',
-              value: this.getTax(bestellungData, i),
-            };
-            items.push(item);
-          }
+
     
         }
         return items;
@@ -290,65 +258,7 @@ export class BestellungenService {
         try {
           const items: Produkt[] = [];
      
-          for (let i = 0; i < data.produkte.length; i++) {
-
-           const index = items.findIndex((item) => item.id === data.produkte[i].produkt[0].id);
-  
-               let tmpItem: Produkt;
-               let itemsInTmp: ColorDto[] = [];
-
-              if(index === -1) {
-                
-                tmpItem = await this.productRepository.findOne({ 
-                  where: { 
-                    id: data.produkte[i].produkt[0].id 
-                  },
-                  relations: {
-                          promocje: true,
-                      } 
-                  });
-                  if(!tmpItem)
-                   throw new HttpException('Produkct ' + data.produkte[i].produkt[0].id + ' wurde nicht gefunden!', HttpStatus.NOT_FOUND);
-
-                data.produkte[i].produkt[0] = tmpItem;
-                if(tmpItem.promocje && tmpItem.promocje[0])
-                  data.produkte[i].rabatt = tmpItem.promocje[0].rabattProzent;
-        
-                itemsInTmp = JSON.parse(tmpItem.color);
-              } else {
-                data.produkte[i].produkt[0] = items[index];
-                itemsInTmp = JSON.parse(items[index].color);
-                tmpItem = items[index];
-                if(items[index].promocje && items[index].promocje[0])
-                data.produkte[i].rabatt = items[index].promocje[0].rabattProzent;
-            
-              }
-
-              data.produkte[i].verkauf_price = this.getPiceNettoPrice(data, i);
-              data.produkte[i].verkauf_rabat = this.getPromotionCost(data, i);
-              data.produkte[i].verkauf_steuer = this.getTax(data, i);
-              const itemsInData: ColorDto[] = JSON.parse(data.produkte[i].color);
-          
-  
-              for (let y = 0; y < itemsInData.length; y ++) {
-                  for (let z = 0; z < itemsInTmp.length; z++ ) {
-                      if( itemsInData[y].id == itemsInTmp[z].id) {
-                          itemsInTmp[z].menge -= itemsInData[y].menge;
-                          tmpItem.currentmenge -=  itemsInData[y].menge;
-                          tmpItem.verkaufteAnzahl += itemsInData[y].menge;
-                          if(itemsInTmp[z].menge == 0)
-                            tmpItem.verfgbarkeit = 0;
-                            
-                          if(itemsInTmp[z].menge < 0)
-                            throw new HttpException('3000/ ' + itemsInTmp[z].menge, HttpStatus.NOT_ACCEPTABLE);
-                      }
-                  }
-              }
-  
-              tmpItem.color = JSON.stringify(itemsInTmp);
-  
-              items.push(tmpItem);
-          }
+       //TODO
          return items;
         } catch (err) {
           throw err;
@@ -359,40 +269,28 @@ export class BestellungenService {
   private getTotalPrice(bestellungData: OrderDto): number {
         let totalPrice = 0;
         for (let i = 0; i < bestellungData.produkte.length; i++) {
-          const colors: ColorDto[] = JSON.parse(bestellungData.produkte[i].color);
-          for (let y = 0; y < colors.length; y++) {
-           const piceNetto = this.getPiceNettoPrice(bestellungData, i);
-           const tax = this.getTax(bestellungData, i);
-
-            totalPrice += (piceNetto + tax) * colors[y].menge; 
-           
-        }
+        
+ 
       }
      
       return totalPrice;
     }
     //get tax for item
  private getTax(bestellungData: OrderDto, i: number): number {
-    let picePrice = Number(bestellungData.produkte[i].produkt[0].preis);
-    let tax = 0;
-    if (bestellungData.produkte[i].produkt[0] && bestellungData.produkte[i].produkt[0].mehrwehrsteuer > 0)
-      tax = picePrice * bestellungData.produkte[i].produkt[0].mehrwehrsteuer / 100;
+    const tax = 0;
 
     return Number(tax.toFixed(2));
   }
 //get netto price - promotion
   private getPiceNettoPrice(bestellungData: OrderDto, i: number): number {
-    let picePrice = Number(bestellungData.produkte[i].produkt[0].preis);
-    if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent)
-      picePrice -= picePrice * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
 
-      return picePrice;
+
+      return 0;
   }
   //get promotion cost
   private getPromotionCost(bestellungData: OrderDto, i: number): number {
     let rabatCost = 0;
-    if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent > 0)
-    rabatCost = bestellungData.produkte[i].produkt[0].preis * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
+
     return Number(rabatCost.toFixed(2));
   }
   // generate access token

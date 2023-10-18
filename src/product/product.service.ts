@@ -1,10 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductDto } from 'src/dto/product.dto';
 import { EanEntity } from 'src/entity/eanEntity';
 import { Produkt } from 'src/entity/produktEntity';
-import { DeleteResult, Like, NumericType, Repository } from 'typeorm';
+import { DeleteResult, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -208,40 +207,7 @@ export class ProductService {
             throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
-      async deleteImage(image: DeleteFileDto) {
-        try {
-          const item = await this.produktRepository.findOne({where: { id: image.produktid }});
 
-          if(!item)
-            return false;
-
-            const images: string[] = JSON.parse(item.foto);
-           const index = images.findIndex((tmp) => tmp === image.fileid)
-            images.splice(index, 1);
-            item.foto = JSON.stringify(images);
-          await this.produktRepository.save(item);
-          
-          return true;
-        } catch (err) {
-          return err;
-        }
-      }
-      async addImage(image: string, productid: number): Promise<boolean> {
-        try {
-          const item = await this.produktRepository.findOne({where: { id : productid }});
-          if(!item)
-            return false;
-
-          const currentImages: string[] = JSON.parse(item.foto);
-          currentImages.push(image);
-          item.foto = JSON.stringify(currentImages);
-          await this.produktRepository.save(item);
-
-          return true;
-        } catch (err) {
-          return err;
-        }
-      }
       async getProduktsForBuchung(lieferantId: number) {
         try {
           if(lieferantId === 0) {

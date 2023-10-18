@@ -15,76 +15,32 @@ export class ProductDto{
     @IsNotEmpty()
     @IsString()
     name: string;
-    
     @IsString()
     @IsOptional()
     sku: string;
-  
-    @IsNotEmpty()
-    @IsNumber()
-    preis: number;
-
     @IsNotEmpty()
     @IsNumber()
     artid: number;
-  
     @IsNotEmpty()
     @IsString()
     beschreibung: string;
-
-    @IsOptional()
-    @IsString()
-    color: string;
-  
-    @IsNotEmpty()
-    @IsString()
-    foto: string;
-  
-    @IsOptional()
-    thumbnail: string;
-  
-
     lieferant: LieferantDto;
-  
-
     lagerorte: Stellplatze[];
-  
- 
     bestellungen: ProduktInBestellung[];
-  
     @IsNotEmpty()
     datumHinzugefuegt: string;
-  
- 
     kategorie: Kategorie[];
-  
     @IsNumber()
     verfgbarkeit: number;
-  
-    @IsNumber()
-    mindestmenge: number;
-    @IsNumber()
-    currentmenge: number;
     //A product symbol from a supplier
     @IsOptional()
     product_sup_id: string;
     @IsOptional()
-    lange:number;
-    @IsOptional()
     ebay: number;
-    @IsNumber()
-    verkaufteAnzahl: number;
- 
-
     wareneingang: WareneingangProduct[];
-  
-  
     @IsNumber()
     mehrwehrsteuer: number;
-  
-
     promocje: Aktion[];
-  
     bewertung: Kundenbewertung[];
     eans: EanEntity[];
     variations: ProduktVariations[];
