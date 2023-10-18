@@ -17,4 +17,12 @@ export class ProductVariationDto {
     unit: string;
     @IsOptional()
     image: string;
+    @IsNotEmpty()
+    price: number;
+    @IsOptional()
+    thumbnail: string;
+    @IsNotEmpty()
+    quanity: number;
+    @IsNotEmpty()
+    quanity_sold: number;
 }

@@ -17,4 +17,12 @@ export class ProduktVariations {
     unit: string;
     @Column({ type: 'varchar', length: 1000})
     image: string;
+    @Column('decimal')
+    price: number;
+    @Column({ type: 'varchar', length: 1000})
+    thumbnail: string;
+    @Column('int')
+    quanity: number;
+    @Column('int')
+    quanity_sold: number;
 }

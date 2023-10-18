@@ -172,11 +172,12 @@ export class ProductService {
       }
     
       async updateProdukt(id: number, productDto: ProductDto): Promise<Produkt> {
-     
+ 
         try {
           const produkt = await this.produktRepository.findOne({where: { id: id },
           relations: {
             eans: true,
+        
           }});
           if (!produkt) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
@@ -185,7 +186,7 @@ export class ProductService {
         
           await this.produktRepository.merge(produkt, productDto);
  
-         
+      
           return await this.produktRepository.save(produkt).catch((err) => {
             console.log(err)
             return err;

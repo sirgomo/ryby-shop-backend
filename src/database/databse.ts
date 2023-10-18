@@ -125,6 +125,10 @@ export class Database {
             value VARCHAR(255),
             unit VARCHAR(255),
             image VARCHAR(1000),
+            price DECIMAL(10,2),
+            thumbnail VARCHAR(1000),
+            quanity INT,
+            quanity_sold INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
         );
           
