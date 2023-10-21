@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductVariationDto } from 'src/dto/productVariation.dto';
 import { ProduktVariations } from 'src/entity/produktVariations';
+import { PhotoService } from 'src/service/photoService';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class VariationService {
     constructor(
         @InjectRepository(ProduktVariations)
         private produktVariationsRepository: Repository<ProduktVariations>,
+        private photoService: PhotoService
     ) {}
 
     async findAllforSelect() {
@@ -58,7 +60,12 @@ export class VariationService {
 
     async delete(sku: string) {
         try {
-            return await this.produktVariationsRepository.delete(sku);
+          const item = await this.produktVariationsRepository.findOne({ where: { sku: sku}});
+
+          if(item.image && item.image.length > 2)
+           await this.deleteImage({produktid: sku, fileid: item.image});
+
+           return await this.produktVariationsRepository.delete(sku);
         } catch (err) {
             return err;
         }
@@ -76,14 +83,16 @@ export class VariationService {
     async deleteImage(image: DeleteFileDto) {
       try {
         const item = await this.produktVariationsRepository.findOne({where: { sku: image.produktid }});
-  
+        
         if(!item)
           return false;
   
-          const images: string[] = JSON.parse(item.image);
-         const index = images.findIndex((tmp) => tmp === image.fileid)
-          images.splice(index, 1);
-          item.image = JSON.stringify(images);
+        //  const images: string[] = JSON.parse(item.image);
+        // const index = images.findIndex((tmp) => tmp === image.fileid)
+        //  images.splice(index, 1);
+        //  item.image = JSON.stringify(images);
+        this.photoService.deletePhoto(image);
+        item.image = '';
         await this.produktVariationsRepository.save(item);
         
         return true;
@@ -97,9 +106,10 @@ export class VariationService {
         if(!item)
           return false;
   
-        const currentImages: string[] = JSON.parse(item.image);
-        currentImages.push(image);
-        item.image = JSON.stringify(currentImages);
+      //  const currentImages: string[] = JSON.parse(item.image);
+      //  currentImages.push(image);
+      //  item.image = JSON.stringify(currentImages);
+        item.image = image;
         await this.produktVariationsRepository.save(item);
   
         return true;

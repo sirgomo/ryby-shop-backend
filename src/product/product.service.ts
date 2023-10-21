@@ -176,7 +176,7 @@ export class ProductService {
           const produkt = await this.produktRepository.findOne({where: { id: id },
           relations: {
             eans: true,
-        
+            variations: true,
           }});
           if (!produkt) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
