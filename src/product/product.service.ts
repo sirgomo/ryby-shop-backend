@@ -221,6 +221,7 @@ export class ProductService {
             },
             relations: {
               lieferant: true,
+              variations: true,
           }})
         } catch (err ) {
           return new HttpException(err.message, HttpStatus.BAD_REQUEST);

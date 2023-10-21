@@ -48,6 +48,7 @@ export class WarenEingangBuchenService {
         relations: {
           products: { produkt: true },
           lieferant: true,
+          
         }
     }).catch((err) => {
       console.log(err)
@@ -93,9 +94,11 @@ export class WarenEingangBuchenService {
   async update(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const foundWareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangDto.id }, relations: {
-        products: { produkt: {
+        products: { 
+          produkt: {
           variations: true,
-          }
+          },
+          product_variation: true,
          },
         lieferant: true,
       }});
@@ -186,7 +189,8 @@ export class WarenEingangBuchenService {
  */
   async addProduct(wareneingangId: number, productDto: WarenEingangProductDto): Promise<WareneingangProduct> {
     try {
-      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { products: { produkt: true } }});
+      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { 
+        products: { produkt: true, product_variation: true } }});
       if (!wareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
       }
@@ -231,7 +235,12 @@ export class WarenEingangBuchenService {
       if (wareneingang.gebucht) {
         throw new HttpException('Produkt kann nicht in einem bereits gebuchten Wareneingang aktualisiert werden', HttpStatus.BAD_REQUEST);
       }
-      const product = await this.warenEingangProductRepository.findOne({where: { id: productId }}).catch(err => {
+      const product = await this.warenEingangProductRepository.findOne({
+        where: { id: productId },
+        relations: {
+          product_variation: true,
+        }
+      }).catch(err => {
         console.log(err)
       });
       

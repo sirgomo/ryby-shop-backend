@@ -30,6 +30,7 @@ import { BestellungenModule } from './bestellungen/bestellungen.module';
 import { EanEntity } from './entity/eanEntity';
 import { EbayModule } from './ebay/ebay.module';
 import { ProduktVariations } from './entity/produktVariations';
+import { WareneingangProdVartiaion } from './entity/waren_eingang_prod_variation';
 
 
 
@@ -60,7 +61,8 @@ import { ProduktVariations } from './entity/produktVariations';
         Stellplatze,
         CompanyDataEntity,
         EanEntity,
-        ProduktVariations
+        ProduktVariations,
+        WareneingangProdVartiaion
       ],
       synchronize: false,
     }),

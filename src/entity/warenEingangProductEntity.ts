@@ -4,10 +4,11 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  Column,
+  OneToMany,
 } from 'typeorm';
 import { Wareneingang } from './warenEingangEntity';
 import { Produkt } from './produktEntity';
+import { WareneingangProdVartiaion } from './waren_eingang_prod_variation';
 
 @Entity('waren_eingang_product')
 export class WareneingangProduct {
@@ -21,17 +22,8 @@ export class WareneingangProduct {
   @JoinTable()
   produkt: Produkt[];
 
-  @Column('int')
-  menge: number;
 
-  @Column('decimal')
-  preis: number;
-
-  @Column('int')
-  mwst: number;
-  @Column('int')
-  mengeEingelagert: number;
-  @Column('varchar')
-  color: string;
+  @OneToMany(() => WareneingangProdVartiaion, (vari) => vari.waren_eingang_product)
+  product_variation: WareneingangProdVartiaion[];
 
 }

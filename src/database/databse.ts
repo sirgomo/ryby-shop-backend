@@ -109,7 +109,7 @@ export class Database {
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
           CREATE TABLE variations (
-            sku VARCHAR(500) NOT NULL PRIMARY KEY,
+            sku VARCHAR(255) NOT NULL PRIMARY KEY,
             produktId INT,
             variations_name VARCHAR(255),
             hint VARCHAR(255),
@@ -122,6 +122,17 @@ export class Database {
             quanity_sold INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
         );
+        CREATE TABLE waren_eingang_prod_variation (
+          id INT NOT NULL PRIMARY KEY,
+          sku VARCHAR(255) NOT NULL,
+          quanity INT NOT NULL,
+          price DECIMAL(10,2) NOT NULL,
+          mwst INT NOT NULL DEFAULT 0,
+          quanity_stored INT NOT NULL DEFAULT 0,
+          waren_eingang_productId INT,
+          FOREIGN KEY (waren_eingang_productId) REFERENCES waren_eingang_product (id) ON DELETE CASCADE ON UPDATE CASCADE
+      );
+        
           
           CREATE TABLE IF NOT EXISTS aktion (
             id INT AUTO_INCREMENT PRIMARY KEY,
