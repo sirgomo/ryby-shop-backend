@@ -64,8 +64,7 @@ export class Produkt {
   ebay:number;
 
 
-  @ManyToMany(() => WareneingangProduct)
-  @JoinTable()
+  @ManyToMany(() => WareneingangProduct, (products) => products.produkt)
   wareneingang: WareneingangProduct[];
 
 
