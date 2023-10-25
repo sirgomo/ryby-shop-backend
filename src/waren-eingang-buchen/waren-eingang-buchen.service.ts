@@ -147,6 +147,7 @@ export class WarenEingangBuchenService {
         const variIndex = items[i].produkt[0].variations.findIndex((item) => item.sku ===  items[i].product_variation[j].sku);
         if(variIndex !== -1) {
           items[i].produkt[0].variations[variIndex].quanity += items[i].product_variation[j].quanity;
+          items[i].produkt[0].verfgbarkeit = 1;
         } 
       }
       itemsSave.push(items[i].produkt[0]);

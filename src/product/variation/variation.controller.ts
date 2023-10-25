@@ -7,11 +7,11 @@ import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { PhotoService } from 'src/service/photoService';
 
 @Controller('variation')
-@UseGuards(JwtAuthGuard)
 export class VariationController {
     constructor(private readonly produktVariationsService: VariationService, private readonly photoService: PhotoService) {}
 
     @Get()
+    @UseGuards(JwtAuthGuard)
     findAll() {
         return this.produktVariationsService.findAllforSelect();
     }
@@ -27,16 +27,19 @@ export class VariationController {
     }
 
     @Post()
+    @UseGuards(JwtAuthGuard)
     create(@Body() produktVariations: ProduktVariations) {
         return this.produktVariationsService.create(produktVariations);
     }
 
     @Delete(':sku')
+    @UseGuards(JwtAuthGuard)
     delete(@Param('sku') sku: string) {
         return this.produktVariationsService.delete(sku);
     }
 
     @Put(':sku')
+    @UseGuards(JwtAuthGuard)
     update(@Param('sku') sku: string, @Body() produktVariations: Partial<ProduktVariations>) {
         return this.produktVariationsService.update(sku, produktVariations);
     }

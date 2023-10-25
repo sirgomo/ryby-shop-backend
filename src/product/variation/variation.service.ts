@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductVariationDto } from 'src/dto/productVariation.dto';
@@ -61,6 +61,9 @@ export class VariationService {
     async delete(sku: string) {
         try {
           const item = await this.produktVariationsRepository.findOne({ where: { sku: sku}});
+
+          if(item.quanity > 0)
+            throw new HttpException('Item kann nicht gelöscht werden, Menge is größer als 0', HttpStatus.BAD_REQUEST)
 
           if(item.image && item.image.length > 2)
            await this.deleteImage({produktid: sku, fileid: item.image});

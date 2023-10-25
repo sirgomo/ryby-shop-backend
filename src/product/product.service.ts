@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProductDto } from 'src/dto/product.dto';
 import { EanEntity } from 'src/entity/eanEntity';
 import { Produkt } from 'src/entity/produktEntity';
-import { DeleteResult, Like, Repository } from 'typeorm';
+import { DeleteResult, Like, MoreThan, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -28,6 +28,7 @@ export class ProductService {
                   },
                 relations: {
                   kategorie: true,
+                  variations: true,
                 },
                 take: end, 
                 skip: start,
@@ -36,9 +37,12 @@ export class ProductService {
                 return err;
               })
         } else if ( search != 'null' && katid == 0) {
-          console.log(search)
+        
                 return await this.produktRepository.find({ where: {
                   name: Like(`%${search}%`),
+                },
+                relations: {
+                  variations: true,
                 },
               take: end, 
               skip: start,
@@ -53,7 +57,8 @@ export class ProductService {
             }
           },
         relations: {
-          kategorie: true
+          kategorie: true,
+          variations: true
         },
         take: end, 
         skip: start,
@@ -64,7 +69,11 @@ export class ProductService {
         }
            
 
-          return await this.produktRepository.find();
+          return await this.produktRepository.find({
+            relations: {
+              variations: true,
+            }
+          });
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
@@ -77,16 +86,21 @@ export class ProductService {
         const end = pagecount * pagenr;
         try {
           if(search != 'null' && katid != 0) {
-                  return await this.produktRepository.find({ where: {
+                  return await this.produktRepository.find({ 
+                    where: {
                     name: Like(`%${search}%`),
                     kategorie: {
                       id: katid,
                     },
                     verfgbarkeit: 1,
+                    variations: {
+                      quanity: MoreThan(0)
+                    }
                   },
                 relations: {
                   kategorie: true,
                   promocje: true,
+                  variations: true,
                 },
                 take: end, 
                 skip: start,
@@ -95,13 +109,17 @@ export class ProductService {
                 return err;
               })
         } else if ( search != 'null' && katid == 0) {
-          console.log(search)
+        
                 return await this.produktRepository.find({ where: {
                   name: Like(`%${search}%`),
                   verfgbarkeit: 1,
+                  variations: {
+                    quanity: MoreThan(0),
+                  }
                 },
                 relations: {
                   promocje: true,
+                  variations: true,
                 },
               take: end, 
               skip: start,
@@ -110,15 +128,20 @@ export class ProductService {
               return err;
             })
         } else if (search == 'null' && katid  != 0) {
-          return await this.produktRepository.find({ where: {
+          return await this.produktRepository.find({ 
+            where: {
             kategorie: {
               id: katid
             },
             verfgbarkeit: 1,
+            variations: {
+              quanity: MoreThan(0),
+            }
           },
         relations: {
           kategorie: true,
           promocje: true,
+          variations: true,
         },
         take: end, 
         skip: start,
@@ -129,7 +152,16 @@ export class ProductService {
         }
            
 
-          return await this.produktRepository.find( { where: { verfgbarkeit: 1 }});
+          return await this.produktRepository.find( 
+            { 
+              where: { verfgbarkeit: 1,
+                      variations: {
+                        quanity: MoreThan(0),
+                      }
+               },
+          relations: {
+            variations: true
+          }});
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
@@ -138,7 +170,10 @@ export class ProductService {
       async getProduktById(id: number): Promise<Produkt> {
   
         try {
-          return await this.produktRepository.findOne({where: { id: id }, relations: {
+          return await this.produktRepository.findOne({where: { id: id,
+          variations: {
+            quanity: MoreThan(0),
+          } }, relations: {
             bestellungen: true,
             lieferant: true,
             kategorie: true,
@@ -199,12 +234,24 @@ export class ProductService {
 
       async deleteProdukt(id: number): Promise<DeleteResult> {
         try {
+          const item = await this.produktRepository.findOne({ where: { 
+            id: id,
+          }, 
+          relations: {
+            variations: true
+          }         
+          });
+          for (let i = 0; i < item.variations.length; i++) {
+            if(item.variations[i].quanity > 0)
+            throw new HttpException('Produkt '+ item.name + ' kann nicht gelöscht werden, die Menge ist gößer als 0 ', HttpStatus.BAD_REQUEST);
+          }
+
           return await this.produktRepository.delete(id).catch((err) => {
             console.log(err);
             throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
           });
         } catch (error) {
-            throw new HttpException('Fehler beim Löschen des Produkts', HttpStatus.INTERNAL_SERVER_ERROR);
+            return error;
         }
       }
 
@@ -237,7 +284,10 @@ export class ProductService {
       //get item by sku
       async getProduktBeiSku(sku: string) {
         try {
-          return (await this.produktRepository.findOne({ where: { sku: sku}})).sku;
+          return (await this.produktRepository.findOne({ where: { sku: sku}
+          , relations: {
+            variations: true,
+          }})).sku;
         } catch (err) {
           console.log(err);
           return err;
@@ -246,7 +296,10 @@ export class ProductService {
       //get items by qby_grop (its sku to but for group, ebay return it as ebay_group id)
       async getProduktBeiEbayGroup(ebay_group: string) {
         try {
-          return (await this.produktRepository.findOne({ where: { sku: ebay_group }})).sku;
+          return (await this.produktRepository.findOne({ where: { sku: ebay_group },
+          relations:{
+            variations: true,
+          }})).sku;
         } catch (err) {
           console.log(err);
           return err;
