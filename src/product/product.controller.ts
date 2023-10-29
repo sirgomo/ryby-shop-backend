@@ -24,6 +24,10 @@ export class ProductController {
     async getProductById(@Param('id') id: number): Promise<Produkt> {
       return await this.productService.getProduktById(id);
     }
+    @Get('admin/:id')
+    async getAdminProductById(@Param('id') id: number): Promise<Produkt> {
+      return await this.productService.getAdminProduktById(id);
+    }
   
     @Post()
     @UseGuards(JwtAuthGuard)

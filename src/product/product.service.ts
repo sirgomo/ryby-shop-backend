@@ -190,6 +190,26 @@ export class ProductService {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
       }
+      async getAdminProduktById(id: number): Promise<Produkt> {
+  
+        try {
+          return await this.produktRepository.findOne({where: { id: id }, relations: {
+            bestellungen: true,
+            lieferant: true,
+            kategorie: true,
+            wareneingang: true,
+            promocje: true,
+            bewertung: true,
+            eans: true,
+            variations: true,
+          }}).catch((err) => {
+            console.log(err)
+            throw err;
+          });
+        } catch (error) {
+            throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
+        }
+      }
     
       async createProdukt(productDto: ProductDto): Promise<Produkt> {
         try {

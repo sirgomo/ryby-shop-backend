@@ -23,7 +23,6 @@ export class BestellungenService {
           //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order, 
           //quantity cannot be less than 0.
          await this.isPriceMengeChecked(bestellungData);
-     
          bestellungData.gesamtwert = Number((this.getTotalPrice(bestellungData) + bestellungData.versandprice).toFixed(2));
 
          const purchaseAmount = bestellungData.gesamtwert;
@@ -93,7 +92,9 @@ export class BestellungenService {
   //get total netto value - promotion
   getTotalNettoValue(bestellungData: OrderDto) {
     let total = 0;
- 
+    for (let i = 0; i < bestellungData.produkte.length; i++) {
+        total += this.getPiceNettoPrice(bestellungData, i) * bestellungData.produkte[i].produkt[0].variations[0].quanity;  
+    }
     return total.toFixed(2);
   }
     //Paid, now save the order and current list of products in the transaction
@@ -152,7 +153,10 @@ export class BestellungenService {
   }
 
   private setProduktQuanity(readyBesttelung: OrderDto) {
-    
+    for (let i = 0; i < readyBesttelung.produkte.length; i++) {
+      readyBesttelung.produkte[i].menge = 0;
+        readyBesttelung.produkte[i].menge += readyBesttelung.produkte[i].produkt[0].variations[0].quanity;
+    }
   }
 
       async getOrderBeiId(id: number): Promise<Bestellung> {
@@ -161,7 +165,9 @@ export class BestellungenService {
             where: { id: id },
             relations: { 
               produkte: {
-                produkt: true,
+                produkt: {
+                  variations: true,
+                }
                },
                kunde: {
                 adresse: true,
@@ -183,7 +189,11 @@ export class BestellungenService {
             },
         relations: {
           kunde: true,
-          produkte: true,
+          produkte: {
+            produkt: {
+              variations: true,
+            }
+          },
         }
         })
         
@@ -240,25 +250,92 @@ export class BestellungenService {
       private getTotalTax(bestellungData: OrderDto): number {
         let tax = 0;
         for(let i = 0; i < bestellungData.produkte.length; i++) {
-         
-        
+            tax += this.getTax(bestellungData, i) * bestellungData.produkte[i].produkt[0].variations[0].quanity;
         }
         return Number(tax.toFixed(2));
       }
       private getPaypalItems(bestellungData: OrderDto) : PaypalItem[] {
         const items: PaypalItem[] = [];
         for (let i = 0; i < bestellungData.produkte.length; i++) {
-
+    
+            const item = {} as PaypalItem;
+            item.name = bestellungData.produkte[i].produkt[0].name;
+            //  item.description = bestellungData.produkte[i].produkt[0].beschreibung;
+            item.quantity = bestellungData.produkte[i].produkt[0].variations[0].quanity;
+            item.sku = bestellungData.produkte[i].produkt[0].sku;
+            item.unit_amount = {
+              currency_code: 'EUR',
+              value: this.getPiceNettoPrice(bestellungData, i),
+            };
+            item.tax = {
+              currency_code: 'EUR',
+              value: this.getTax(bestellungData, i),
+            };
+            items.push(item);
+          
     
         }
         return items;
       }
-      //Check if there is sufficient quantity of items, set the prices
+      //Check if there is sufficient quantity of items, set the prices, set item sku as color
       private async isPriceMengeChecked(data: OrderDto) {
         try {
           const items: Produkt[] = [];
      
-       //TODO
+          for (let i = 0; i < data.produkte.length; i++) {
+
+           const index = items.findIndex((item) => item.id === data.produkte[i].produkt[0].id);
+  
+               let tmpItem: Produkt;
+              
+
+              if(index === -1) {
+                
+                tmpItem = await this.productRepository.findOne({ 
+                  where: { 
+                    id: data.produkte[i].produkt[0].id 
+                  },
+                  relations: {
+                          promocje: true,
+                          variations: true,
+                      } 
+                  });
+                  if(!tmpItem)
+                   throw new HttpException('Produkct ' + data.produkte[i].produkt[0].id + ' wurde nicht gefunden!', HttpStatus.NOT_FOUND);
+
+             
+                if(tmpItem.promocje && tmpItem.promocje[0])
+                  data.produkte[i].rabatt = tmpItem.promocje[0].rabattProzent;
+
+              } else {
+             
+  
+                tmpItem = items[index];
+                if(items[index].promocje && items[index].promocje[0])
+                data.produkte[i].rabatt = items[index].promocje[0].rabattProzent;
+            
+              }
+        
+              //check quanity
+              for (let j = 0; j < tmpItem.variations.length; j++) {
+                 if(tmpItem.variations[j].sku === data.produkte[i].produkt[0].variations[0].sku) {
+                    tmpItem.variations[j].quanity -= data.produkte[i].produkt[0].variations[0].quanity;
+                    data.produkte[i].produkt[0].variations[0].price = tmpItem.variations[j].price;
+                    tmpItem.variations[j].quanity_sold += data.produkte[i].produkt[0].variations[0].quanity;
+                             
+                    if(tmpItem.variations[j].quanity < 0)
+                    throw new HttpException('Error 3000/ quanity by item ' + data.produkte[i].produkt[0].name+ ' ist ' + tmpItem.variations[j].quanity, HttpStatus.NOT_ACCEPTABLE);
+                 }
+              }
+
+              data.produkte[i].verkauf_price = this.getPiceNettoPrice(data, i);
+              data.produkte[i].verkauf_rabat = this.getPromotionCost(data, i);
+              data.produkte[i].verkauf_steuer = this.getTax(data, i);
+              data.produkte[i].color = data.produkte[i].produkt[0].variations[0].sku;
+
+  
+              items.push(tmpItem);
+          }
          return items;
         } catch (err) {
           throw err;
@@ -267,30 +344,38 @@ export class BestellungenService {
       }
       //get price - promotion % and + tax
   private getTotalPrice(bestellungData: OrderDto): number {
-        let totalPrice = 0;
-        for (let i = 0; i < bestellungData.produkte.length; i++) {
-        
+    let totalPrice = 0;
+    for (let i = 0; i < bestellungData.produkte.length; i++) {
+       const piceNetto = this.getPiceNettoPrice(bestellungData, i);
+       const tax = this.getTax(bestellungData, i);
+
+        totalPrice += (piceNetto + tax) * bestellungData.produkte[i].produkt[0].variations[0].quanity; 
+  }
  
-      }
-     
-      return totalPrice;
+  return totalPrice;
     }
     //get tax for item
  private getTax(bestellungData: OrderDto, i: number): number {
-    const tax = 0;
+  let picePrice = Number(bestellungData.produkte[i].produkt[0].variations[0].price);
+  let tax = 0;
+  if (bestellungData.produkte[i].produkt[0] && bestellungData.produkte[i].produkt[0].mehrwehrsteuer > 0)
+    tax = picePrice * bestellungData.produkte[i].produkt[0].mehrwehrsteuer / 100;
 
-    return Number(tax.toFixed(2));
+  return Number(tax.toFixed(2));
   }
 //get netto price - promotion
   private getPiceNettoPrice(bestellungData: OrderDto, i: number): number {
+    let picePrice = Number(bestellungData.produkte[i].produkt[0].variations[0].price);
+    if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent)
+      picePrice -= picePrice * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
 
-
-      return 0;
+      return picePrice;
   }
   //get promotion cost
   private getPromotionCost(bestellungData: OrderDto, i: number): number {
     let rabatCost = 0;
-
+    if (bestellungData.produkte[i].produkt[0].promocje && bestellungData.produkte[i].produkt[0].promocje[0] && bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent > 0)
+    rabatCost = bestellungData.produkte[i].produkt[0].variations[i].price * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
     return Number(rabatCost.toFixed(2));
   }
   // generate access token
