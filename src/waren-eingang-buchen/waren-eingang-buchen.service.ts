@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ColorDto } from 'src/dto/color.dto';
+
 
 import { WarenEingangDto } from 'src/dto/warenEingang.dto';
 import { WarenEingangProductDto } from 'src/dto/warenEingangProduct.dto';
 import { Produkt } from 'src/entity/produktEntity';
 import { Wareneingang } from 'src/entity/warenEingangEntity';
 import { WareneingangProduct } from 'src/entity/warenEingangProductEntity';
+import { WareneingangProdVartiaion } from 'src/entity/waren_eingang_prod_variation';
 import { DeleteResult, Repository } from 'typeorm';
 
 
@@ -18,7 +19,8 @@ export class WarenEingangBuchenService {
     @InjectRepository(WareneingangProduct)
     private readonly warenEingangProductRepository: Repository<WareneingangProduct>,
     @InjectRepository(Produkt)
-    private readonly prodRepo: Repository<Produkt>
+    private readonly prodRepo: Repository<Produkt>,
+    @InjectRepository(WareneingangProdVartiaion) private readonly variRepo: Repository<WareneingangProdVartiaion>,
   ) {}
    /**
  * Returns all wareneingang entries
@@ -46,8 +48,12 @@ export class WarenEingangBuchenService {
       const wareneingang = await this.warenEingangRepository.findOne({ 
         where: { id: id }, 
         relations: {
-          products: { produkt: true },
+          products: { 
+          produkt: { variations: true },
+          product_variation: true,
+         },
           lieferant: true,
+          
         }
     }).catch((err) => {
       console.log(err)
@@ -93,7 +99,12 @@ export class WarenEingangBuchenService {
   async update(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const foundWareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangDto.id }, relations: {
-        products: { produkt: true },
+        products: { 
+          produkt: {
+          variations: true,
+          },
+          product_variation: true,
+         },
         lieferant: true,
       }});
       
@@ -103,16 +114,16 @@ export class WarenEingangBuchenService {
       if (foundWareneingang.gebucht) {
         throw new HttpException('Bereits gebuchter Wareneingang kann nicht aktualisiert werden', HttpStatus.BAD_REQUEST);
       }
-  
+
       const merged = await this.warenEingangRepository.merge(foundWareneingang, wareneingangDto);
-      let updatedWareneingang; 
+ 
       if(wareneingangDto.gebucht)
       {
        return this.bookWareneingang(foundWareneingang, merged);
       }
 
-      updatedWareneingang =  await this.warenEingangRepository.save(merged);
-      return updatedWareneingang;
+      return  await this.warenEingangRepository.save(merged);
+
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -132,42 +143,14 @@ export class WarenEingangBuchenService {
     const itemsSave: Produkt[] = [];
 
     for (let i = 0; i < items.length; i++) {
-
-      const wcolor: ColorDto[] = JSON.parse(items[i].color);
-      const pcolor: ColorDto[] = JSON.parse(items[i].produkt[0].color);
-
-
-
-
-      let currentMenge = items[i].produkt[0].currentmenge;
-      let totalMenge = 0;
-
-      if (wcolor.length === 1 && pcolor.length === 0) {
-        currentMenge += wcolor[0].menge;
-        totalMenge += wcolor[0].menge;
-        pcolor.push(wcolor[0]);
-      } else {
-
-        for (let y = 0; y < wcolor.length; y++) {
-          currentMenge += wcolor[y].menge;
-          totalMenge += wcolor[y].menge;
-          pcolor[y].menge += wcolor[y].menge;
-        }
+      for (let j = 0; j < items[i].product_variation.length; j++) {
+        const variIndex = items[i].produkt[0].variations.findIndex((item) => item.sku ===  items[i].product_variation[j].sku);
+        if(variIndex !== -1) {
+          items[i].produkt[0].variations[variIndex].quanity += items[i].product_variation[j].quanity;
+          items[i].produkt[0].verfgbarkeit = 1;
+        } 
       }
-
-      items[i].produkt[0].currentmenge = currentMenge;
-      items[i].produkt[0].verfgbarkeit = 1;
-      items[i].produkt[0].color = JSON.stringify(pcolor);
-
-      let isItemAllready = false;
-      for (let x = 0; x < itemsSave.length; x++) {
-        if (items[i].produkt[0].id === itemsSave[x].id) {
-          isItemAllready = true;
-          itemsSave[x].currentmenge += totalMenge;
-        }
-      }
-      if (!isItemAllready)
-        itemsSave.push(items[i].produkt[0]);
+      itemsSave.push(items[i].produkt[0]);
     }
 
     return await this.prodRepo.manager.transaction(async (transactionEntityManager) => {
@@ -214,23 +197,39 @@ export class WarenEingangBuchenService {
  */
   async addProduct(wareneingangId: number, productDto: WarenEingangProductDto): Promise<WareneingangProduct> {
     try {
-      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, relations: { products: { produkt: true } }});
+      const wareneingang = await this.warenEingangRepository.findOne({ where: { id: wareneingangId }, 
+        relations: { 
+        products: { 
+          produkt: true,
+          product_variation: true,
+        } 
+      }}).catch((err) => console.log(err));
       if (!wareneingang) {
         throw new NotFoundException('Wareneingang nicht gefunden');
       }
       if (wareneingang.gebucht) {
         throw new HttpException('Produkt kann nicht zu einem bereits gebuchten Wareneingang hinzugefügt werden', HttpStatus.BAD_REQUEST);
       }
-      
-      const product = this.warenEingangProductRepository.create(productDto);
+   
+      let product = await this.warenEingangProductRepository.create(productDto);
       product.produkt = productDto.produkt as unknown as Produkt[];
-      wareneingang.products.push(product);
+      product.wareneingang = { id: wareneingang.id } as Wareneingang;
+      product.product_variation = [];
+      const prod = await this.warenEingangProductRepository.save(product);
+      const vari = await this.variRepo.create(productDto.product_variation);
+      for(let i = 0; i < vari.length; i++) {
+        vari[i].waren_eingang_product = { id: prod.id } as WareneingangProduct;
+      }
+      prod.product_variation = await this.variRepo.save(vari);
+      return prod;
+      //its not working, i donkt know why, but its save only one element from variations array, when there is more then one
+      /*wareneingang.products.push(product);
  
       const saved = await this.warenEingangRepository.save(wareneingang).catch(err => {
         console.log(err);
         throw new HttpException('Es ist ein Fehler aufgetreten beim Speichern vom Produkt, abgebrochen', HttpStatus.INTERNAL_SERVER_ERROR);
       });
-      return saved.products[saved.products.length -1];
+      return saved.products[saved.products.length -1];*/
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -259,13 +258,19 @@ export class WarenEingangBuchenService {
       if (wareneingang.gebucht) {
         throw new HttpException('Produkt kann nicht in einem bereits gebuchten Wareneingang aktualisiert werden', HttpStatus.BAD_REQUEST);
       }
-      const product = await this.warenEingangProductRepository.findOne({where: { id: productId }}).catch(err => {
+      const product = await this.warenEingangProductRepository.findOne({
+        where: { id: productId },
+        relations: {
+          product_variation: true,
+        }
+      }).catch(err => {
         console.log(err)
       });
       
       if (!product) {
         throw new NotFoundException('Produkt nicht gefunden');
       }
+      
       const merged = await this.warenEingangProductRepository.merge(product, productDto);
       return await this.warenEingangProductRepository.save(merged);
     } catch (error) {

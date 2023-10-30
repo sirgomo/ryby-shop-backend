@@ -1,10 +1,11 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { Produkt } from "./produktEntity";
 @Entity('variations')
 export class ProduktVariations {
     @PrimaryColumn({ type: 'varchar', nullable: false, unique: true, length: 500 })
     sku: string
     @ManyToOne(() => Produkt, (prod) => prod.variations )
+    @JoinColumn({name: 'produktId'})
     produkt: Produkt;
 
     @Column({ type: 'varchar', length: 255})

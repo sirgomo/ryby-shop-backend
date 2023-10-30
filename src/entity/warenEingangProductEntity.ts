@@ -4,34 +4,25 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  Column,
+  OneToMany,
 } from 'typeorm';
 import { Wareneingang } from './warenEingangEntity';
 import { Produkt } from './produktEntity';
+import { WareneingangProdVartiaion } from './waren_eingang_prod_variation';
 
 @Entity('waren_eingang_product')
 export class WareneingangProduct {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Wareneingang, (wareneingang) => wareneingang.products )
+  @ManyToOne(() => Wareneingang, (wareneingang) => wareneingang.products)
   wareneingang: Wareneingang;
 
-  @ManyToMany(() => Produkt)
+  @ManyToMany(() => Produkt, (products) => products.wareneingang)
   @JoinTable()
   produkt: Produkt[];
 
-  @Column('int')
-  menge: number;
-
-  @Column('decimal')
-  preis: number;
-
-  @Column('int')
-  mwst: number;
-  @Column('int')
-  mengeEingelagert: number;
-  @Column('varchar')
-  color: string;
+  @OneToMany(() => WareneingangProdVartiaion, (vari) => vari.waren_eingang_product, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  product_variation: WareneingangProdVartiaion[];
 
 }
