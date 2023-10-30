@@ -225,6 +225,9 @@ export class BestellungenService {
         try {
           const bestellung: Bestellung = await this.bestellungRepository.findOne({ 
             where: { id: id },
+            relations: {
+              produkte: true,
+            }
           });
           if (!bestellung) 
             throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
@@ -239,8 +242,20 @@ export class BestellungenService {
           if(bestellung.status == BESTELLUNGSSTATE.ABGEBROCHEN || bestellung.status == BESTELLUNGSSTATE.ARCHIVED)
             throw new HttpException('Bestellung kann nicht geändert werden!', HttpStatus.BAD_REQUEST);
 
+        
+            for (let i = 0; i < bestellungData.produkte.length; i++) {
+              if(bestellungData.produkte[i].menge < bestellungData.produkte[i].mengeGepackt)
+               throw new HttpException('Menge gepackt kann nicht größer werder als bestellungs Menge', HttpStatus.BAD_REQUEST);
+            }
+          if(bestellungData.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT && bestellung.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT)
+          {
+            for (let i = 0; i < bestellungData.produkte.length; i++) {
+              if(bestellungData.produkte[i].menge !== bestellung.produkte[i].menge || bestellungData.produkte[i].mengeGepackt !== bestellung.produkte[i].mengeGepackt)
+               throw new HttpException('Bestellung verschickt, die Menge kann nicht geändert werden', HttpStatus.BAD_REQUEST);
+            }
+          }
+
           this.bestellungRepository.merge(bestellung, bestellungData);
-          console.log(bestellung)
           return await this.bestellungRepository.save(bestellung);
         } catch (error) {
           throw error;
@@ -332,6 +347,7 @@ export class BestellungenService {
               data.produkte[i].verkauf_rabat = this.getPromotionCost(data, i);
               data.produkte[i].verkauf_steuer = this.getTax(data, i);
               data.produkte[i].color = data.produkte[i].produkt[0].variations[0].sku;
+              data.produkte[i].mengeGepackt = 0;
 
   
               items.push(tmpItem);
