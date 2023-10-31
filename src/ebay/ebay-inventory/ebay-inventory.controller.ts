@@ -11,12 +11,12 @@ export class EbayInventoryController {
 
     request = new EbayRequest();
     constructor (private readonly ebayServ: EbayService, private readonly productService: ProductService) {}
-    //get item from base by sku
+    //get item from base by sku, return from mysql
     @Get('/sku/:id')
     async getProduktBeiId(@Param('id') sku: string) {
       return this.productService.getProduktBeiSku(sku);
     }
-    //get item by group sku, it should be item group ?
+    //get item by group sku, it should be item group ?, return from mysql
     @Get('/group/:id')
     async getProuktBeiEbay_Group(@Param('id') group: string) {
       return this.productService.getProduktBeiEbayGroup(group);
@@ -68,6 +68,16 @@ export class EbayInventoryController {
         await this.ebayServ.checkAccessToken();
       
         return await this.request.getRequest(`${env.ebay_api}/sell/inventory/v1/inventory_item_group/${id}`, this.ebayServ.currentToken.access_token);
+      } catch (err) {
+        return err;
+      }
+    }
+    @Get('/ebay/sku/:id')
+    async getEbayOneSku(@Param('id') id: string) {
+      try {
+        await this.ebayServ.checkAccessToken();
+      
+        return await this.request.getRequest(`${env.ebay_api}/sell/inventory/v1/inventory_item/${id}`, this.ebayServ.currentToken.access_token);
       } catch (err) {
         return err;
       }

@@ -20,8 +20,8 @@ export class EbayOffersService {
             'Accept-Encoding': 'application/gzip',
           }
 
-            const res = await this.ebayRequest.getRequest(`${env.ebay_api}/sell/inventory/v1/offer?sku=${sku}`, this.authServ.currentToken.access_token);
-            return res;
+            return await this.ebayRequest.getRequest(`${env.ebay_api}/sell/inventory/v1/offer?sku=${sku}`, this.authServ.currentToken.access_token);
+          
         } catch (err) {
             console.log(err)
             return err;
