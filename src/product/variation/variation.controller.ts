@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseFilePipeBuilder, Post, Put, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseEnumPipe, ParseFilePipeBuilder, Post, Put, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { VariationService } from './variation.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { PhotoService } from 'src/service/photoService';
+import { Readable } from 'stream';
+import { strategies } from 'passport';
 
 @Controller('variation')
 export class VariationController {
@@ -74,14 +76,25 @@ export class VariationController {
         return err;
       }
     }
-    @Get('uploads/:id')
-    async getImage(@Param('id') id, @Res() res: Response) {
-      const imageStream = await this.photoService.getPhoto(id, false);
+    @Post('uploads/')
+    async getImage(@Body() id: {id: string}, @Res() res: Response) {
+      if(id.id.split('//')[0] === 'https:') {
+      const imagestream =  await this.getEbayImage(id.id);
+      imagestream.pipe(res as any)
+      }
+       
+
+      const imageStream = await this.photoService.getPhoto(id.id, false);
       imageStream.pipe(res as any);
     }
-    @Get('thumbnails/:id')
-    async getThumbnails(@Param('id') id, @Res() res: Response) {
-      const imageStream = await this.photoService.getPhoto(id, true);
+    @Post('thumbnails/')
+    async getThumbnails(@Body() id: {id: string}, @Res() res: Response) {
+      if(id.id.split('//')[0] === 'https:') {
+      const imagestream =  await this.getEbayImage(id.id);
+      imagestream.pipe(res as any)
+      }
+
+      const imageStream = await this.photoService.getPhoto(id.id, true);
       imageStream.pipe(res as any);
     }
     @Post('file-delete')
@@ -91,5 +104,23 @@ export class VariationController {
        return await this.photoService.deletePhoto(delFile);
 
        return 0;
+    }
+    //get image from ebay
+    async getEbayImage(id: string) {
+      try {
+       const item = await fetch(id.split('?')[0], {
+          method: 'GET',
+        });
+        const stream = Readable.fromWeb(item.body as any);
+       return stream;
+        
+ 
+      } catch (err)
+      {
+        console.log(err);
+        return err;
+      }
+  
+      
     }
 }
