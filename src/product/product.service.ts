@@ -315,12 +315,21 @@ export class ProductService {
       }
       //get item by qby_grop (its sku to but for group, ebay return it as ebay_group id)
       async getProduktBeiEbayGroup(ebay_group: string) {
+      
         try {
-          return (await this.produktRepository.findOne({ where: { sku: ebay_group },
+          return await this.produktRepository.findOne({ where: { sku: ebay_group },
           relations:{
             variations: true,
-          }})).sku;
+          }}).then((res) => {
+            return {sku: res.sku};
+          }).catch((err) => {
+            console.log(err)
+            throw err;
+          })
+          
+          
         } catch (err) {
+         
           return err;
         }
       }
