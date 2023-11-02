@@ -31,6 +31,7 @@ import { EanEntity } from './entity/eanEntity';
 import { EbayModule } from './ebay/ebay.module';
 import { ProduktVariations } from './entity/produktVariations';
 import { WareneingangProdVartiaion } from './entity/waren_eingang_prod_variation';
+import { LagerModule } from './lager/lager.module';
 
 
 
@@ -75,6 +76,7 @@ import { WareneingangProdVartiaion } from './entity/waren_eingang_prod_variation
     CompanyModule,
     BestellungenModule,
     EbayModule,
+    LagerModule,
     
   ],
   controllers: [AppController],
