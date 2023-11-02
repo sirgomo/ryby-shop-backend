@@ -138,7 +138,12 @@ export class Database {
             datenEingabe DATE,
             gebucht TINYINT,
             eingelagert TINYINT,
+            shipping_cost DECIMAL(10,2) DEFAULT 0,
+            remarks VARCHAR(500),
+            other_cost DECIMAL(10,2) DEFAULT 0,
+            locationId INT,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
+            FOREIGN KEY (locationId) REFERENCES lager (id)
           );
 
           CREATE TABLE IF NOT EXISTS waren_eingang_product (

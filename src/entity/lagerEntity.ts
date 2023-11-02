@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Stellplatze } from './stellplatzeEntity';
+import { Wareneingang } from './warenEingangEntity';
 
 @Entity('lager')
 export class Lager {
@@ -14,4 +15,7 @@ export class Lager {
 
   @Column()
   adresse: string;
+
+  @OneToMany(() => Wareneingang, (weingang) => weingang.location)
+  wareneingang: Wareneingang
 }

@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Lieferant } from './lifernatEntity';
 import { WareneingangProduct } from './warenEingangProductEntity';
+import { Lager } from './lagerEntity';
 
 @Entity('waren_eingang')
 export class Wareneingang {
@@ -36,4 +37,16 @@ export class Wareneingang {
 
   @Column('tinyint')
   eingelagert: boolean;
+
+  @Column('decimal')
+  shipping_cost: number;
+
+  @Column('varchar')
+  remarks: string;
+
+  @Column('decimal')
+  other_cost: number;
+
+  @ManyToOne(() => Lager, (lager) => lager.wareneingang)
+  location: Lager
 }
