@@ -53,7 +53,7 @@ export class WarenEingangBuchenService {
           product_variation: true,
          },
           lieferant: true,
-          
+          location: true,
         }
     }).catch((err) => {
       console.log(err)
@@ -83,6 +83,7 @@ export class WarenEingangBuchenService {
       return await this.warenEingangRepository.findOne({ where: { id: createdWareneingang.id }, relations: {
         products: { produkt: true },
         lieferant: true,
+        location: true,
       }});
     } catch (error) {
       throw error;
@@ -106,6 +107,7 @@ export class WarenEingangBuchenService {
           product_variation: true,
          },
         lieferant: true,
+        location: true,
       }});
       
       if (!foundWareneingang) {
@@ -116,7 +118,6 @@ export class WarenEingangBuchenService {
       }
 
       const merged = await this.warenEingangRepository.merge(foundWareneingang, wareneingangDto);
- 
       if(wareneingangDto.gebucht)
       {
        return this.bookWareneingang(foundWareneingang, merged);

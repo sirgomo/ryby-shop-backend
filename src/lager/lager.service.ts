@@ -40,7 +40,7 @@ export class LagerService {
         try {
             const up = await this.lagerRepository.create(edLager);
           const lager = await this.getWarehouseById(edLager.id);
-            const merged = await this.lagerRepository.merge(up, lager)
+            const merged = await this.lagerRepository.merge(lager, up);
           return await this.lagerRepository.save(merged);
         } catch (error) {
           throw error;
