@@ -14,6 +14,7 @@ export class ProduktVariations {
     hint: string;
     @Column({ type: 'varchar', length: 255 })
     value: string;
+    //gewicht
     @Column({ type: 'varchar', length: 255})
     unit: string;
     @Column({ type: 'varchar', length: 1000})
@@ -26,4 +27,5 @@ export class ProduktVariations {
     quanity: number;
     @Column('int')
     quanity_sold: number;
+
 }

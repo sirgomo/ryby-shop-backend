@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+import { IsNotEmpty, IsNumber, IsObject, IsOptional } from "class-validator";
 import { LieferantDto } from "./liferant.dto";
 import { WarenEingangProductDto } from "./warenEingangProduct.dto";
 import { LagerDto } from "src/database/lager.dto";
@@ -23,5 +23,6 @@ export class WarenEingangDto {
     shipping_cost: number;
     remarks: string;
     other_cost: number;
+    @IsObject({ message: 'Lager kann nicht leer sein' })
     location: LagerDto;
 }
