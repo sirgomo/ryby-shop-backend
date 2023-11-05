@@ -29,9 +29,11 @@ export class PhotoService {
      // this.fsExtra.writeFileSync(originalFilePath, file.buffer);
      await sharp(file.buffer)
      .resize({
-      fit: sharp.fit.contain,
+      //fit: sharp.fit.contain,
+      fit: sharp.fit.fill,
       height: 1024,
-      width: 1024
+      width: 1024,
+      
      })
      .toFile(originalFilePath, (error) => {
        if (error) {
@@ -45,7 +47,7 @@ export class PhotoService {
       const thumbnailFilePath = path.join(thumbnailPath, originalName);
       await sharp(file.buffer)
       .resize({
-        fit: sharp.fit.contain,
+        fit: sharp.fit.fill,
         height: 300,
         width: 300
        })
