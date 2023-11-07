@@ -142,7 +142,7 @@ export class Database {
             remarks VARCHAR(500),
             other_cost DECIMAL(10,2) DEFAULT 0,
             locationId INT,
-            FOREIGN KEY (lieferantId) REFERENCES liferant (id)
+            FOREIGN KEY (lieferantId) REFERENCES liferant (id),
             FOREIGN KEY (locationId) REFERENCES lager (id)
           );
 
