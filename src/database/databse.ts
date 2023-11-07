@@ -184,9 +184,9 @@ export class Database {
           CREATE TABLE IF NOT EXISTS bestellung (
             id INT AUTO_INCREMENT PRIMARY KEY,
             kundeId INT,
-            bestelldatum DATE,
+            bestelldatum DATETIME,
             status VARCHAR(255),
-            versand_datum DATE,
+            versand_datum DATETIME,
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL(10,2),
             zahlungsstatus VARCHAR(255),

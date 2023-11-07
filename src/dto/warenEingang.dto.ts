@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsObject, IsOptional } from "class-validator";
 import { LieferantDto } from "./liferant.dto";
 import { WarenEingangProductDto } from "./warenEingangProduct.dto";
-import { LagerDto } from "src/database/lager.dto";
+import { LagerDto } from "src/dto/lager.dto";
 
 export class WarenEingangDto {
     @IsOptional()

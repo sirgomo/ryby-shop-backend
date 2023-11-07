@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
-import { LagerDto } from 'src/database/lager.dto';
+import { LagerDto } from 'src/dto/lager.dto';
 import { Lager } from 'src/entity/lagerEntity';
 import { LagerService } from './lager.service';
 import { DeleteResult } from 'typeorm';

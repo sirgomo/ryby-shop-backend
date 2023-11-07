@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LagerDto } from 'src/database/lager.dto';
+import { LagerDto } from 'src/dto/lager.dto';
 import { Lager } from 'src/entity/lagerEntity';
 import { DeleteResult, Repository } from 'typeorm';
 
