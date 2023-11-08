@@ -76,6 +76,7 @@ export class WarenEingangBuchenService {
   async create(wareneingangDto: WarenEingangDto): Promise<Wareneingang> {
     try {
       const wareneingang = await this.warenEingangRepository.create(wareneingangDto);
+     
       const createdWareneingang = await this.warenEingangRepository.save(wareneingang).catch((err) => {
         console.log(err)
         return err;

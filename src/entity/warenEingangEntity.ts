@@ -20,7 +20,7 @@ export class Wareneingang {
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.wareneingaenge)
   lieferant: Lieferant;
 
-  @Column('date')
+  @Column('datetime')
   empfangsdatum: Date;
 
   @Column('varchar')
@@ -29,7 +29,7 @@ export class Wareneingang {
   @Column('varchar')
   lieferscheinNr: string;
 
-  @Column('date')
+  @Column('datetime')
   datenEingabe: Date;
 
   @Column('tinyint')

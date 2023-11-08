@@ -132,10 +132,10 @@ export class Database {
           CREATE TABLE IF NOT EXISTS waren_eingang (
             id INT AUTO_INCREMENT PRIMARY KEY,
             lieferantId INT,
-            empfangsdatum DATE,
+            empfangsdatum DATETIME,
             rechnung VARCHAR(255),
             lieferscheinNr VARCHAR(255),
-            datenEingabe DATE,
+            datenEingabe DATETIME,
             gebucht TINYINT,
             eingelagert TINYINT,
             shipping_cost DECIMAL(10,2) DEFAULT 0,
