@@ -21,6 +21,8 @@ export class ProduktVariations {
     image: string;
     @Column('decimal')
     price: number;
+    @Column('decimal')
+    wholesale_price: number;
     @Column({ type: 'varchar', length: 1000})
     thumbnail: string;
     @Column('int')

@@ -87,4 +87,6 @@ export class Produkt {
   @OneToMany(() => ProduktVariations, (vari) => vari.produkt, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
   @JoinTable()
   variations: ProduktVariations[];
+  @Column('varchar')
+  produkt_image: string;
 }

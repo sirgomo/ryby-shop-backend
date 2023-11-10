@@ -44,5 +44,7 @@ export class ProductDto{
     bewertung: Kundenbewertung[];
     eans: EanEntity[];
     variations: ProduktVariations[];
+    @IsOptional()
+    produkt_image:string;
 }
       

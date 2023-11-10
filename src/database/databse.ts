@@ -86,6 +86,7 @@ export class Database {
             product_sup_id VARCHAR(255),
             ebay TINYINT DEFAULT 0,
             mehrwehrsteuer INT,
+            produkt_image VARCHAR(1000),
             FOREIGN KEY (lieferantId) REFERENCES liferant (id)
           );
           CREATE TABLE IF NOT EXISTS lager (
@@ -117,6 +118,7 @@ export class Database {
             unit VARCHAR(255),
             image VARCHAR(1000),
             price DECIMAL(10,2),
+            wholesale_price DECIMAL(10,2),
             thumbnail VARCHAR(1000),
             quanity INT,
             quanity_sold INT,

@@ -19,6 +19,8 @@ export class ProductVariationDto {
     image: string;
     @IsNotEmpty()
     price: number;
+    @IsNotEmpty()
+    wholesale_price: number;
     @IsOptional()
     thumbnail: string;
     @IsNotEmpty()

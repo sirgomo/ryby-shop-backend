@@ -2,16 +2,18 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteFileDto } from 'src/dto/deleteFilde.dto';
 import { ProductVariationDto } from 'src/dto/productVariation.dto';
+import { Produkt } from 'src/entity/produktEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { PhotoService } from 'src/service/photoService';
-import { Repository } from 'typeorm';
+import { DataSource, Repository, getManager } from 'typeorm';
 
 @Injectable()
 export class VariationService {
     constructor(
         @InjectRepository(ProduktVariations)
         private produktVariationsRepository: Repository<ProduktVariations>,
-        private photoService: PhotoService
+        private photoService: PhotoService,
+        private dataSource: DataSource
     ) {}
 
     async findAllforSelect() {
@@ -86,19 +88,22 @@ export class VariationService {
     async deleteImage(image: DeleteFileDto) {
       try {
         const item = await this.produktVariationsRepository.findOne({where: { sku: image.produktid }});
+        if(item.variations_name) {
         
-        if(!item)
-          return false;
-  
-        //  const images: string[] = JSON.parse(item.image);
-        // const index = images.findIndex((tmp) => tmp === image.fileid)
-        //  images.splice(index, 1);
-        //  item.image = JSON.stringify(images);
-        this.photoService.deletePhoto(image);
-        item.image = '';
-        await this.produktVariationsRepository.save(item);
-        
-        return true;
+          item.image = '';
+          await this.produktVariationsRepository.save(item);
+          return true;
+      }
+      const itemP: Produkt = await this.dataSource.getRepository(Produkt).findOne({where: { sku : image.produktid }});
+     
+      if(itemP) {
+      
+          itemP.produkt_image = '';
+          await this.dataSource.getRepository(Produkt).save(itemP).catch((err) => { console.log(err)    });
+          return true; 
+      }  
+      
+      return false;
       } catch (err) {
         return err;
       }
@@ -106,16 +111,24 @@ export class VariationService {
     async addImage(image: string, productid: string): Promise<boolean> {
       try {
         const item = await this.produktVariationsRepository.findOne({where: { sku : productid }});
-        if(!item)
-          return false;
-  
-      //  const currentImages: string[] = JSON.parse(item.image);
-      //  currentImages.push(image);
-      //  item.image = JSON.stringify(currentImages);
-        item.image = image;
-        await this.produktVariationsRepository.save(item);
-  
-        return true;
+       
+        if(item.variations_name) {
+        
+            item.image = image;
+            await this.produktVariationsRepository.save(item);
+            return true;
+        }
+        const itemP: Produkt = await this.dataSource.getRepository(Produkt).findOne({where: { sku : productid }});
+       
+           
+        if(itemP) {
+        
+            itemP.produkt_image = image;
+            await this.dataSource.getRepository(Produkt).save(itemP).catch((err) => { console.log(err)    });
+            return true; 
+        }  
+        return false;
+
       } catch (err) {
         return err;
       }
