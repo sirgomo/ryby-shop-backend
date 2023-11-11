@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { Repository } from 'typeorm';
 import { PublicEbayKeyDto } from 'src/dto/ebay/publicEbayKey.dto';
-import { EbaySubscriptionsPayloadDto } from 'src/dto/ebay/ebaySubscriptionsPayload.dto';
+
 @Injectable()
 export class EbayService {
   request = new EbayRequest();

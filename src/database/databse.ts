@@ -227,6 +227,22 @@ export class Database {
             FOREIGN KEY (produktId) REFERENCES produkt (id),
             FOREIGN KEY (productRucgabeId) REFERENCES product_ruckgabe (id)
           );
+          CREATE TABLE shipping_costs (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            shipping_name VARCHAR(255) NOT NULL,
+            shipping_price DECIMAL(10, 2) NOT NULL,
+            average_material_price DECIMAL(10, 2) NOT NULL
+        );
+        
+        CREATE TABLE produkt_shipping_costs (
+            produktId INT NOT NULL,
+            shipping_costsId INT NOT NULL,
+            PRIMARY KEY (produktId, shipping_costsId),
+            FOREIGN KEY (produktId) REFERENCES produkt (id),
+            FOREIGN KEY (shipping_costsId) REFERENCES shipping_costs (id)
+        );
+        
+          
           
           CREATE TABLE IF NOT EXISTS kunden_bewertung (
             id INT AUTO_INCREMENT PRIMARY KEY,

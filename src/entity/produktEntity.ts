@@ -16,6 +16,7 @@ import { Aktion } from './aktionEntity';
 import { Kundenbewertung } from './kundenBewertungEntity';
 import { EanEntity } from './eanEntity';
 import { ProduktVariations } from './produktVariations';
+import { ShippingEntity } from './shippingEntity';
 
 @Entity('produkt')
 export class Produkt {
@@ -89,4 +90,8 @@ export class Produkt {
   variations: ProduktVariations[];
   @Column('varchar')
   produkt_image: string;
+
+  @ManyToMany(() => ShippingEntity)
+  @JoinTable()
+  shipping_costs: ShippingEntity[];
 }

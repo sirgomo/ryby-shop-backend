@@ -32,6 +32,8 @@ import { EbayModule } from './ebay/ebay.module';
 import { ProduktVariations } from './entity/produktVariations';
 import { WareneingangProdVartiaion } from './entity/waren_eingang_prod_variation';
 import { LagerModule } from './lager/lager.module';
+import { ShippingEntity } from './entity/shippingEntity';
+import { ShippingModule } from './shipping/shipping.module';
 
 
 
@@ -63,7 +65,8 @@ import { LagerModule } from './lager/lager.module';
         CompanyDataEntity,
         EanEntity,
         ProduktVariations,
-        WareneingangProdVartiaion
+        WareneingangProdVartiaion,
+        ShippingEntity
       ],
       synchronize: false,
     }),
@@ -77,6 +80,7 @@ import { LagerModule } from './lager/lager.module';
     BestellungenModule,
     EbayModule,
     LagerModule,
+    ShippingModule,
     
   ],
   controllers: [AppController],
