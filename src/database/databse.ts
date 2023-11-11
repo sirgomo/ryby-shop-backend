@@ -236,11 +236,11 @@ export class Database {
         
         CREATE TABLE produkt_shipping_costs (
             produktId INT NOT NULL,
-            shipping_costsId INT NOT NULL,
-            PRIMARY KEY (produktId, shipping_costsId),
-            FOREIGN KEY (produktId) REFERENCES produkt (id),
-            FOREIGN KEY (shipping_costsId) REFERENCES shipping_costs (id)
-        );
+            shippingCostsId INT NOT NULL,
+            PRIMARY KEY (produktId, shippingCostsId),
+            FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (shippingCostsId) REFERENCES shipping_costs (id) ON DELETE CASCADE ON UPDATE CASCADE
+            );
         
           
           

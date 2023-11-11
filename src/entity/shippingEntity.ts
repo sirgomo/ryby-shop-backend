@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Produkt } from "./produktEntity";
 
 @Entity('shipping_costs')
 export class ShippingEntity {
@@ -6,8 +7,10 @@ export class ShippingEntity {
     id: number;
     @Column({ length: 255, type: 'varchar' })
     shipping_name: string;
-    @Column({ type: 'decimal', length: 10, precision: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     shipping_price: number;
-    @Column({ type: 'decimal', length: 10, precision: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     average_material_price: number;
+    @ManyToMany(() => Produkt, (produkt) => produkt.shipping_costs)
+    produkt: Produkt[];
 }   

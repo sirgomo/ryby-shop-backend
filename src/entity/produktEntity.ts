@@ -91,7 +91,7 @@ export class Produkt {
   @Column('varchar')
   produkt_image: string;
 
-  @ManyToMany(() => ShippingEntity)
-  @JoinTable()
+  @ManyToMany(() => ShippingEntity, (ship) => ship.produkt, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @JoinTable({ name: 'produkt_shipping_costs'})
   shipping_costs: ShippingEntity[];
 }

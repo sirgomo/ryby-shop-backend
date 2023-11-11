@@ -1,4 +1,6 @@
 import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator";
+import { ProductDto } from "./product.dto";
+import { Produkt } from "src/entity/produktEntity";
 
 export class ShippingCostDto {
     @IsOptional()
@@ -15,4 +17,6 @@ export class ShippingCostDto {
     @IsNotEmpty()
     @IsNumber()
     average_material_price: number;
+    @IsOptional()
+    produkt: Produkt[];
 }

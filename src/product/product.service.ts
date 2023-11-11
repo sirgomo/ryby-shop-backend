@@ -182,6 +182,7 @@ export class ProductService {
             bewertung: true,
             eans: true,
             variations: true,
+            shipping_costs: true,
           }}).catch((err) => {
             console.log(err)
             throw err;
@@ -202,6 +203,7 @@ export class ProductService {
             bewertung: true,
             eans: true,
             variations: true,
+            shipping_costs: true, 
           }}).catch((err) => {
             console.log(err)
             throw err;
@@ -232,15 +234,14 @@ export class ProductService {
           relations: {
             eans: true,
             variations: true,
+            shipping_costs: true,
           }});
           if (!produkt) {
             throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
           }
      
-        
+    
           await this.produktRepository.merge(produkt, productDto);
- 
-      
           return await this.produktRepository.save(produkt).catch((err) => {
             console.log(err)
             return err;

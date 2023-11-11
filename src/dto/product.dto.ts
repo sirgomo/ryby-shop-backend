@@ -8,6 +8,7 @@ import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsOptional } from "class-val
 import { ProduktInBestellung } from "src/entity/productBestellungEntity";
 import { EanEntity } from "src/entity/eanEntity";
 import { ProduktVariations } from "src/entity/produktVariations";
+import { ShippingCostDto } from "./shippingCost.dto";
 
 export class ProductDto{
     id: number | undefined;
@@ -46,5 +47,6 @@ export class ProductDto{
     variations: ProduktVariations[];
     @IsOptional()
     produkt_image:string;
+    shipping_costs: ShippingCostDto[];
 }
       
