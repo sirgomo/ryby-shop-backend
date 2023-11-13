@@ -101,6 +101,7 @@ export class ProductService {
                   kategorie: true,
                   promocje: true,
                   variations: true,
+                  shipping_costs: true,
                 },
                 take: end, 
                 skip: start,
@@ -120,6 +121,7 @@ export class ProductService {
                 relations: {
                   promocje: true,
                   variations: true,
+                  shipping_costs: true,
                 },
               take: end, 
               skip: start,
@@ -142,6 +144,7 @@ export class ProductService {
           kategorie: true,
           promocje: true,
           variations: true,
+          shipping_costs: true,
         },
         take: end, 
         skip: start,
@@ -160,7 +163,8 @@ export class ProductService {
                       }
                },
           relations: {
-            variations: true
+            variations: true,
+            shipping_costs: true,
           }});
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
