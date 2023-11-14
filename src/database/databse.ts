@@ -144,6 +144,9 @@ export class Database {
             remarks VARCHAR(500),
             other_cost DECIMAL(10,2) DEFAULT 0,
             locationId INT,
+            wahrung varchar(3) DEFAULT 'EUR',
+            wahrung2 varchar(3) DEFAULT 'EUR',
+            wahrung_rate decimal(10,4) DEFAULT '1.00',
             FOREIGN KEY (lieferantId) REFERENCES liferant (id),
             FOREIGN KEY (locationId) REFERENCES lager (id)
           );

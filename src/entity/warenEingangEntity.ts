@@ -49,4 +49,11 @@ export class Wareneingang {
 
   @ManyToOne(() => Lager, (lager) => lager.wareneingang)
   location: Lager
+
+  @Column({type: 'varchar', default: 'EUR', length: 3})
+  wahrung: string;
+  @Column({type: 'varchar', default: 'EUR', length: 3})
+  wahrung2: string;
+  @Column({type: 'decimal', default: 1.0, precision: 10, scale: 4})
+  wahrung_rate: number;
 }

@@ -25,4 +25,7 @@ export class WarenEingangDto {
     other_cost: number;
     @IsObject({ message: 'Lager kann nicht leer sein' })
     location: LagerDto;
+    wahrung: string;
+    wahrung2: string;
+    wahrung_rate: number;
 }
