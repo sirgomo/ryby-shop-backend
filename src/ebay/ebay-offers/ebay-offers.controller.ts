@@ -10,5 +10,9 @@ export class EbayOffersController {
     async getOffers(@Param('sku') sku: string) {
         return await this.offerService.getOfferBySku(sku);
     }
+    @Get('fulfillment-policy/:id')
+    async getfulfillmentPolicyById(@Param('id') id: string) {
+        return await this.offerService.getfulfillmentPolicyById(id);
+    }
 
 }

@@ -28,4 +28,23 @@ export class EbayOffersService {
         }
   
     }
+    async getfulfillmentPolicyById(id: string) {
+        try {
+            await this.authServ.checkAccessToken();
+
+            
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept-Language': 'de-DE',
+            'Accept-Encoding': 'application/gzip',
+          }
+       
+            return await this.ebayRequest.getRequest(`${env.ebay_api}/sell/account/v1/fulfillment_policy/${id}`, this.authServ.currentToken.access_token);
+          
+        } catch (err) {
+            console.log(err)
+            return err;
+        }
+  
+    }
 }
