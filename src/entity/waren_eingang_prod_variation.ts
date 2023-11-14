@@ -12,7 +12,8 @@ export class WareneingangProdVartiaion {
   
     @Column('decimal')
     price: number;
-  
+    @Column('decimal')
+    price_in_euro: number;
     @Column('int')
     mwst: number;
     @Column('int')

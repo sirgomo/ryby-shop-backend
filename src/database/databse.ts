@@ -161,6 +161,7 @@ export class Database {
             sku VARCHAR(255) NOT NULL,
             quanity INT NOT NULL,
             price DECIMAL(10,2) NOT NULL,
+            price_in_euro DECIMAL(10,2) NOT NULL,
             mwst INT NOT NULL DEFAULT 0,
             quanity_stored INT NOT NULL DEFAULT 0,
             waren_eingang_productId INT,
