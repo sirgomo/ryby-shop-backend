@@ -310,9 +310,17 @@ export class ProductService {
       async getProduktBeiSku(sku: string) {
         try {
           return (await this.produktRepository.findOne({ where: { sku: sku}
-          , relations: {
+          ,relations: {
             variations: true,
-          }})).sku;
+          }}).catch((err) => {
+            console.log(err)
+            throw err;
+          }).then((res) => {
+            if(res)
+            return { sku: res.sku };
+
+            return { sku: 'null' };
+          }));
         } catch (err) {
           console.log(err);
           return err;
@@ -326,7 +334,10 @@ export class ProductService {
           relations:{
             variations: true,
           }}).then((res) => {
+            if(res)
             return {sku: res.sku};
+
+            return {sku: 'null'};
           }).catch((err) => {
             console.log(err)
             throw err;
