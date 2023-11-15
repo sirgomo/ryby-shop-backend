@@ -147,6 +147,8 @@ export class Database {
             wahrung varchar(3) DEFAULT 'EUR',
             wahrung2 varchar(3) DEFAULT 'EUR',
             wahrung_rate decimal(10,4) DEFAULT '1.00',
+            shipping_cost_eur DECIMAL(10,2) DEFAULT 0,
+            other_cost_eur DECIMAL(10,2) DEFAULT 0,
             FOREIGN KEY (lieferantId) REFERENCES liferant (id),
             FOREIGN KEY (locationId) REFERENCES lager (id)
           );

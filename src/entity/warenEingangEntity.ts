@@ -56,4 +56,10 @@ export class Wareneingang {
   wahrung2: string;
   @Column({type: 'decimal', default: 1.0, precision: 10, scale: 4})
   wahrung_rate: number;
+
+  @Column('decimal')
+  shipping_cost_eur: number;
+  
+  @Column('decimal')
+  other_cost_eur: number;
 }
