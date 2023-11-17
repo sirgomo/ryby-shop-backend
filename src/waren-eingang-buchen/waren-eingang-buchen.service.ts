@@ -152,7 +152,18 @@ export class WarenEingangBuchenService {
           items[i].produkt[0].verfgbarkeit = 1;
         } 
       }
-      itemsSave.push(items[i].produkt[0]);
+
+      const isItem = itemsSave.findIndex((item) => item.id === items[i].produkt[0].id);
+        if(isItem === -1) {
+          itemsSave.push(items[i].produkt[0]);
+          } else {
+              for (let k = 0; k < items[i].product_variation.length; k++) {
+                const variIndex = itemsSave[isItem].variations.findIndex((item) => item.sku ===  items[i].product_variation[k].sku);
+                if(variIndex !== -1) {
+                  itemsSave[isItem].variations[variIndex].quanity += items[i].product_variation[k].quanity;
+                } 
+              }
+          }
     }
 
     return await this.prodRepo.manager.transaction(async (transactionEntityManager) => {
