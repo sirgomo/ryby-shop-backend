@@ -179,10 +179,10 @@ export class BestellungenService {
           throw error;
         }
       }
-      async getOrdersBeiKunde(kundeId: number): Promise<Bestellung[]> {
+      async getOrdersBeiKunde(kundeId: number): Promise<[Bestellung[], number]> {
        
         try {
-        return await this.bestellungRepository.find( { 
+        return await this.bestellungRepository.findAndCount( { 
           where: { kunde: {
               id: kundeId,
               }

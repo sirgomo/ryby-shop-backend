@@ -13,11 +13,11 @@ export class ProductController {
     constructor(private readonly productService: ProductService) {}
     @UseGuards(JwtAuthGuard)
     @Get(':search/:katid/:pagecount/:pagenr')
-    async getAllProducts(@Param('search') search: string, @Param('katid') katid: number, @Param('pagecount') pagecount: number, @Param('pagenr') pagenr: number): Promise<Produkt[]> {
+    async getAllProducts(@Param('search') search: string, @Param('katid') katid: number, @Param('pagecount') pagecount: number, @Param('pagenr') pagenr: number): Promise<[Produkt[], number]> {
       return await this.productService.getAllProdukte(search, katid, pagecount, pagenr);
     }
     @Get('kunde/:search/:katid/:pagecount/:pagenr')
-    async getAllProductsForKunden(@Param('search') search: string, @Param('katid') katid: number, @Param('pagecount') pagecount: number, @Param('pagenr') pagenr: number): Promise<Produkt[]> {
+    async getAllProductsForKunden(@Param('search') search: string, @Param('katid') katid: number, @Param('pagecount') pagecount: number, @Param('pagenr') pagenr: number): Promise<[Produkt[], number]> {
       return await this.productService.getAllProdukteForKunden(search, katid, pagecount, pagenr);
     }
     @Get(':id')

@@ -13,14 +13,14 @@ export class ProductService {
         @InjectRepository(EanEntity) private readonly eanRepo: Repository<EanEntity>,
       ) {}
     
-      async getAllProdukte(search: string, katid: number, pagecount: number, pagenr: number): Promise<Produkt[]> {
+      async getAllProdukte(search: string, katid: number, pagecount: number, pagenr: number): Promise<[Produkt[], number]> {
         if(!isFinite(pagenr) || pagenr < 1)
         pagenr = 1;
         const start = pagecount * pagenr - pagecount;
         const end = pagecount * pagenr;
         try {
           if(search != 'null' && katid != 0) {
-                  return await this.produktRepository.find({ where: {
+                  return await this.produktRepository.findAndCount({ where: {
                     name: Like(`%${search}%`),
                     kategorie: {
                       id: katid
@@ -38,7 +38,7 @@ export class ProductService {
               })
         } else if ( search != 'null' && katid == 0) {
         
-                return await this.produktRepository.find({ where: {
+                return await this.produktRepository.findAndCount({ where: {
                   name: Like(`%${search}%`),
                 },
                 relations: {
@@ -51,7 +51,7 @@ export class ProductService {
               return err;
             })
         } else if (search == 'null' && katid  != 0) {
-          return await this.produktRepository.find({ where: {
+          return await this.produktRepository.findAndCount({ where: {
             kategorie: {
               id: katid
             }
@@ -69,24 +69,27 @@ export class ProductService {
         }
            
 
-          return await this.produktRepository.find({
+          return await this.produktRepository.findAndCount({
             relations: {
               variations: true,
-            }
+            },
+            take: end,
+            skip: start,
           });
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
       }
-      async getAllProdukteForKunden(search: string, katid: number, pagecount: number, pagenr: number): Promise<Produkt[]> {
-      
+      async getAllProdukteForKunden(search: string, katid: number, pagecount: number, pagenr: number): Promise<[Produkt[], number]> {
+
         if(!isFinite(pagenr) || pagenr < 1)
         pagenr = 1;
         const start = pagecount * pagenr - pagecount;
         const end = pagecount * pagenr;
+      
         try {
           if(search != 'null' && katid != 0) {
-                  return await this.produktRepository.find({ 
+                  return await this.produktRepository.findAndCount({ 
                     where: {
                     name: Like(`%${search}%`),
                     kategorie: {
@@ -111,7 +114,7 @@ export class ProductService {
               })
         } else if ( search != 'null' && katid == 0) {
         
-                return await this.produktRepository.find({ where: {
+                return await this.produktRepository.findAndCount({ where: {
                   name: Like(`%${search}%`),
                   verfgbarkeit: 1,
                   variations: {
@@ -130,7 +133,7 @@ export class ProductService {
               return err;
             })
         } else if (search == 'null' && katid  != 0) {
-          return await this.produktRepository.find({ 
+          return await this.produktRepository.findAndCount({ 
             where: {
             kategorie: {
               id: katid
@@ -155,7 +158,7 @@ export class ProductService {
         }
            
 
-          return await this.produktRepository.find( 
+          return await this.produktRepository.findAndCount( 
             { 
               where: { verfgbarkeit: 1,
                       variations: {
@@ -165,7 +168,10 @@ export class ProductService {
           relations: {
             variations: true,
             shipping_costs: true,
-          }});
+          },
+          take: end,
+        skip: start,
+      });
         } catch (error) {
             throw new HttpException('Fehler beim Abrufen der Produkte', HttpStatus.NOT_FOUND);
         }
