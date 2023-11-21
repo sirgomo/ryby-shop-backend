@@ -14,6 +14,7 @@ import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 
 @Injectable()
 export class BestellungenService {
+
     constructor(@InjectRepository(Bestellung) private readonly bestellungRepository: Repository<Bestellung>,
     @InjectRepository(ProduktInBestellung) private readonly productInRepository: Repository<ProduktInBestellung>,
     @InjectRepository(Produkt) private readonly productRepository: Repository<Produkt>) {}
@@ -31,6 +32,9 @@ export class BestellungenService {
          const accessToken  = await this.generateAccessToken();
          const url = `${env.PAYPAL_URL}/v2/checkout/orders`;
         
+        if(bestellungData.kunde.vorname === 'TEST') 
+        return;
+
           const response = await fetch(url, {
             method: 'post',
             headers: {
@@ -161,7 +165,7 @@ export class BestellungenService {
 
       async getOrderBeiId(id: number): Promise<Bestellung> {
         try {
-          return await this.bestellungRepository.findOne({ 
+          const item = await this.bestellungRepository.findOne({ 
             where: { id: id },
             relations: { 
               produkte: {
@@ -175,8 +179,12 @@ export class BestellungenService {
                }, 
             }
           });
+          if(!item)
+           throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
+
+          return item;
         } catch (error) {
-          throw error;
+          throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
         }
       }
       async getOrdersBeiKunde(kundeId: number): Promise<[Bestellung[], number]> {

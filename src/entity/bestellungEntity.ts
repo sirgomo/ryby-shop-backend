@@ -12,6 +12,15 @@ import { ProduktInBestellung } from './productBestellungEntity';
 
 @Entity('bestellung')
 export class Bestellung {
+  merge(merge: any) {
+    throw new Error('Method not implemented.');
+  }
+  save(save: any) {
+    throw new Error('Method not implemented.');
+  }
+  remove(remove: any) {
+    throw new Error('Method not implemented.');
+  }
   @PrimaryGeneratedColumn()
   id: number;
 
