@@ -112,10 +112,11 @@ export class BestellungenService {
       const itemsTosave = await this.isPriceMengeChecked(readyBesttelung);
 
       this.setProduktQuanity(readyBesttelung);
-  
+
       readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
       await this.bestellungRepository.manager.transaction(async (transactionalEntityMange) => {
-      
+       
+        // ... existing code
         if(readyBesttelung.kunde.id) {
           const kunde = await transactionalEntityMange.findOne(Kunde, { where: {
             email: readyBesttelung.kunde.email,
@@ -138,10 +139,7 @@ export class BestellungenService {
       }
       readyBesttelung.zahlungsart = 'PAYPAL'
     
-        await transactionalEntityMange.save(itemsTosave).catch((er) => {
-          console.log(er);
-          throw er;
-        });
+        await transactionalEntityMange.save(Produkt, itemsTosave);
         const best = await transactionalEntityMange.create(Bestellung,  readyBesttelung);
         await transactionalEntityMange.save(Bestellung, best);
    

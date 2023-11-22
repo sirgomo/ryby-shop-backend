@@ -11,7 +11,9 @@ import { Kunde } from 'src/entity/kundeEntity';
 import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 import { Lieferant } from 'src/entity/lifernatEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
-import { Repository } from 'typeorm';
+import { EntityManager, EntitySchema, Repository } from 'typeorm';
+import { describe } from 'node:test';
+
 
 
 
@@ -21,7 +23,10 @@ describe('BestellungenService', () => {
   let productIn: Repository<ProduktInBestellung>;
   let productRepository: Repository<Produkt>;
   let order: OrderDto;
-  let product: Produkt
+  let product: Produkt;
+  let currentKunde: Kunde;
+
+ 
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,12 +42,21 @@ describe('BestellungenService', () => {
             save: jest.fn(),
             remove: jest.fn(),
             create: jest.fn(),
+            manager:  {
+            transaction: jest.fn(),
+            findOne: jest.fn(),
+            merge: jest.fn(),
+            save: jest.fn(),
+            remove: jest.fn(),
+            create: jest.fn(),
+            },
           },
         },
         {
           provide: getRepositoryToken(Produkt),
           useClass: Repository,
         },
+       
         {
           provide: getRepositoryToken(ProduktInBestellung),
           useValue: {
@@ -50,6 +64,7 @@ describe('BestellungenService', () => {
             create: jest.fn(),
           },
         },
+  
       ],
     }).compile();
 
@@ -58,9 +73,11 @@ describe('BestellungenService', () => {
     productIn = module.get(getRepositoryToken(ProduktInBestellung));
     productRepository = module.get(getRepositoryToken(Produkt));
 
+ 
+
     
-    const kunde : Kunde = {
-      id: 0,
+    currentKunde = {
+      id: 1,
       vorname: 'TEST',
       nachname: 'ako',
       password: '',
@@ -143,7 +160,7 @@ describe('BestellungenService', () => {
     };
     order = {
       id: 0,
-      kunde: kunde,
+      kunde: currentKunde,
       produkte: [produktB],
       bestelldatum: undefined,
       status: '',
@@ -172,9 +189,8 @@ describe('BestellungenService', () => {
            "where":  {
               "id": product.id,
          },
-          },);
+          });
     
-      // assert the response
     });
 
     it('should throw an error if price or quantity is not valid', async () => {
@@ -244,314 +260,48 @@ describe('BestellungenService', () => {
       await expect(service.updateOrder(order.id, order)).rejects.toThrow(HttpException);
     });
   });
+  describe('saveBestellung', () => {
+    it('should save the specified order', async () => {
+      // Mock the transaction method
+      const mockEntityManger = {
+        findOne: jest.fn().mockResolvedValueOnce(currentKunde as unknown as unknown[]),
+        save: jest.fn().mockResolvedValueOnce(order as Bestellung),
+        create: jest.fn().mockResolvedValueOnce(order as Bestellung),
+    };
+
+      const mockTransaction = jest.fn().mockImplementation((entityManger) => {
+        // Mock the entityManger within the transaction
+  
+        // Call the callback with the mockEntityManger
+        return entityManger(mockEntityManger);
+      });
+    
+      const entManger = jest.spyOn(bestellungRepository.manager, 'transaction').mockImplementation(mockTransaction);
+      const kunde = jest.spyOn(mockEntityManger, 'findOne').mockResolvedValueOnce(currentKunde as unknown as unknown[]);
+      const createKunde = jest.spyOn(bestellungRepository.manager, 'create').mockImplementation(() => currentKunde as unknown as unknown[]);
+      const item = jest.spyOn(mockEntityManger, 'save').mockResolvedValueOnce(order as Bestellung);
+      const find = jest.spyOn(productRepository, 'findOne').mockResolvedValueOnce(product as Produkt);
+   
+      await service.saveOrder(order);
+      expect(find).toHaveBeenCalledWith( {
+        "relations":  {
+          "promocje": true,
+         "variations": true,
+        },
+        "where":  {
+           "id": product.id,
+      },
+       });
+       expect(entManger).toHaveBeenCalledWith(expect.any(Function));
+       expect(kunde).toHaveBeenCalledWith( Kunde, {"relations":  {
+        "adresse": true,
+        "lieferadresse": true,
+       }, "where":  {
+          "email": currentKunde.email,
+       }});
+       expect(item).toHaveBeenCalled();
+    
+      expect(item).toHaveBeenCalledWith(Bestellung, order);
+    }); 
+    }); 
 });
-/*
-  describe('deleteBestellung', () => {
-    it('should delete the specified order', async () => {
-      const orderId = 1;
-      const order = new Bestellung();
-
-      jest.spyOn(bestellungRepository, 'findOne').mockResolvedValueOnce(order);
-      jest.spyOn(bestellungRepository, 'remove');
-
-      await service.deleteBestellung(orderId);
-
-      expect(bestellungRepository.remove).toHaveBeenCalledWith(order);
-    });
-
-    it('should throw an error if order is not found', async () => {
-      const orderId = 1;
-
-      jest.spyOn(bestellungRepository, 'findOne').mockResolvedValueOnce(undefined);
-
-      await expect(service.deleteBestellung(orderId)).rejects.toThrow(HttpException);
-    });
-  });
-
-  describe('getTotalValue', () => {
-    it('should calculate the total value of the order', () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      const result = service.getTotalValue(orderData);
-
-      // assert the result
-    });
-  });
-
-  describe('saveOrder', () => {
-    it('should save the order', async () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      jest.spyOn(service, 'isPriceMengeChecked').mockResolvedValueOnce(true);
-      jest.spyOn(service, 'getTotalPrice').mockReturnValueOnce(100);
-
-      await service.saveOrder(orderData);
-
-      // assert the result
-    });
-  });
-
-  describe('getTotalTax', () => {
-    it('should calculate the total tax of the order', () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      const result = service.getTotalTax(orderData);
-
-      // assert the result
-    });
-  });
-
-  describe('getPaypalItems', () => {
-    it('should return the paypal items of the order', () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      const result = service.getPaypalItems(orderData);
-
-      // assert the result
-    });
-  });
-
-  describe('isPriceMengeChecked', () => {
-    it('should check if the price and quantity of the products in the order are valid', async () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      jest.spyOn(productRepository, 'findOne').mockResolvedValueOnce(new Produkt());
-      jest.spyOn(productInRepository, 'findOne').mockResolvedValueOnce(new ProduktInBestellung());
-
-      const result = await service.isPriceMengeChecked(orderData);
-
-      // assert the result
-    });
-
-    it('should throw an error if the price or quantity of the products in the order are not valid', async () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      jest.spyOn(productRepository, 'findOne').mockResolvedValueOnce(undefined);
-
-      await expect(service.isPriceMengeChecked(orderData)).rejects.toThrow(HttpException);
-    });
-  });
-
-  describe('getTotalPrice', () => {
-    it('should calculate the total price of the order', () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-
-      const result = service.getTotalPrice(orderData);
-
-      // assert the result
-    });
-  });
-
-  describe('getTax', () => {
-    it('should calculate the tax of a product', () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-      const index = 0;
-
-      const result = service.getTax(orderData, index);
-
-      // assert the result
-    });
-  });
-
-  describe('getPiceNettoPrice', () => {
-    it('should calculate the netto price of a product', () => {
-      const orderData: OrderDto = {
-        id: 0,
-        kunde: new Kunde,
-        produkte: [],
-        bestelldatum: undefined,
-        status: '',
-        versand_datum: undefined,
-        zahlungsart: '',
-        gesamtwert: 0,
-        zahlungsstatus: '',
-        bestellungstatus: "/home/sirgomo/sklepRyby/ryby-shop-backend/src/entity/bestellungEntity".INBEARBEITUNG,
-        versandart: '',
-        versandprice: 0,
-        varsandnr: ''
-      };
-      const index = 0;
-
-      const result = service.getPiceNettoPrice(orderData, index);
-
-      // assert the result
-    });
-  });
-
-  describe('generateAccessToken', () => {
-    it('should generate an access token', async () => {
-      jest.spyOn(service, 'generateAccessToken').mockResolvedValueOnce('accessToken');
-
-      const result = await service.generateAccessToken();
-
-      expect(result).toBe('accessToken');
-    });
-  });
-
-  describe('handleResponse', () => {
-    it('should handle the response and return the json data', async () => {
-      const response = {
-        status: 200,
-        json: jest.fn().mockResolvedValueOnce({ id: '123', status: 'COMPLETED' }),
-        text: jest.fn(),
-      };
-
-      const result = await service.handleResponse(response);
-
-      expect(result).toEqual({ id: '123', status: 'COMPLETED' });
-      expect(response.json).toHaveBeenCalled();
-      expect(response.text).not.toBeenCalled();
-    });
-
-    it('should handle the response and throw an error if status is not 200 or 201', async () => {
-      const response = {
-        status: 400,
-        json: jest.fn(),
-        text: jest.fn().mockResolvedValueOnce('Error message'),
-      };
-
-      await expect(service.handleResponse(response)).rejects.toThrow(Error);
-      expect(response.text).toHaveBeenCalled();
-    });
-  });
-
-  describe('capturePayment', () => {
-    it('should capture the payment and save the order if successful', async () => {
-      const data: Payid = {
-        orderID: '123',
-        bestellung: new OrderDto(),
-      };
-
-      jest.spyOn(service, 'generateAccessToken').mockResolvedValueOnceaccessToken');
-      jest.spyOn(service, 'handleResponse').mockResolvedValueOnce({ id: '123', status: 'COMPLETED' });
-      jest.spy(service, 'save');
-
-      const result = await service.capturePayment(data);
-
-      expect(result).toEqual({ id: '123', status: 'COMPLETED' });
-      expect(service.saveOrder).toHaveBeenCalledWith(data.bestellung);
-    });
-  });
-
-  describe('generateClientToken', () => {
-    it('should generate a client token', async () => {
-      jest.spyOn(service, 'generateAccessToken').mockResolvedValueOnce('accessToken');
-
-      const result = await service.generateClientToken();
-
-      // assert the result
-    });
-  });
-});*/
