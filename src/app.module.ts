@@ -34,6 +34,11 @@ import { WareneingangProdVartiaion } from './entity/waren_eingang_prod_variation
 import { LagerModule } from './lager/lager.module';
 import { ShippingEntity } from './entity/shippingEntity';
 import { ShippingModule } from './shipping/shipping.module';
+import { EbayTransactions } from './entity/ebay/ebayTranscations';
+import { EbayItemSold } from './entity/ebay/ebayItemSold';
+import { EbayRefund } from './entity/ebay/ebayRefund';
+import { EbayRefundItem } from './entity/ebay/ebayRefundItem';
+import { EbaySoldModule } from './ebay/ebay-sold/ebay-sold.module';
 
 
 
@@ -66,7 +71,11 @@ import { ShippingModule } from './shipping/shipping.module';
         EanEntity,
         ProduktVariations,
         WareneingangProdVartiaion,
-        ShippingEntity
+        ShippingEntity,
+        EbayTransactions,
+        EbayItemSold,
+        EbayRefund,
+        EbayRefundItem
       ],
       synchronize: false,
     }),
@@ -81,7 +90,7 @@ import { ShippingModule } from './shipping/shipping.module';
     EbayModule,
     LagerModule,
     ShippingModule,
-    
+    EbaySoldModule
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],

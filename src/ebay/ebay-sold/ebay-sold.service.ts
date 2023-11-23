@@ -1,0 +1,101 @@
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EbayTranscationsDto } from 'src/dto/ebay/transactionAndRefunds/ebayTransactionDto';
+import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
+import { ProduktVariations } from 'src/entity/produktVariations';
+import { DeleteResult, Repository } from 'typeorm';
+
+@Injectable()
+export class EbaySoldService {  
+    constructor(@InjectRepository(EbayTransactions) private readonly repo: Repository<EbayTransactions>) {}
+  
+  async getAllTransactions(): Promise<EbayTransactions[]> {
+      try {
+          return await this.repo.find();
+      } catch (error) {
+          // Handle error
+          throw new Error('Failed to get transactions');
+      }
+  }
+
+  async getTransactionById(id: string): Promise<EbayTransactions> {
+      try {
+          const item = await this.repo.findOne({ where: { orderId: id },
+          relations: {
+            items: true,
+            refunds: true
+          }} );
+
+          if(!item) {
+            return {id: -1} as EbayTransactions;
+          }
+
+          return item;
+      } catch (error) {
+          console.log(error);
+          throw new HttpException('Failed to get transaction', HttpStatus.BAD_REQUEST);
+      }
+  }
+
+  async createTransaction(transaction: EbayTranscationsDto): Promise<EbayTransactions> {
+      try {
+        const itemC = await this.repo.create(transaction);
+        itemC.creationDate = new Date(Date.now());
+        if(itemC.payment_status !== 'PAID')
+        {
+          throw new HttpException('Transaction not paid !', HttpStatus.BAD_REQUEST);
+        }
+        let savedTransaction = null;
+       await this.repo.manager.transaction(async manager => {
+          let items : ProduktVariations[] = [];
+          for (let i = 0; i < transaction.items.length; i++) {
+            const item = await manager.findOne(ProduktVariations, {where: {sku: transaction.items[i].sku}});
+            if(!item) {
+              throw new HttpException('Item not found in database !' + transaction.items[i].sku, HttpStatus.NOT_FOUND);
+            }
+            if(transaction.items[i].quanity <= item.quanity && item.quanity > 0) {
+              item.quanity -= transaction.items[i].quanity;
+            }
+            else {
+              throw new HttpException('Not enough items in stock ! ' + transaction.items[i].sku, HttpStatus.NOT_ACCEPTABLE);
+            }
+
+            items.push(item);
+            }
+            await manager.save(items);
+           savedTransaction = await manager.save(itemC);
+        });
+        return savedTransaction;
+      } catch (error) {
+          // Handle error
+          throw error;
+      }
+  }
+
+  async updateTransaction(id: number, transaction: EbayTranscationsDto): Promise<EbayTransactions> {
+      try {
+          const existingTransaction = await this.repo.findOne({where: { id: id }});
+          if (!existingTransaction) {
+              throw new Error('Transaction not found');
+          }
+          const updatedTransaction = await this.repo.merge(existingTransaction, transaction);
+          return await this.repo.save(updatedTransaction);
+      } catch (error) {
+          // Handle error
+          throw new Error('Failed to update transaction');
+      }
+  }
+
+  async deleteTransaction(id: number): Promise<DeleteResult> {
+      try {
+          const existingTransaction = await this.repo.findOne({where: { id: id }});
+          if (!existingTransaction) {
+              throw new Error('Transaction not found');
+          }
+         return await this.repo.delete(existingTransaction);
+      } catch (error) {
+          // Handle error
+          throw new Error('Failed to delete transaction');
+      }
+  }
+}

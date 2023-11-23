@@ -204,7 +204,7 @@ export class Database {
             varsandnr VARCHAR(255),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
-        
+          
           CREATE TABLE IF NOT EXISTS product_ruckgabe (
             id INT AUTO_INCREMENT PRIMARY KEY,
             bestellungId INT,
@@ -247,8 +247,7 @@ export class Database {
             FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE,
             FOREIGN KEY (shippingCostsId) REFERENCES shipping_costs (id) ON DELETE CASCADE ON UPDATE CASCADE
             );
-        
-          
+
           
           CREATE TABLE IF NOT EXISTS kunden_bewertung (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -267,7 +266,44 @@ export class Database {
             eanCode VARCHAR(255) UNIQUE,
             FOREIGN KEY (productId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
-          
+          CREATE TABLE ebay_transactions (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            orderId VARCHAR(255) NOT NULL UNIQUE,
+            creationDate DATETIME NOT NULL,
+            payment_status VARCHAR(50) NOT NULL
+        );
+        CREATE TABLE ebay_item_sold (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          title VARCHAR(255),
+          sku VARCHAR(255),
+          quanity INT,
+          price DECIMAL(10, 2),
+          transactionId INT,
+          refundItemId INT,
+          FOREIGN KEY (transactionId) REFERENCES ebay_transactions(id) ON DELETE CASCADE ON UPDATE CASCADE
+      );
+        CREATE TABLE ebay_refund (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          orderId VARCHAR(255) NOT NULL UNIQUE,
+          creationDate DATETIME NOT NULL,
+          reason VARCHAR(500),
+          amount DECIMAL(10, 2),
+          transactionId INT,
+          FOREIGN KEY (transactionId) REFERENCES ebay_transactions(id) ON DELETE CASCADE ON UPDATE CASCADE
+      );
+        CREATE TABLE ebay_refund_item (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          refundId INT,
+          amount DECIMAL(10, 2),
+          itemId INT,
+          FOREIGN KEY (refundId) REFERENCES ebay_refund(id) ON DELETE CASCADE ON UPDATE CASCADE,
+          FOREIGN KEY (itemId) REFERENCES ebay_item_sold(id)
+      );
+
+        
+  
+        
+
           CREATE TABLE IF NOT EXISTS produkt_kategorie_kategorie (
             produktId INT,
             kategorieId INT,
