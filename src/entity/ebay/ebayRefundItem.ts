@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EbayRefund } from "./ebayRefund";
 import { EbayItemSold } from "./ebayItemSold";
 @Entity('ebay_refund_item')
