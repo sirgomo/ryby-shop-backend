@@ -6,6 +6,10 @@ export class EbayTranscationsDto {
     orderId: string;
     creationDate: Date;
     payment_status: string;
+    price_total: number;
+    price_shipping: number;
+    price_tax: number;
+    price_discont: number;
     items: EbayTransactionsItemDto[];
     refunds: EbayRefundDto[];
 }

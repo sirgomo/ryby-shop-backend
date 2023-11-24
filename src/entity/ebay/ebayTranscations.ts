@@ -10,6 +10,16 @@ export class EbayTransactions {
     orderId: string;
     @Column({type: 'datetime', nullable: false})
     creationDate: Date;
+    @Column({type: 'decimal', precision: 10, scale: 2})
+    price_total: number;
+    @Column({type: 'decimal', precision: 10, scale: 2})
+    price_shipping: number;
+    @Column({type: 'decimal', precision: 10, scale: 2})
+    price_tax: number;
+    @Column({type: 'decimal', precision: 10, scale: 2})
+    price_discont: number;
+    @Column('int')
+    sel_amount: number;
     @Column('varchar', {length: 50})
     payment_status: string;
     @OneToMany(() => EbayItemSold, (item) => item.transaction, {cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})

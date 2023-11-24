@@ -270,6 +270,11 @@ export class Database {
             id INT PRIMARY KEY AUTO_INCREMENT,
             orderId VARCHAR(255) NOT NULL UNIQUE,
             creationDate DATETIME NOT NULL,
+            price_total DECIMAL(10,2) NOT NULL,
+            price_shipping DECIMAL(10,2) NOT NULL,
+            price_tax DECIMAL(10,2) NOT NULL,
+            price_discont DECIMAL(10,2) NOT NULL,
+            sel_amount INT NOT NULL,
             payment_status VARCHAR(50) NOT NULL
         );
         CREATE TABLE ebay_item_sold (
@@ -299,10 +304,6 @@ export class Database {
           FOREIGN KEY (refundId) REFERENCES ebay_refund(id) ON DELETE CASCADE ON UPDATE CASCADE,
           FOREIGN KEY (itemId) REFERENCES ebay_item_sold(id)
       );
-
-        
-  
-        
 
           CREATE TABLE IF NOT EXISTS produkt_kategorie_kategorie (
             produktId INT,
