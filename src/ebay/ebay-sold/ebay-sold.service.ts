@@ -55,6 +55,10 @@ export class EbaySoldService {
             }
             if(transaction.items[i].quanity <= item.quanity && item.quanity > 0) {
               item.quanity -= transaction.items[i].quanity;
+              if(item.quanity_sold == null)
+                item.quanity_sold = 0;
+
+              item.quanity_sold += transaction.items[i].quanity;
             }
             else {
               throw new HttpException('Not enough items in stock ! ' + transaction.items[i].sku, HttpStatus.NOT_ACCEPTABLE);

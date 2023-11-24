@@ -10,6 +10,7 @@ export class EbayTranscationsDto {
     price_shipping: number;
     price_tax: number;
     price_discont: number;
+    sel_amount: number;
     items: EbayTransactionsItemDto[];
     refunds: EbayRefundDto[];
 }
