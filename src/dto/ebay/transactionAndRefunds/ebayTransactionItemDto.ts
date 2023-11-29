@@ -1,3 +1,4 @@
+import { EbayTransactions } from "src/entity/ebay/ebayTranscations";
 import { EbayRefundItemDto } from "./ebayRefundItemDto";
 import { EbayTranscationsDto } from "./ebayTransactionDto";
 
@@ -7,6 +8,5 @@ export class EbayTransactionsItemDto {
     sku: string;
     quanity: number;
     price: number;
-    transaction: EbayTranscationsDto;
-    refund_item: EbayRefundItemDto;
+    transaction: EbayTransactions;
 }

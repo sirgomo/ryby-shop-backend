@@ -24,6 +24,6 @@ export class EbayTransactions {
     payment_status: string;
     @OneToMany(() => EbayItemSold, (item) => item.transaction, {cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
     items: EbayItemSold[];
-    @OneToMany(() => EbayRefund, (refund) => refund.transaction, {cascade: true})
+    @OneToMany(() => EbayRefund, (refund) => refund.transaction, {cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
     refunds: EbayRefund[];
 }

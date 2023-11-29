@@ -16,6 +16,4 @@ export class EbayItemSold {
     price: number;
     @ManyToOne(() => EbayTransactions, (transaction) => transaction.items)
     transaction: EbayTransactions;
-    @OneToOne(() => EbayRefundItem, (refund_item) => refund_item.item)
-    refund_item: EbayRefundItem;
 }

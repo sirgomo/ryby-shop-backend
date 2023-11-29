@@ -4,7 +4,8 @@ import { EbayRefundDto } from 'src/dto/ebay/transactionAndRefunds/ebayRefundDto'
 import { EbayRequest } from 'src/ebay/ebay.request';
 import { EbayService } from 'src/ebay/ebay.service';
 import { EbayRefund } from 'src/entity/ebay/ebayRefund';
-import { env } from 'src/env/env';
+import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
+
 import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
@@ -12,8 +13,10 @@ export class RefundService {
     request = new EbayRequest();
     constructor(@InjectRepository(EbayRefund) private repo: Repository<EbayRefund>, private readonly ebayService: EbayService) {}
     async createRefund(refundDto: EbayRefundDto, refundOnEbay: any): Promise<EbayRefund> {
+
         try {
-          const refund = this.repo.create(refundDto);
+          const refund = await this.repo.create(refundDto);
+
           const saved = await this.repo.save(refund);
           //wait for occassion to test it
       /*   if(saved) {
@@ -31,13 +34,14 @@ export class RefundService {
             }*/
           return saved;
         } catch (error) {
+          console.log(error)
           throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
       }
     
-      async getRefundById(id: number): Promise<EbayRefund> {
+      async getRefundById(orderId: string): Promise<EbayRefund> {
         try {
-        const item = await this.repo.findOne({where: {id: id}, relations: 
+        const item = await this.repo.findOne({where: {orderId: orderId}, relations: 
             {refund_items: true}
         });
 
@@ -60,10 +64,10 @@ export class RefundService {
     
       async updateRefund(id: number, refundDto: EbayRefundDto): Promise<EbayRefund> {
         try {
-            throw new HttpException('Refund kann nicht gelöscht werden!', HttpStatus.BAD_REQUEST);
-          const refund = await this.getRefundById(id);
+            throw new HttpException('Refund kann geändert gelöscht werden!', HttpStatus.BAD_REQUEST);
+        /*  const refund = await this.getRefundById(id);
           await this.repo.merge(refund, refundDto);
-          return await this.repo.save(refund);
+          return await this.repo.save(refund);*/
         } catch (error) {
           throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }

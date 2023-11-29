@@ -284,25 +284,24 @@ export class Database {
           quanity INT,
           price DECIMAL(10, 2),
           transactionId INT,
-          refundItemId INT,
           FOREIGN KEY (transactionId) REFERENCES ebay_transactions(id) ON DELETE CASCADE ON UPDATE CASCADE
       );
         CREATE TABLE ebay_refund (
           id INT PRIMARY KEY AUTO_INCREMENT,
-          orderId VARCHAR(255) NOT NULL UNIQUE,
+          orderId VARCHAR(255) NOT NULL,
           creationDate DATETIME NOT NULL,
-          reason VARCHAR(500),
+          reason VARCHAR(100),
+          comment VARCHAR(500),
           amount DECIMAL(10, 2),
           transactionId INT,
+          INDEX orderId (orderId),
           FOREIGN KEY (transactionId) REFERENCES ebay_transactions(id) ON DELETE CASCADE ON UPDATE CASCADE
       );
         CREATE TABLE ebay_refund_item (
           id INT PRIMARY KEY AUTO_INCREMENT,
           refundId INT,
           amount DECIMAL(10, 2),
-          itemId INT,
-          FOREIGN KEY (refundId) REFERENCES ebay_refund(id) ON DELETE CASCADE ON UPDATE CASCADE,
-          FOREIGN KEY (itemId) REFERENCES ebay_item_sold(id)
+          FOREIGN KEY (refundId) REFERENCES ebay_refund(id) ON DELETE CASCADE ON UPDATE CASCADE
       );
 
           CREATE TABLE IF NOT EXISTS produkt_kategorie_kategorie (

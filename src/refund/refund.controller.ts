@@ -10,12 +10,12 @@ import { DeleteResult } from 'typeorm';
 export class RefundController {
     constructor(private service: RefundService) {}
     @Post()
-  async createRefund(@Body() refundDto: EbayRefundDto, @Body('refundOnEbay') refundOnEbay: any): Promise<EbayRefund> {
-    return await this.service.createRefund(refundDto, refundOnEbay);
+  async createRefund(@Body() item : { refundDto: EbayRefundDto, refundOnEbay: any }): Promise<EbayRefund> {
+    return await this.service.createRefund(item.refundDto, item.refundOnEbay);
   }
 
   @Get(':id')
-  async getRefundById(@Param('id') id: number): Promise<EbayRefund> {
+  async getRefundById(@Param('id') id: string): Promise<EbayRefund> {
     return await this.service.getRefundById(id);
   }
 

@@ -1,5 +1,5 @@
-import { EbayRefundDto } from "./ebayRefundDto";
-import { EbayTransactionsItemDto } from "./ebayTransactionItemDto";
+import { EbayItemSold } from "src/entity/ebay/ebayItemSold";
+import { EbayRefund } from "src/entity/ebay/ebayRefund";
 
 export class EbayTranscationsDto {
     id?: number;
@@ -11,6 +11,6 @@ export class EbayTranscationsDto {
     price_tax: number;
     price_discont: number;
     sel_amount: number;
-    items: EbayTransactionsItemDto[];
-    refunds: EbayRefundDto[];
+    items: EbayItemSold[];
+    refunds: EbayRefund[];
 }
