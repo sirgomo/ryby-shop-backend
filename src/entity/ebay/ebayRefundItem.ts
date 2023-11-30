@@ -8,4 +8,6 @@ export class EbayRefundItem {
     refund: EbayRefund;
     @Column({type: 'decimal', precision: 10, scale: 2})
     amount: number; 
+    @Column('varchar')
+    sku:string;
 }

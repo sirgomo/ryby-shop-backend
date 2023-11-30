@@ -12,7 +12,7 @@ import { DeleteResult, Repository } from 'typeorm';
 export class RefundService {
     request = new EbayRequest();
     constructor(@InjectRepository(EbayRefund) private repo: Repository<EbayRefund>, private readonly ebayService: EbayService) {}
-    async createRefund(refundDto: EbayRefundDto, refundOnEbay: any): Promise<EbayRefund> {
+    async createRefund(refundDto: EbayRefundDto, refundOnEbay: any): Promise<EbayRefund[]> {
 
         try {
           const refund = await this.repo.create(refundDto);
@@ -32,21 +32,21 @@ export class RefundService {
              res = await this.request.sendRequest(env.ebay_api+`sell/fulfillment/v1/order/${refundDto.orderId}/issue_refund`, 'POST', this.ebayService.currentToken.access_token, headers,refundOnEbay) as any;
             console.log(res);
             }*/
-          return saved;
+          return await this.getRefundById(saved.orderId);
         } catch (error) {
           console.log(error)
           throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
       }
     
-      async getRefundById(orderId: string): Promise<EbayRefund> {
+      async getRefundById(orderId: string): Promise<EbayRefund[]> {
         try {
-        const item = await this.repo.findOne({where: {orderId: orderId}, relations: 
+        const item = await this.repo.find({where: {orderId: orderId}, relations: 
             {refund_items: true}
         });
 
-        if(!item) {
-            return {id: -1} as EbayRefund;
+        if(item.length === 0) {
+            return [{id: -1} as EbayRefund];
         }
         return item;
         } catch (error) {

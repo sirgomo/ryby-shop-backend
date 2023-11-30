@@ -5,5 +5,5 @@ export class EbayRefundItemDto {
     id?: number;
     refund_item: EbayRefund;
     amount: number;
-    item: EbayItemSold;
+    sku: string;
 }
