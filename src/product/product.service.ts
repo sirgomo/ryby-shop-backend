@@ -355,4 +355,16 @@ export class ProductService {
           return err;
         }
       }
+      async getProductsForSitemap() {
+        try {
+        const items = await this.produktRepository.find({ select: {
+            id: true,
+            name: true
+          }})
+        
+        return items;
+        } catch (err) {
+          throw new HttpException('Products für Sitemap wurden nicht gefunden', HttpStatus.NOT_FOUND);
+        }
+      }
 }

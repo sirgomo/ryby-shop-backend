@@ -11,6 +11,8 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 @Controller('product')
 export class ProductController {
     constructor(private readonly productService: ProductService) {}
+
+
     @UseGuards(JwtAuthGuard)
     @Get(':search/:katid/:pagecount/:pagenr')
     async getAllProducts(@Param('search') search: string, @Param('katid') katid: number, @Param('pagecount') pagecount: number, @Param('pagenr') pagenr: number): Promise<[Produkt[], number]> {
@@ -59,6 +61,11 @@ export class ProductController {
     @UseGuards(JwtAuthGuard)
     async deleteEanById(@Param('id') id: number) {
       return await this.productService.deleteEan(id);
+    }
+    @Get('map/map')
+    @UseGuards(JwtAuthGuard)
+    async getProductsForSitemap() {
+      return await this.productService.getProductsForSitemap();
     }
 
 }
