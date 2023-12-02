@@ -63,7 +63,6 @@ export class ProductController {
       return await this.productService.deleteEan(id);
     }
     @Get('map/map')
-    @UseGuards(JwtAuthGuard)
     async getProductsForSitemap() {
       return await this.productService.getProductsForSitemap();
     }
