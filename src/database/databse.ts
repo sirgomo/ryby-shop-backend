@@ -301,7 +301,7 @@ export class Database {
           id INT PRIMARY KEY AUTO_INCREMENT,
           refundId INT,
           amount DECIMAL(10, 2),
-          sku VARCHAR(255)
+          sku VARCHAR(255),
           FOREIGN KEY (refundId) REFERENCES ebay_refund(id) ON DELETE CASCADE ON UPDATE CASCADE
       );
 
