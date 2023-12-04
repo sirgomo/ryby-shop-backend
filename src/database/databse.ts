@@ -202,6 +202,7 @@ export class Database {
             versandart VARCHAR(255) NOT NULL,
             versandprice DECIMAL(10,2) NOT NULL,
             varsandnr VARCHAR(255),
+            paypal_order_id VARCHAR(255),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
           
@@ -212,6 +213,7 @@ export class Database {
             rueckgabegrund VARCHAR(255),
             rueckgabedatum DATE,
             rueckgabestatus VARCHAR(255),
+            amount DECIMAL(10,2),
             FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
@@ -231,7 +233,7 @@ export class Database {
             productRucgabeId INT,
             FOREIGN KEY (bestellungId) REFERENCES bestellung (id) ON DELETE CASCADE ON UPDATE CASCADE,
             FOREIGN KEY (produktId) REFERENCES produkt (id),
-            FOREIGN KEY (productRucgabeId) REFERENCES product_ruckgabe (id)
+            FOREIGN KEY (productRucgabeId) REFERENCES product_ruckgabe (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           CREATE TABLE shipping_costs (
             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -326,12 +328,6 @@ export class Database {
             FOREIGN KEY (produktId) REFERENCES produkt (id)
           );
           
-          CREATE TABLE IF NOT EXISTS bestellen_produkt_ruckgabe (
-            bestellung_id INT,
-            produkt_ruckgabe_id INT,
-            FOREIGN KEY (bestellung_id) REFERENCES bestellung (id),
-            FOREIGN KEY (produkt_ruckgabe_id) REFERENCES product_ruckgabe (id)
-          );
           
           CREATE TABLE IF NOT EXISTS produkt_lagerorte_stellplatze (
             produktId INT,

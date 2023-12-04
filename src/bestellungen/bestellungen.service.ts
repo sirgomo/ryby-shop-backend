@@ -217,7 +217,10 @@ export class BestellungenService {
               bestellungstatus: getSettings.status,
             },
             take: getSettings.itemsProSite,
-            skip: skip
+            skip: skip,
+            order: {
+              bestelldatum: 'DESC',
+            }
           }).catch((err) => {
             console.log(err);
             return err;
@@ -443,8 +446,11 @@ export class BestellungenService {
     })
   
     const respons = await this.handleResponse(response);
-    if(respons.id === data.orderID && respons.status === 'COMPLETED')
+    if(respons.id === data.orderID && respons.status === 'COMPLETED') {
+      data.bestellung.paypal_order_id = data.orderID;
       await this.saveOrder(data.bestellung);
+    }
+    
 
     return respons;
   }

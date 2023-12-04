@@ -7,20 +7,12 @@ import {
 } from 'typeorm';
 import { Kunde } from './kundeEntity';
 import { ProduktInBestellung } from './productBestellungEntity';
+import { ProduktRueckgabe } from './productRuckgabeEntity';
 
 
 
 @Entity('bestellung')
 export class Bestellung {
-  merge(merge: any) {
-    throw new Error('Method not implemented.');
-  }
-  save(save: any) {
-    throw new Error('Method not implemented.');
-  }
-  remove(remove: any) {
-    throw new Error('Method not implemented.');
-  }
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -45,7 +37,7 @@ export class Bestellung {
   @Column()
   zahlungsart: string;
 
-  @Column('decimal')
+  @Column({type: 'decimal', precision: 10, scale: 2})
   gesamtwert: number;
 
   @Column()
@@ -59,7 +51,11 @@ export class Bestellung {
   versandprice: number;
   @Column({type: 'varchar'})
   varsandnr: string;
+  @Column({type: 'varchar', length: 255})
+  paypal_order_id: string;
  
+  @OneToMany(() => ProduktRueckgabe, (refunds) => refunds.bestellung)
+  refunds: ProduktRueckgabe[];
 }
 
 export enum BESTELLUNGSSTATUS {

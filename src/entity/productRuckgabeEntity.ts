@@ -15,12 +15,12 @@ export class ProduktRueckgabe {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Bestellung)
+  @ManyToOne(() => Bestellung, (bestellung) => bestellung.refunds)
   bestellung: Bestellung;
 
   @OneToMany(
     () => ProduktInBestellung,
-    (produktInBestellung) => produktInBestellung.productRucgabe,
+    (produktInBestellung) => produktInBestellung.productRucgabe, { nullable : true}
   )
   produkte: ProduktInBestellung[];
 
@@ -35,4 +35,11 @@ export class ProduktRueckgabe {
 
   @Column()
   rueckgabestatus: string;
+  @Column({type: 'decimal', precision: 10, scale: 2})
+  amount: number;
+}
+
+export enum RUECKGABESTATUS {
+  FULL_REFUND = 'FULL_REFUND',
+  PARTIAL_REFUND = 'PARTIAL_REFUND'
 }

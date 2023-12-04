@@ -20,4 +20,5 @@ export class OrderDto {
     versandart: string;
     versandprice: number;
     varsandnr: string;
+    paypal_order_id: string;
 }

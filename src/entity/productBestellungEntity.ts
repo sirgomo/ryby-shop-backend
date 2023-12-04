@@ -36,11 +36,11 @@ export class ProduktInBestellung {
   @Column('int')
   mengeGepackt: number;
 
-  @Column('decimal')
+  @Column({type: 'decimal', precision: 10, scale: 2})
   verkauf_price: number;
-  @Column('decimal')
+  @Column({type: 'decimal', precision: 10, scale: 2})
   verkauf_rabat: number;
-  @Column('decimal')
+  @Column({type: 'decimal', precision: 10, scale: 2})
   verkauf_steuer: number;
 
   @ManyToOne(
