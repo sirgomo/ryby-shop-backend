@@ -40,6 +40,7 @@ import { EbayRefund } from './entity/ebay/ebayRefund';
 import { EbayRefundItem } from './entity/ebay/ebayRefundItem';
 import { EbaySoldModule } from './ebay/ebay-sold/ebay-sold.module';
 import { RefundModule } from './refund/refund.module';
+import { ShopRefundModule } from './shop-refund/shop-refund.module';
 
 
 
@@ -92,7 +93,8 @@ import { RefundModule } from './refund/refund.module';
     LagerModule,
     ShippingModule,
     EbaySoldModule,
-    RefundModule
+    RefundModule,
+    ShopRefundModule
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],

@@ -37,6 +37,12 @@ export class ProduktRueckgabe {
   rueckgabestatus: string;
   @Column({type: 'decimal', precision: 10, scale: 2})
   amount: number;
+  @Column('varchar')
+  paypal_refund_id: string;
+  @Column('varchar')
+  paypal_refund_status:string;
+  @Column('varchar')
+  paypal_transaction_id:string;
 }
 
 export enum RUECKGABESTATUS {

@@ -29,7 +29,7 @@ export class BestellungenService {
          const purchaseAmount = bestellungData.gesamtwert;
 
       
-         const accessToken  = await this.generateAccessToken();
+         const accessToken  = await generateAccessToken();
          const url = `${env.PAYPAL_URL}/v2/checkout/orders`;
         
         if(bestellungData.kunde.vorname === 'TEST') 
@@ -86,7 +86,7 @@ export class BestellungenService {
           const bestellung = this.bestellungRepository.create(bestellungData);
   
 
-          return this.handleResponse(response);
+          return handleResponse(response);
      
         } catch (error) {
           console.log(error)
@@ -403,8 +403,48 @@ export class BestellungenService {
     rabatCost = bestellungData.produkte[i].produkt[0].variations[i].price * bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent / 100;
     return Number(rabatCost.toFixed(2));
   }
+
+  //capture Payment
+  async capturePayment(data: Payid) {
+  
+    const accessToken = await generateAccessToken();
+    const url = `${env.PAYPAL_URL}/v2/checkout/orders/${data.orderID}/capture`;
+    const response = await fetch(url, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+  
+    const respons = await handleResponse(response);
+    if(respons.id === data.orderID && respons.status === 'COMPLETED') {
+      data.bestellung.paypal_order_id = data.orderID;
+      await this.saveOrder(data.bestellung);
+    }
+    
+
+    return respons;
+  }
+  // generate client token
+ async generateClientToken() {
+  const accessToken = await generateAccessToken();
+  const response = await fetch(`${env.PAYPAL_URL}/v1/identity/generate-token`, {
+    method: 'post',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Accept-Language': 'en_US',
+      'Content-Type': 'application/json',
+    },
+  })
+  
+  const jsonData = await response.json();
+  return jsonData.client_token;
+}
+}
+
   // generate access token
-  private async generateAccessToken() {
+  export async function generateAccessToken() {
     const auth = Buffer.from(env.CLIENT_ID + ':' + env.APP_SECRET).toString('base64');
     const response = await fetch(`${env.PAYPAL_URL}/v1/oauth2/token`, {
       method: 'post',
@@ -416,7 +456,8 @@ export class BestellungenService {
     const jsonData = await response.json();
     return jsonData.access_token;
   }
-  private async handleResponse(response: Response) {
+
+  export async function handleResponse(response: Response) {
     try {
       if(response.status === 200 || response.status === 201 ) {
         const jsonResponse = await response.json();
@@ -432,43 +473,3 @@ export class BestellungenService {
  
 
   }
-  //capture Payment
-  async capturePayment(data: Payid) {
-  
-    const accessToken = await this.generateAccessToken();
-    const url = `${env.PAYPAL_URL}/v2/checkout/orders/${data.orderID}/capture`;
-    const response = await fetch(url, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-  
-    const respons = await this.handleResponse(response);
-    if(respons.id === data.orderID && respons.status === 'COMPLETED') {
-      data.bestellung.paypal_order_id = data.orderID;
-      await this.saveOrder(data.bestellung);
-    }
-    
-
-    return respons;
-  }
-  // generate client token
- async generateClientToken() {
-  const accessToken = await this.generateAccessToken();
-  const response = await fetch(`${env.PAYPAL_URL}/v1/identity/generate-token`, {
-    method: 'post',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Accept-Language': 'en_US',
-      'Content-Type': 'application/json',
-    },
-  })
-  
-  const jsonData = await response.json();
-  return jsonData.client_token;
-}
-}
-
-

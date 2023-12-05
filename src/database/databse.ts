@@ -214,6 +214,9 @@ export class Database {
             rueckgabedatum DATE,
             rueckgabestatus VARCHAR(255),
             amount DECIMAL(10,2),
+            paypal_refund_id VARCHAR(255),
+            paypal_refund_status VARCHAR(255),
+            paypal_transaction_id VARCHAR(255),
             FOREIGN KEY (bestellungId) REFERENCES bestellung (id),
             FOREIGN KEY (kundeId) REFERENCES kunde (id)
           );
