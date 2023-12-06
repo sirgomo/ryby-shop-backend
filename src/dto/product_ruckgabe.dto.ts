@@ -15,5 +15,5 @@ export class Product_RuckgabeDto {
     amount: number;
     paypal_refund_id:string;
     paypal_refund_status: string;
-    paypal_transaction_id: string;
+
 }

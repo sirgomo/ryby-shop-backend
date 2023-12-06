@@ -41,8 +41,7 @@ export class ProduktRueckgabe {
   paypal_refund_id: string;
   @Column('varchar')
   paypal_refund_status:string;
-  @Column('varchar')
-  paypal_transaction_id:string;
+
 }
 
 export enum RUECKGABESTATUS {

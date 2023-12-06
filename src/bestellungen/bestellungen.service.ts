@@ -174,7 +174,8 @@ export class BestellungenService {
                kunde: {
                 adresse: true,
                 lieferadresse: true,
-               }, 
+               },
+               refunds: true, 
             }
           });
           if(!item)
@@ -200,6 +201,7 @@ export class BestellungenService {
               variations: true,
             }
           },
+          refunds: true,
         }
         })
         
@@ -220,6 +222,9 @@ export class BestellungenService {
             skip: skip,
             order: {
               bestelldatum: 'DESC',
+            },
+            relations: {
+              refunds: true,
             }
           }).catch((err) => {
             console.log(err);
