@@ -17,16 +17,17 @@ export class ShopRefundService {
       async createRefund(refundDto: Product_RuckgabeDto): Promise<ProduktRueckgabe> {
         try {
           const refund = await this.refundRepository.create(refundDto);
-          if(refundDto.rueckgabestatus === RUECKGABESTATUS.FULL_REFUND) {
+         
             let amount = 0;
+            if(refund.produkte)
             for (let i = 0; i < refundDto.produkte.length; i++) {
                 amount += refundDto.produkte[i].verkauf_price;
             }
             refund.amount += amount;
-          }
+          
         
           //is paypal transaction ?
-         if(refundDto.bestellung.paypal_order_id) {
+         if(refundDto.bestellung.paypal_order_id && refundDto.is_corrective === 0) {
 
             const accessToken  = await generateAccessToken();
 
@@ -51,6 +52,7 @@ export class ShopRefundService {
             if(response.status === 'CANCELLED' || response.status === 'FAILED')
               throw new HttpException('Refund not created', HttpStatus.NOT_ACCEPTABLE);
 
+              console.log(response)
             refund.paypal_refund_id = response.id;
          }
  
@@ -58,7 +60,7 @@ export class ShopRefundService {
           let savedRefund: ProduktRueckgabe = { id : -1} as ProduktRueckgabe;
           await this.refundRepository.manager.transaction(async (transactionManger) => {
             const variations : ProduktVariations[] = [];
-            if(refund.produkte.length > 0) {
+            if(refund.produkte) {
                 for( let i = 0; i < refund.produkte.length; i++) {
                     const item: ProduktVariations = await transactionManger.findOne(ProduktVariations, {where : { sku: refund.produkte[i].color}});
                     if(item) {
@@ -69,13 +71,13 @@ export class ShopRefundService {
                     
                 }
             }
-           
             await transactionManger.save(ProduktVariations, variations);
             savedRefund = await transactionManger.save(refund);
           })
 
           return savedRefund;
         } catch (error) {
+          console.log(error)
           throw new Error('Failed to create refund.');
         }
       }
@@ -86,7 +88,7 @@ export class ShopRefundService {
             const item = await this.refundRepository.findOne({where: {
                 id: id
               }});
-              if(item.paypal_refund_id) {
+              if(item.paypal_refund_id && item.is_corrective === 0) {
                 const accessToken  = await generateAccessToken();
 
                 const url = `${env.PAYPAL_URL}/v2/payments/refunds/${item.paypal_refund_id}`;
@@ -139,7 +141,7 @@ export class ShopRefundService {
       }
     
       async deleteRefund(id: number): Promise<DeleteResult> {
-        throw new HttpException('Refund delete not possible', HttpStatus.NOT_ACCEPTABLE)
+       
         try {
             const refund = await this.refundRepository.findOne({ where: {
                 id: id,
@@ -155,7 +157,7 @@ export class ShopRefundService {
         let delResult: DeleteResult = { affected: 0 } as DeleteResult;
             await this.refundRepository.manager.transaction(async (transactionManger) => {
                 const variations : ProduktVariations[] = [];
-                if(refund.produkte.length > 0) {
+                if(refund.produkte) {
                     for( let i = 0; i < refund.produkte.length; i++) {
                         const item: ProduktVariations = await transactionManger.findOne(ProduktVariations, {where : { sku: refund.produkte[i].color}});
                         if(item) {
@@ -166,8 +168,9 @@ export class ShopRefundService {
                         
                     }
                 }
+                if(variations.length > 0)
             await transactionManger.save(ProduktVariations, variations);
-           delResult = await transactionManger.delete(ProduktRueckgabe, { id: id})
+            delResult = await transactionManger.delete(ProduktRueckgabe, { id: id})
             });
 
           return delResult;

@@ -41,6 +41,11 @@ export class ProduktRueckgabe {
   paypal_refund_id: string;
   @Column('varchar')
   paypal_refund_status:string;
+  @Column('int')
+  corrective_refund_nr: number;
+  @Column('tinyint')
+  is_corrective: number;
+
 
 }
 

@@ -424,7 +424,7 @@ export class BestellungenService {
   
     const respons = await handleResponse(response);
     if(respons.id === data.orderID && respons.status === 'COMPLETED') {
-      data.bestellung.paypal_order_id = data.orderID;
+      data.bestellung.paypal_order_id = respons.id;
       await this.saveOrder(data.bestellung);
     }
     

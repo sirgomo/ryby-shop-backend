@@ -15,5 +15,7 @@ export class Product_RuckgabeDto {
     amount: number;
     paypal_refund_id:string;
     paypal_refund_status: string;
+    corrective_refund_nr: number;
+    is_corrective: number;
 
 }
