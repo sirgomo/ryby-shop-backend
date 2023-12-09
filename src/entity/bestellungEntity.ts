@@ -3,13 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import { Kunde } from './kundeEntity';
 import { ProduktInBestellung } from './productBestellungEntity';
 import { ProduktRueckgabe } from './productRuckgabeEntity';
-
-
 
 @Entity('bestellung')
 export class Bestellung {
@@ -21,7 +19,8 @@ export class Bestellung {
 
   @OneToMany(
     () => ProduktInBestellung,
-    (produktInBestellung) => produktInBestellung.bestellung,  { cascade: true, onDelete: 'CASCADE'}
+    (produktInBestellung) => produktInBestellung.bestellung,
+    { cascade: true, onDelete: 'CASCADE' },
   )
   produkte: ProduktInBestellung[];
 
@@ -37,23 +36,23 @@ export class Bestellung {
   @Column()
   zahlungsart: string;
 
-  @Column({type: 'decimal', precision: 10, scale: 2})
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   gesamtwert: number;
 
   @Column()
   zahlungsstatus: string;
 
-  @Column({ type: 'varchar', nullable: false})
+  @Column({ type: 'varchar', nullable: false })
   bestellungstatus: string;
-  @Column({ type: 'varchar', nullable: false})
+  @Column({ type: 'varchar', nullable: false })
   versandart: string;
-  @Column({type: 'decimal', nullable: false })
+  @Column({ type: 'decimal', nullable: false })
   versandprice: number;
-  @Column({type: 'varchar'})
+  @Column({ type: 'varchar' })
   varsandnr: string;
-  @Column({type: 'varchar', length: 255})
+  @Column({ type: 'varchar', length: 255 })
   paypal_order_id: string;
- 
+
   @OneToMany(() => ProduktRueckgabe, (refunds) => refunds.bestellung)
   refunds: ProduktRueckgabe[];
 }

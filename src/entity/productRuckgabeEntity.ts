@@ -1,7 +1,6 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  OneToOne,
   OneToMany,
   ManyToOne,
   Column,
@@ -20,7 +19,8 @@ export class ProduktRueckgabe {
 
   @OneToMany(
     () => ProduktInBestellung,
-    (produktInBestellung) => produktInBestellung.productRucgabe, { nullable : true}
+    (produktInBestellung) => produktInBestellung.productRucgabe,
+    { nullable: true, cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' },
   )
   produkte: ProduktInBestellung[];
 
@@ -35,21 +35,19 @@ export class ProduktRueckgabe {
 
   @Column()
   rueckgabestatus: string;
-  @Column({type: 'decimal', precision: 10, scale: 2})
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
   @Column('varchar')
   paypal_refund_id: string;
   @Column('varchar')
-  paypal_refund_status:string;
+  paypal_refund_status: string;
   @Column('int')
   corrective_refund_nr: number;
   @Column('tinyint')
   is_corrective: number;
-
-
 }
 
 export enum RUECKGABESTATUS {
   FULL_REFUND = 'FULL_REFUND',
-  PARTIAL_REFUND = 'PARTIAL_REFUND'
+  PARTIAL_REFUND = 'PARTIAL_REFUND',
 }

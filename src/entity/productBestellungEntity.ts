@@ -36,16 +36,17 @@ export class ProduktInBestellung {
   @Column('int')
   mengeGepackt: number;
 
-  @Column({type: 'decimal', precision: 10, scale: 2})
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   verkauf_price: number;
-  @Column({type: 'decimal', precision: 10, scale: 2})
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   verkauf_rabat: number;
-  @Column({type: 'decimal', precision: 10, scale: 2})
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   verkauf_steuer: number;
 
   @ManyToOne(
     () => ProduktRueckgabe,
-    (produktRueckgabe) => produktRueckgabe.produkte, { nullable: true}
+    (produktRueckgabe) => produktRueckgabe.produkte,
+    { nullable: true },
   )
   productRucgabe: ProduktRueckgabe;
 }
