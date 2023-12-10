@@ -184,8 +184,18 @@ export class BestellungenService {
   private setProduktQuanity(readyBesttelung: OrderDto) {
     for (let i = 0; i < readyBesttelung.produkte.length; i++) {
       readyBesttelung.produkte[i].menge = 0;
-      readyBesttelung.produkte[i].menge +=
-        readyBesttelung.produkte[i].produkt[0].variations[0].quanity;
+      if (
+        readyBesttelung.produkte[i].produkt[0].variations[0]
+          .quanity_sold_at_once === 1
+      ) {
+        readyBesttelung.produkte[i].menge +=
+          readyBesttelung.produkte[i].produkt[0].variations[0].quanity;
+      } else {
+        readyBesttelung.produkte[i].menge +=
+          readyBesttelung.produkte[i].produkt[0].variations[0].quanity *
+          readyBesttelung.produkte[i].produkt[0].variations[0]
+            .quanity_sold_at_once;
+      }
     }
   }
 
@@ -414,11 +424,13 @@ export class BestellungenService {
             data.produkte[i].produkt[0].variations[0].sku
           ) {
             tmpItem.variations[j].quanity -=
-              data.produkte[i].produkt[0].variations[0].quanity;
+              data.produkte[i].produkt[0].variations[0].quanity *
+              data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
             data.produkte[i].produkt[0].variations[0].price =
               tmpItem.variations[j].price;
             tmpItem.variations[j].quanity_sold +=
-              data.produkte[i].produkt[0].variations[0].quanity;
+              data.produkte[i].produkt[0].variations[0].quanity *
+              data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
 
             if (tmpItem.variations[j].quanity < 0)
               throw new HttpException(

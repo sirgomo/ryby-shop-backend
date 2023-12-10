@@ -122,6 +122,7 @@ export class Database {
             thumbnail VARCHAR(1000),
             quanity INT,
             quanity_sold INT,
+            quanity_sold_at_once INT DEFAULT 1,
             FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE
         );
           
@@ -166,6 +167,7 @@ export class Database {
             price_in_euro DECIMAL(10,2) NOT NULL,
             mwst INT NOT NULL DEFAULT 0,
             quanity_stored INT NOT NULL DEFAULT 0,
+            quanity_sold_at_once INT DEFAULT 1,
             waren_eingang_productId INT,
             FOREIGN KEY (waren_eingang_productId) REFERENCES waren_eingang_product (id) ON DELETE CASCADE ON UPDATE CASCADE
         );
@@ -368,6 +370,7 @@ export class Database {
         .then(
           (res) => {
             console.log('Database created');
+            console.log(res);
           },
           (err) => {
             console.log(err);
