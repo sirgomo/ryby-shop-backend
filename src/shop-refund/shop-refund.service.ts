@@ -116,6 +116,11 @@ export class ShopRefundService {
         where: {
           id: id,
         },
+        relations: {
+          produkte: true,
+          kunde: true,
+          bestellung: true,
+        },
       });
       if (item.paypal_refund_id && item.is_corrective === 0) {
         const accessToken = await generateAccessToken();
@@ -214,6 +219,25 @@ export class ShopRefundService {
       return delResult;
     } catch (error) {
       throw new Error('Failed to delete refund.');
+    }
+  }
+  async getAllShopRefunds(
+    count: number,
+    sitenr: number,
+  ): Promise<[ProduktRueckgabe[], number]> {
+    try {
+      const take = count;
+      const skip = count * sitenr - count;
+      return await this.refundRepository.findAndCount({
+        relations: {
+          bestellung: true,
+          produkte: true,
+        },
+        take: take,
+        skip: skip,
+      });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
     }
   }
 }
