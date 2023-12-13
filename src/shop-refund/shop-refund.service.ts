@@ -22,12 +22,14 @@ export class ShopRefundService {
     refundDto: Product_RuckgabeDto,
   ): Promise<ProduktRueckgabe> {
     try {
-      const refund = await this.refundRepository.create(refundDto);
+      if (refundDto.id) refundDto.id = undefined;
 
+      const refund = await this.refundRepository.create(refundDto);
+      refund.rueckgabedatum = new Date(Date.now());
       let amount = 0;
       if (refund.produkte)
         for (let i = 0; i < refundDto.produkte.length; i++) {
-          amount += refundDto.produkte[i].verkauf_price;
+          amount += Number(refundDto.produkte[i].verkauf_price);
         }
       refund.amount += amount;
 
@@ -77,8 +79,8 @@ export class ShopRefundService {
                 { where: { sku: refund.produkte[i].color } },
               );
               if (item) {
-                item.quanity += refund.produkte[i].menge;
-                item.quanity_sold -= refund.produkte[i].menge;
+                item.quanity += Number(refund.produkte[i].menge);
+                item.quanity_sold -= Number(refund.produkte[i].menge);
                 variations.push(item);
               }
             }

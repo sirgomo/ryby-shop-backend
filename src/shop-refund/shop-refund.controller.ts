@@ -36,6 +36,7 @@ export class ShopRefundController {
   async getRefundById(@Param('id') id: number): Promise<ProduktRueckgabe> {
     return await this.refundService.getRefundById(id);
   }
+
   @Put(':id')
   async updateRefund(
     @Param('id') id: number,
