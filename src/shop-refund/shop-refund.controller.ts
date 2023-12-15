@@ -25,12 +25,13 @@ export class ShopRefundController {
   ): Promise<ProduktRueckgabe> {
     return await this.refundService.createRefund(refundDto);
   }
-  @Get(':count/:sitenr')
+  @Get(':search/:count/:sitenr')
   async getAllShopRefunds(
+    @Param('search') search: string,
     @Param('count') count: number,
     @Param('sitenr') sitenr: number,
   ): Promise<[ProduktRueckgabe[], number]> {
-    return await this.refundService.getAllShopRefunds(count, sitenr);
+    return await this.refundService.getAllShopRefunds(search, count, sitenr);
   }
   @Get(':id')
   async getRefundById(@Param('id') id: number): Promise<ProduktRueckgabe> {

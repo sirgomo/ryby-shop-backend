@@ -64,7 +64,7 @@ export class ShopRefundService {
             HttpStatus.NOT_ACCEPTABLE,
           );
 
-        console.log(response);
+        //TODO loggin in mysql saving
         refund.paypal_refund_id = response.id;
       }
       this.checkPrice(refund);
@@ -85,7 +85,7 @@ export class ShopRefundService {
               }
             }
           }
-          console.log(refund.produkte);
+
           await transactionManger.save(ProduktVariations, variations);
           savedRefund = await transactionManger.save(refund);
         },
@@ -98,7 +98,6 @@ export class ShopRefundService {
     }
   }
   checkPrice(refund: ProduktRueckgabe) {
-    console.log(refund.amount + ' ' + refund.bestellung.gesamtwert);
     if (refund.amount == Number(refund.bestellung.gesamtwert)) {
       if (refund.produkte.length === 0) {
         for (let i = 0; i < refund.bestellung.produkte.length; i++) {
@@ -138,7 +137,6 @@ export class ShopRefundService {
 
         const response = await handleResponse(paypal_refund);
 
-        console.log(response);
         if (response.status !== item.paypal_refund_status)
           item.paypal_refund_status = response.status;
 
@@ -224,12 +222,28 @@ export class ShopRefundService {
     }
   }
   async getAllShopRefunds(
+    search: string,
     count: number,
     sitenr: number,
   ): Promise<[ProduktRueckgabe[], number]> {
     try {
       const take = count;
       const skip = count * sitenr - count;
+      if (search !== 'null') {
+        return await this.refundRepository.findAndCount({
+          where: {
+            bestellung: {
+              id: Number(search),
+            },
+          },
+          relations: {
+            bestellung: true,
+            produkte: true,
+          },
+          take: take,
+          skip: skip,
+        });
+      }
       return await this.refundRepository.findAndCount({
         relations: {
           bestellung: true,
