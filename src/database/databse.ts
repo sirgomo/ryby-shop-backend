@@ -246,7 +246,8 @@ export class Database {
             id INT PRIMARY KEY AUTO_INCREMENT,
             shipping_name VARCHAR(255) NOT NULL,
             shipping_price DECIMAL(10, 2) NOT NULL,
-            average_material_price DECIMAL(10, 2) NOT NULL
+            average_material_price DECIMAL(10, 2) NOT NULL,
+            cost_per_added_stuck DECIMAL(10,2) NOT NULL DEFAULT 0,
         );
         
         CREATE TABLE produkt_shipping_costs (
