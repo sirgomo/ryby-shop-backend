@@ -53,4 +53,12 @@ export class CompanyController {
   async getCookies() {
     return await this.companyService.getCookies();
   }
+  @Post('urlop/post')
+  async setUrlop(@Body() company: Partial<CompanyDataEntity>) {
+    return await this.companyService.setUrlop(company);
+  }
+  @Get('urlop/get')
+  async getIsInUrlop() {
+    return await this.companyService.getUrlop();
+  }
 }

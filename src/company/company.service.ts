@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { DeleteResult, Repository } from 'typeorm';
+import { UpdateResult } from 'typeorm/browser';
 
 @Injectable()
 export class CompanyService {
@@ -93,6 +94,28 @@ export class CompanyService {
     } catch (err) {
       console.log(err);
       throw new HttpException('Cookies not found', HttpStatus.NOT_FOUND);
+    }
+  }
+  async getUrlop(): Promise<CompanyDataEntity[]> {
+    try {
+      return await this.companyRepository.find({
+        select: {
+          is_in_urlop: true,
+          urlop_from: true,
+          urlop_to: true,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
+  async setUrlop(company: Partial<CompanyDataEntity>): Promise<UpdateResult> {
+    try {
+      return await this.companyRepository.update({ id: company.id }, company);
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
     }
   }
 }
