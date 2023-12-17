@@ -42,7 +42,10 @@ export class Database {
             agb TEXT,
             daten_schutzt MEDIUMTEXT,
             cookie_info TEXT,
-            ebay_refresh_token VARCHAR(255)
+            ebay_refresh_token VARCHAR(255),
+            is_in_urlop BOOLEAN DEFAULT 0,
+            urlop_from DATE,
+            urlop_to DATE,
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,
