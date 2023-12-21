@@ -111,20 +111,20 @@ export class VariationController {
     if (id.id.split('//')[0] === 'https:') {
       const imagestream = await this.getEbayImage(id.id);
       imagestream.pipe(res as any);
+    } else {
+      const imageStream = await this.photoService.getPhoto(id.id, false);
+      imageStream.pipe(res as any);
     }
-
-    const imageStream = await this.photoService.getPhoto(id.id, false);
-    imageStream.pipe(res as any);
   }
   @Post('thumbnails/')
   async getThumbnails(@Body() id: { id: string }, @Res() res: Response) {
     if (id.id && id.id.split('//')[0] === 'https:') {
       const imagestream = await this.getEbayImage(id.id);
       imagestream.pipe(res as any);
+    } else {
+      const imageStream = await this.photoService.getPhoto(id.id, true);
+      imageStream.pipe(res as any);
     }
-
-    const imageStream = await this.photoService.getPhoto(id.id, true);
-    imageStream.pipe(res as any);
   }
   @Post('file-delete')
   @UseGuards(JwtAuthGuard)

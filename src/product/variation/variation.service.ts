@@ -168,6 +168,7 @@ export class VariationService {
       }
       return prodItem;
     } catch (err) {
+      console.log(err);
       throw new Error(err.message);
     }
   }
