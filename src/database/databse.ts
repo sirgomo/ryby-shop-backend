@@ -45,7 +45,7 @@ export class Database {
             ebay_refresh_token VARCHAR(255),
             is_in_urlop BOOLEAN DEFAULT 0,
             urlop_from DATE,
-            urlop_to DATE,
+            urlop_to DATE
         );
           CREATE TABLE IF NOT EXISTS liefer_addresse (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -250,7 +250,7 @@ export class Database {
             shipping_name VARCHAR(255) NOT NULL,
             shipping_price DECIMAL(10, 2) NOT NULL,
             average_material_price DECIMAL(10, 2) NOT NULL,
-            cost_per_added_stuck DECIMAL(10,2) NOT NULL DEFAULT 0,
+            cost_per_added_stuck DECIMAL(10,2) NOT NULL DEFAULT 0
         );
         
         CREATE TABLE produkt_shipping_costs (

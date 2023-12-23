@@ -6,7 +6,6 @@ import { env } from './env/env';
 import { json, urlencoded } from 'express';
 
 async function bootstrap() {
- 
   const db = await new Database();
   await db.checkDatabaseConnection();
   const app = await NestFactory.create(AppModule);
