@@ -6,27 +6,22 @@ import { BESTELLUNGSSTATUS, Bestellung } from 'src/entity/bestellungEntity';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { OrderDto } from 'src/dto/order.dto';
-
 import { Kunde } from 'src/entity/kundeEntity';
 import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 import { Lieferant } from 'src/entity/lifernatEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
-import { EntityManager, EntitySchema, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { describe } from 'node:test';
-
-
-
+import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 
 describe('BestellungenService', () => {
   let service: BestellungenService;
   let bestellungRepository: Repository<Bestellung>;
-  let productIn: Repository<ProduktInBestellung>;
+  //let productIn: Repository<ProduktInBestellung>;
   let productRepository: Repository<Produkt>;
   let order: OrderDto;
   let product: Produkt;
   let currentKunde: Kunde;
-
- 
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,13 +37,14 @@ describe('BestellungenService', () => {
             save: jest.fn(),
             remove: jest.fn(),
             create: jest.fn(),
-            manager:  {
-            transaction: jest.fn(),
-            findOne: jest.fn(),
-            merge: jest.fn(),
-            save: jest.fn(),
-            remove: jest.fn(),
-            create: jest.fn(),
+            findAndCount: jest.fn(),
+            manager: {
+              transaction: jest.fn(),
+              findOne: jest.fn(),
+              merge: jest.fn(),
+              save: jest.fn(),
+              remove: jest.fn(),
+              create: jest.fn(),
             },
           },
         },
@@ -56,7 +52,7 @@ describe('BestellungenService', () => {
           provide: getRepositoryToken(Produkt),
           useClass: Repository,
         },
-       
+
         {
           provide: getRepositoryToken(ProduktInBestellung),
           useValue: {
@@ -64,18 +60,14 @@ describe('BestellungenService', () => {
             create: jest.fn(),
           },
         },
-  
       ],
     }).compile();
 
     service = module.get<BestellungenService>(BestellungenService);
     bestellungRepository = module.get(getRepositoryToken(Bestellung));
-    productIn = module.get(getRepositoryToken(ProduktInBestellung));
+    // productIn = module.get(getRepositoryToken(ProduktInBestellung));
     productRepository = module.get(getRepositoryToken(Produkt));
 
- 
-
-    
     currentKunde = {
       id: 1,
       vorname: 'TEST',
@@ -87,7 +79,7 @@ describe('BestellungenService', () => {
         hausnummer: '123',
         stadt: 'Sample City',
         postleitzahl: '12345',
-        land: 'Sample Country'
+        land: 'Sample Country',
       },
       lieferadresse: {
         id: 0,
@@ -96,7 +88,7 @@ describe('BestellungenService', () => {
         hausnummer: '123',
         stadt: 'Sample City',
         postleitzahl: '12345',
-        land: 'Sample Country'
+        land: 'Sample Country',
       },
       bestellungen: [],
       ruckgabe: [],
@@ -105,7 +97,7 @@ describe('BestellungenService', () => {
       role: 'user',
       registrierungsdatum: undefined,
       treuepunkte: 0,
-      bewertungen: []
+      bewertungen: [],
     };
     const prodVariant: ProduktVariations = {
       sku: 'sadas123_01',
@@ -119,7 +111,8 @@ describe('BestellungenService', () => {
       wholesale_price: 3.45,
       thumbnail: '',
       quanity: 20,
-      quanity_sold: 0
+      quanity_sold: 0,
+      quanity_sold_at_once: 0,
     };
     product = {
       id: 2,
@@ -127,7 +120,7 @@ describe('BestellungenService', () => {
       sku: 'sadas123',
       artid: 22,
       beschreibung: '',
-      lieferant: new Lieferant,
+      lieferant: new Lieferant(),
       lagerorte: [],
       bestellungen: [],
       datumHinzugefuegt: undefined,
@@ -142,11 +135,11 @@ describe('BestellungenService', () => {
       eans: [],
       variations: [prodVariant],
       produkt_image: '',
-      shipping_costs: []
+      shipping_costs: [],
     };
     const produktB: ProduktInBestellung = {
       id: 2,
-      bestellung: new Bestellung,
+      bestellung: new Bestellung(),
       produkt: [product],
       menge: 2,
       color: '01',
@@ -156,7 +149,7 @@ describe('BestellungenService', () => {
       verkauf_price: 2.25,
       verkauf_rabat: 0,
       verkauf_steuer: 0,
-      productRucgabe: new ProduktRueckgabe
+      productRucgabe: new ProduktRueckgabe(),
     };
     order = {
       id: 0,
@@ -167,36 +160,37 @@ describe('BestellungenService', () => {
       versand_datum: undefined,
       zahlungsart: 'PAYPAL',
       gesamtwert: 2.25,
-      zahlungsstatus:  '',
+      zahlungsstatus: '',
       bestellungstatus: BESTELLUNGSSTATUS.INBEARBEITUNG,
       versandart: 'DPD',
       versandprice: 1.6,
-      varsandnr: ''
+      varsandnr: '',
+      paypal_order_id: '',
+      refunds: [],
     };
   });
 
   describe('createOrder', () => {
     it('should create a new order', async () => {
-
-
-      const item = jest.spyOn(productRepository, 'findOne').mockResolvedValueOnce(product);
-     await service.createOrder(order);
-      expect(item).toHaveBeenCalledWith( {
-           "relations":  {
-             "promocje": true,
-            "variations": true,
-           },
-           "where":  {
-              "id": product.id,
-         },
-          });
-    
+      const item = jest
+        .spyOn(productRepository, 'findOne')
+        .mockResolvedValueOnce(product);
+      await service.createOrder(order);
+      expect(item).toHaveBeenCalledWith({
+        relations: {
+          promocje: true,
+          variations: true,
+        },
+        where: {
+          id: product.id,
+        },
+      });
     });
 
     it('should throw an error if price or quantity is not valid', async () => {
       const orderData: OrderDto = {
         id: 0,
-        kunde: new Kunde,
+        kunde: new Kunde(),
         produkte: [],
         bestelldatum: undefined,
         status: '',
@@ -207,21 +201,31 @@ describe('BestellungenService', () => {
         bestellungstatus: BESTELLUNGSSTATUS.INBEARBEITUNG,
         versandart: '',
         versandprice: 0,
-        varsandnr: ''
+        varsandnr: '',
+        paypal_order_id: '',
+        refunds: [],
       };
 
-      jest.spyOn(service, 'createOrder').mockRejectedValueOnce(new HttpException('Invalid price or quantity', HttpStatus.BAD_REQUEST));
+      jest
+        .spyOn(service, 'createOrder')
+        .mockRejectedValueOnce(
+          new HttpException(
+            'Invalid price or quantity',
+            HttpStatus.BAD_REQUEST,
+          ),
+        );
 
-      await expect(service.createOrder(orderData)).rejects.toThrow(HttpException);
+      await expect(service.createOrder(orderData)).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
-
   describe('getBestellung', () => {
     it('should return the specified order', async () => {
-
-
-      jest.spyOn(bestellungRepository, 'findOne').mockResolvedValueOnce(order as Bestellung);
+      jest
+        .spyOn(bestellungRepository, 'findOne')
+        .mockResolvedValueOnce(order as Bestellung);
 
       const result = await service.getOrderBeiId(order.id);
 
@@ -233,17 +237,21 @@ describe('BestellungenService', () => {
 
       jest.spyOn(bestellungRepository, 'findOne').mockResolvedValueOnce(null);
 
-      await expect(service.getOrderBeiId(orderId)).rejects.toThrow(HttpException);
+      await expect(service.getOrderBeiId(orderId)).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
   describe('updateBestellung', () => {
     it('should update the specified order', async () => {
-
-
-      jest.spyOn(bestellungRepository, 'findOne').mockResolvedValueOnce(order as Bestellung);
+      jest
+        .spyOn(bestellungRepository, 'findOne')
+        .mockResolvedValueOnce(order as Bestellung);
       jest.spyOn(bestellungRepository, 'merge');
-      jest.spyOn(bestellungRepository, 'save').mockResolvedValueOnce(order as Bestellung);
+      jest
+        .spyOn(bestellungRepository, 'save')
+        .mockResolvedValueOnce(order as Bestellung);
 
       const result = await service.updateOrder(order.id, order);
 
@@ -253,55 +261,114 @@ describe('BestellungenService', () => {
     });
 
     it('should throw an error if order is not found', async () => {
+      jest
+        .spyOn(bestellungRepository, 'findOne')
+        .mockResolvedValueOnce(undefined);
 
-
-      jest.spyOn(bestellungRepository, 'findOne').mockResolvedValueOnce(undefined);
-
-      await expect(service.updateOrder(order.id, order)).rejects.toThrow(HttpException);
+      await expect(service.updateOrder(order.id, order)).rejects.toThrow(
+        HttpException,
+      );
     });
   });
   describe('saveBestellung', () => {
     it('should save the specified order', async () => {
       // Mock the transaction method
       const mockEntityManger = {
-        findOne: jest.fn().mockResolvedValueOnce(currentKunde as unknown as unknown[]),
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(currentKunde as unknown as unknown[]),
         save: jest.fn().mockResolvedValueOnce(order as Bestellung),
         create: jest.fn().mockResolvedValueOnce(order as Bestellung),
-    };
+      };
 
       const mockTransaction = jest.fn().mockImplementation((entityManger) => {
         // Mock the entityManger within the transaction
-  
+
         // Call the callback with the mockEntityManger
         return entityManger(mockEntityManger);
       });
-    
-      const entManger = jest.spyOn(bestellungRepository.manager, 'transaction').mockImplementation(mockTransaction);
-      const kunde = jest.spyOn(mockEntityManger, 'findOne').mockResolvedValueOnce(currentKunde as unknown as unknown[]);
-      const createKunde = jest.spyOn(bestellungRepository.manager, 'create').mockImplementation(() => currentKunde as unknown as unknown[]);
-      const item = jest.spyOn(mockEntityManger, 'save').mockResolvedValueOnce(order as Bestellung);
-      const find = jest.spyOn(productRepository, 'findOne').mockResolvedValueOnce(product as Produkt);
-   
+
+      const entManger = jest
+        .spyOn(bestellungRepository.manager, 'transaction')
+        .mockImplementation(mockTransaction);
+      const kunde = jest
+        .spyOn(mockEntityManger, 'findOne')
+        .mockResolvedValueOnce(currentKunde as unknown as unknown[]);
+      //const createKunde = jest
+      //  .spyOn(bestellungRepository.manager, 'create')
+      //  .mockImplementation(() => currentKunde as unknown as unknown[]);
+      const item = jest
+        .spyOn(mockEntityManger, 'save')
+        .mockResolvedValueOnce(order as Bestellung);
+      const find = jest
+        .spyOn(productRepository, 'findOne')
+        .mockResolvedValueOnce(product as Produkt);
+
       await service.saveOrder(order);
-      expect(find).toHaveBeenCalledWith( {
-        "relations":  {
-          "promocje": true,
-         "variations": true,
+      expect(find).toHaveBeenCalledWith({
+        relations: {
+          promocje: true,
+          variations: true,
         },
-        "where":  {
-           "id": product.id,
-      },
-       });
-       expect(entManger).toHaveBeenCalledWith(expect.any(Function));
-       expect(kunde).toHaveBeenCalledWith( Kunde, {"relations":  {
-        "adresse": true,
-        "lieferadresse": true,
-       }, "where":  {
-          "email": currentKunde.email,
-       }});
-       expect(item).toHaveBeenCalled();
-    
+        where: {
+          id: product.id,
+        },
+      });
+      expect(entManger).toHaveBeenCalledWith(expect.any(Function));
+      expect(kunde).toHaveBeenCalledWith(Kunde, {
+        relations: {
+          adresse: true,
+          lieferadresse: true,
+        },
+        where: {
+          email: currentKunde.email,
+        },
+      });
+      expect(item).toHaveBeenCalled();
+
       expect(item).toHaveBeenCalledWith(Bestellung, order);
-    }); 
-    }); 
+    });
+  });
+  describe('getOrdersBeiKunde', () => {
+    it('should return orders for a given customer', async () => {
+      const kundeId = 1;
+      const expectedOrders = [order as Bestellung];
+      jest
+        .spyOn(bestellungRepository, 'findAndCount')
+        .mockResolvedValueOnce([expectedOrders, 1]);
+
+      const [result, count] = await service.getOrdersBeiKunde(kundeId);
+
+      expect(result).toBe(expectedOrders);
+      expect(count).toBe(1);
+    });
+
+    it('should throw an error if no orders are found for the customer', async () => {
+      const kundeId = 1;
+      jest
+        .spyOn(bestellungRepository, 'findAndCount')
+        .mockResolvedValueOnce([[], 0]);
+
+      const [result, count] = await service.getOrdersBeiKunde(kundeId);
+
+      expect(result).toEqual([]);
+      expect(count).toBe(0);
+    });
+  });
+  describe('getOrders', () => {
+    it('should return a list of orders based on provided settings', async () => {
+      const getSettings = new GetOrderSettingsDto();
+      getSettings.itemsProSite = 10;
+      getSettings.state = 'ACTIVE';
+      getSettings.status = BESTELLUNGSSTATUS.INBEARBEITUNG;
+      const sitenr = 1;
+      const expectedOrders = [order as Bestellung];
+      jest
+        .spyOn(bestellungRepository, 'findAndCount')
+        .mockResolvedValueOnce([expectedOrders, 1]);
+
+      const result = await service.getOrders(getSettings, sitenr);
+      expect(result).toEqual([expectedOrders, 1]);
+    });
+  });
 });

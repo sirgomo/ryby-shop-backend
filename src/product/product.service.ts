@@ -316,15 +316,16 @@ export class ProductService {
           variations: true,
         },
       });
-      for (let i = 0; i < item.variations.length; i++) {
-        if (item.variations[i].quanity > 0)
-          throw new HttpException(
-            'Produkt ' +
-              item.name +
-              ' kann nicht gelöscht werden, die Menge ist gößer als 0 ',
-            HttpStatus.BAD_REQUEST,
-          );
-      }
+      if (item)
+        for (let i = 0; i < item.variations.length; i++) {
+          if (item.variations[i].quanity > 0)
+            throw new HttpException(
+              'Produkt ' +
+                item.name +
+                ' kann nicht gelöscht werden, die Menge ist gößer als 0 ',
+              HttpStatus.BAD_REQUEST,
+            );
+        }
 
       return await this.produktRepository.delete(id).catch((err) => {
         console.log(err);
@@ -360,7 +361,7 @@ export class ProductService {
   }
   async deleteEan(id: number): Promise<DeleteResult> {
     try {
-      return this.eanRepo.delete({ id: id });
+      return await this.eanRepo.delete({ id: id });
     } catch (err) {
       throw err;
     }

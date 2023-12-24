@@ -1,5 +1,5 @@
 export class GetOrderSettingsDto {
-    state: string;
-    status: string;
-    itemsProSite: number;
+  state: string;
+  status: string;
+  itemsProSite: number;
 }
