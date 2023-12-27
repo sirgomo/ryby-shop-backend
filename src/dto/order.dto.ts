@@ -1,8 +1,8 @@
 import { Kunde } from 'src/entity/kundeEntity';
-import { ProductBestellungDto } from './productBestellung.dto';
 import { BESTELLUNGSSTATUS } from 'src/entity/bestellungEntity';
 import { IsArray, IsObject, IsOptional } from 'class-validator';
 import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
+import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 
 export class OrderDto {
   @IsOptional()
@@ -10,7 +10,7 @@ export class OrderDto {
   @IsObject()
   kunde: Kunde;
   @IsArray()
-  produkte: ProductBestellungDto[];
+  produkte: ProduktInBestellung[];
   bestelldatum: Date;
   status: string;
   versand_datum: Date;

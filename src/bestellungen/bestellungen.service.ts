@@ -123,6 +123,8 @@ export class BestellungenService {
   //Paid, now save the order and current list of products in the transaction
   async saveOrder(readyBesttelung: OrderDto) {
     try {
+      console.log('save order');
+      console.log(readyBesttelung);
       readyBesttelung.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
       readyBesttelung.bestelldatum = new Date(Date.now());
       readyBesttelung.gesamtwert = Number(
@@ -337,12 +339,12 @@ export class BestellungenService {
           )
             throw new HttpException(
               'Bestellung verschickt, die Menge kann nicht geändert werden',
-              HttpStatus.BAD_REQUEST,
+              HttpStatus.NOT_ACCEPTABLE,
             );
         }
       }
 
-      this.bestellungRepository.merge(bestellung, bestellungData);
+      await this.bestellungRepository.merge(bestellung, bestellungData);
       return await this.bestellungRepository.save(bestellung);
     } catch (error) {
       throw error;
@@ -431,7 +433,7 @@ export class BestellungenService {
             tmpItem.variations[j].quanity_sold +=
               data.produkte[i].produkt[0].variations[0].quanity *
               data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
-
+            console.log(tmpItem.variations[j].quanity);
             if (tmpItem.variations[j].quanity < 0)
               throw new HttpException(
                 'Error 3000/ quanity by item ' +
