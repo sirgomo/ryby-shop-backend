@@ -4,7 +4,7 @@ import { Kategorie } from 'src/entity/kategorieEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { DeleteResult, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { Lieferant } from 'src/entity/lifernatEntity';
 
 describe('KategorieService', () => {
   let kategorieService: KategorieService;
@@ -285,32 +285,27 @@ describe('KategorieService', () => {
       };
 
       const product: Produkt = {
-        id: 1,
-        name: 'Product1',
-        preis: 10,
-        beschreibung: 'Description1',
-        foto: 'photo1.jpg',
-        thumbnail: 'thumbnail1.jpg',
-        lieferant: null,
+        id: 0,
+        name: 'asd as',
+        sku: 'sad23',
+        artid: 0,
+        beschreibung: '',
+        lieferant: new Lieferant(),
         lagerorte: [],
         bestellungen: [],
-        datumHinzugefuegt: new Date(),
+        datumHinzugefuegt: undefined,
         kategorie: [],
-        verfgbarkeit: true,
-        mindestmenge: 1,
-        verkaufteAnzahl: 0,
+        verfgbarkeit: 0,
+        product_sup_id: '',
+        ebay: 0,
         wareneingang: [],
-        warenausgang: [],
         mehrwehrsteuer: 0,
         promocje: [],
-      
         bewertung: [],
-        artid: 0,
-        color: '',
-        lange: 20,
-        gewicht: 30,
-        currentmenge: 10,
-        product_sup_id: 'ak20'
+        eans: [],
+        variations: [],
+        produkt_image: '',
+        shipping_costs: [],
       };
 
       jest.spyOn(kategorieRepository, 'findOne').mockResolvedValue(category);
@@ -397,32 +392,27 @@ describe('KategorieService', () => {
         name: 'Category1',
         products: [
           {
-            id: 1,
-            name: 'Product1',
-            preis: 10,
-            beschreibung: 'Description1',
-            foto: 'photo1.jpg',
-            thumbnail: 'thumbnail1.jpg',
-            lieferant: null,
+            id: 0,
+            name: 'asd as',
+            sku: 'sad23',
+            artid: 0,
+            beschreibung: '',
+            lieferant: new Lieferant(),
             lagerorte: [],
             bestellungen: [],
-            datumHinzugefuegt: new Date(),
+            datumHinzugefuegt: undefined,
             kategorie: [],
-            verfgbarkeit: true,
-            mindestmenge: 1,
-            verkaufteAnzahl: 0,
+            verfgbarkeit: 0,
+            product_sup_id: '',
+            ebay: 0,
             wareneingang: [],
-            warenausgang: [],
             mehrwehrsteuer: 0,
             promocje: [],
-            
             bewertung: [],
-            artid: 0,
-            color: '',
-            lange: 20,
-            gewicht: 30,
-            currentmenge: 10,
-            product_sup_id: 'ak20'
+            eans: [],
+            variations: [],
+            produkt_image: '',
+            shipping_costs: [],
           },
         ],
         parent_id: 0,

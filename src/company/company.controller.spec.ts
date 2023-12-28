@@ -6,12 +6,35 @@ import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CompanyService } from './company.service';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
+import request from 'supertest';
 
 describe('CompanyController (e2e)', () => {
   let app: INestApplication;
   let companyService: CompanyService;
   let companyRepository: Repository<CompanyDataEntity>;
-  const request = require("supertest");
+  const comp: CompanyDataEntity = {
+    id: 0,
+    name: 'skjdsah kjhasjdhas',
+    company_name: 'sajhdjkhas ',
+    address: '',
+    city: '',
+    postleitzahl: '',
+    country: '',
+    phone: '',
+    email: '',
+    isKleinUnternehmen: 0,
+    ustNr: '',
+    fax: '',
+    eu_komm_hinweis: '',
+    agb: '',
+    daten_schutzt: '',
+    cookie_info: '',
+    ebay_refresh_token: '',
+    is_in_urlop: 0,
+    urlop_from: undefined,
+    urlop_to: undefined,
+  };
+  const companies: CompanyDataEntity[] = [comp];
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [CompanyController],
@@ -22,13 +45,18 @@ describe('CompanyController (e2e)', () => {
           useClass: Repository,
         },
       ],
-    }).overrideGuard(JwtAuthGuard).useValue({ canActivate: true}).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: true })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
 
     companyService = moduleFixture.get<CompanyService>(CompanyService);
-    companyRepository = moduleFixture.get<Repository<CompanyDataEntity>>(getRepositoryToken(CompanyDataEntity));
+    companyRepository = moduleFixture.get<Repository<CompanyDataEntity>>(
+      getRepositoryToken(CompanyDataEntity),
+    );
   });
 
   afterEach(async () => {
@@ -37,26 +65,9 @@ describe('CompanyController (e2e)', () => {
 
   describe('GET /company', () => {
     it('should return an array of companies', async () => {
-      const companies: CompanyDataEntity[] = [
-        {  id: 1, name: 'Company 1',
-        company_name: '',
-        address: '',
-        city: '',
-        country: '',
-        phone: '',
-        email: '',
-        isKleinUnternehmen: 0 },
-        {  id: 2, name: 'Company 2',
-        company_name: '',
-        address: '',
-        city: '',
-        country: '',
-        phone: '',
-        email: '',
-        isKleinUnternehmen: 0},
-      ];
-
-      jest.spyOn(companyService, 'getAllCompanies').mockResolvedValue(companies);
+      jest
+        .spyOn(companyService, 'getAllCompanies')
+        .mockResolvedValue(companies);
 
       const response = await request(app.getHttpServer()).get('/company');
 
@@ -77,14 +88,26 @@ describe('CompanyController (e2e)', () => {
   describe('GET /company/:id', () => {
     it('should return the company with the specified id', async () => {
       const company: CompanyDataEntity = {
-        id: 1, name: 'Company 1',
+        id: 1,
+        name: 'Company 1',
         company_name: '',
         address: '',
         city: '',
         country: '',
         phone: '',
         email: '',
-        isKleinUnternehmen: 0
+        isKleinUnternehmen: 0,
+        postleitzahl: '',
+        ustNr: '',
+        fax: '',
+        eu_komm_hinweis: '',
+        agb: '',
+        daten_schutzt: '',
+        cookie_info: '',
+        ebay_refresh_token: '',
+        is_in_urlop: 0,
+        urlop_from: undefined,
+        urlop_to: undefined,
       };
 
       jest.spyOn(companyService, 'getCompanyById').mockResolvedValue(company);
@@ -101,7 +124,10 @@ describe('CompanyController (e2e)', () => {
       const response = await request(app.getHttpServer()).get('/company/1');
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Company not found', statusCode: 404 });
+      expect(response.body).toEqual({
+        message: 'Company not found',
+        statusCode: 404,
+      });
     });
   });
 
@@ -109,28 +135,53 @@ describe('CompanyController (e2e)', () => {
     it('should create a new company', async () => {
       const companyData: CompanyDataEntity = {
         name: 'New Company',
-        id: 0,
-        company_name: '',
+        id: undefined,
+        company_name: 'jasjdh kjhkajskhsjd',
         address: '',
         city: '',
         country: '',
         phone: '',
         email: '',
-        isKleinUnternehmen: 0
+        isKleinUnternehmen: 0,
+        postleitzahl: '',
+        ustNr: '',
+        fax: '',
+        eu_komm_hinweis: '',
+        agb: '',
+        daten_schutzt: '',
+        cookie_info: '',
+        ebay_refresh_token: '',
+        is_in_urlop: 0,
+        urlop_from: undefined,
+        urlop_to: undefined,
       };
 
       const createdCompany: CompanyDataEntity = {
-        id: 1, name: 'New Company',
-        company_name: '',
+        id: 1,
+        name: 'New Company',
+        company_name: 'jasjdh kjhkajskhsjd',
         address: '',
         city: '',
         country: '',
         phone: '',
         email: '',
-        isKleinUnternehmen: 0
+        isKleinUnternehmen: 0,
+        postleitzahl: '',
+        ustNr: '',
+        fax: '',
+        eu_komm_hinweis: '',
+        agb: '',
+        daten_schutzt: '',
+        cookie_info: '',
+        ebay_refresh_token: '',
+        is_in_urlop: 0,
+        urlop_from: undefined,
+        urlop_to: undefined,
       };
 
-      jest.spyOn(companyService, 'createCompany').mockResolvedValue(createdCompany);
+      jest
+        .spyOn(companyService, 'createCompany')
+        .mockResolvedValue(createdCompany);
 
       const response = await request(app.getHttpServer())
         .post('/company')
@@ -141,8 +192,8 @@ describe('CompanyController (e2e)', () => {
     });
   });
 
-  describe('PUT /company/:id', () => {   
-  it('should update the company with the specified id', async () => {
+  describe('PUT /company/:id', () => {
+    it('should update the company with the specified id', async () => {
       const companyData: CompanyDataEntity = {
         name: 'Updated Company',
         id: 1,
@@ -152,23 +203,50 @@ describe('CompanyController (e2e)', () => {
         country: 'asd',
         phone: '',
         email: '',
-        isKleinUnternehmen: 0
+        isKleinUnternehmen: 0,
+        postleitzahl: '',
+        ustNr: '',
+        fax: '',
+        eu_komm_hinweis: '',
+        agb: '',
+        daten_schutzt: '',
+        cookie_info: '',
+        ebay_refresh_token: '',
+        is_in_urlop: 0,
+        urlop_from: undefined,
+        urlop_to: undefined,
       };
 
       const updatedCompany: CompanyDataEntity = {
-        id: 1, name: 'Updated Company',
+        id: 1,
+        name: 'Updated Company',
         company_name: '',
         address: 'asd',
         city: 'asd',
         country: 'asd',
         phone: '',
         email: '',
-        isKleinUnternehmen: 0
+        isKleinUnternehmen: 0,
+        postleitzahl: '',
+        ustNr: '',
+        fax: '',
+        eu_komm_hinweis: '',
+        agb: '',
+        daten_schutzt: '',
+        cookie_info: '',
+        ebay_refresh_token: '',
+        is_in_urlop: 0,
+        urlop_from: undefined,
+        urlop_to: undefined,
       };
 
-      jest.spyOn(companyRepository, 'findOne').mockResolvedValue(companyData);
-      jest.spyOn(companyRepository, 'update').mockResolvedValue({ affected: 1 } as UpdateResult);
-      jest.spyOn(companyRepository, 'findOne').mockResolvedValue(updatedCompany);
+      jest.spyOn(companyRepository, 'findOne').mockResolvedValue(comp);
+      jest
+        .spyOn(companyRepository, 'update')
+        .mockResolvedValue({ affected: 1 } as UpdateResult);
+      jest
+        .spyOn(companyRepository, 'findOne')
+        .mockResolvedValue(updatedCompany);
 
       const response = await request(app.getHttpServer())
         .put('/company/1')
@@ -179,29 +257,42 @@ describe('CompanyController (e2e)', () => {
     });
   });
 
-    it('should return 404 if the company does not exist', async () => {
-      const companyData: CompanyDataEntity = {
-        name: 'Updated Company',
-        id: 0,
-        company_name: '',
-        address: '',
-        city: '',
-        country: '',
-        phone: '',
-        email: '',
-        isKleinUnternehmen: 0
-      };
+  it('should return 404 if the company does not exist', async () => {
+    const companyData: CompanyDataEntity = {
+      name: 'Updated Company',
+      id: 0,
+      company_name: '',
+      address: '',
+      city: '',
+      country: '',
+      phone: '',
+      email: '',
+      isKleinUnternehmen: 0,
+      postleitzahl: '',
+      ustNr: '',
+      fax: '',
+      eu_komm_hinweis: '',
+      agb: '',
+      daten_schutzt: '',
+      cookie_info: '',
+      ebay_refresh_token: '',
+      is_in_urlop: 0,
+      urlop_from: undefined,
+      urlop_to: undefined,
+    };
 
-      jest.spyOn(companyRepository, 'findOne').mockResolvedValue(null);
+    jest.spyOn(companyRepository, 'findOne').mockResolvedValue(null);
 
-      const response = await request(app.getHttpServer())
-        .put('/company/1')
-        .send(companyData);
+    const response = await request(app.getHttpServer())
+      .put('/company/1')
+      .send(companyData);
 
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Company not found', statusCode: 404 });
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      message: 'Company not found',
+      statusCode: 404,
     });
-  
+  });
 
   describe('DELETE /company/:id', () => {
     const companyData: CompanyDataEntity = {
@@ -213,12 +304,25 @@ describe('CompanyController (e2e)', () => {
       country: '',
       phone: '',
       email: '',
-      isKleinUnternehmen: 0
+      isKleinUnternehmen: 0,
+      postleitzahl: '',
+      ustNr: '',
+      fax: '',
+      eu_komm_hinweis: '',
+      agb: '',
+      daten_schutzt: '',
+      cookie_info: '',
+      ebay_refresh_token: '',
+      is_in_urlop: 0,
+      urlop_from: undefined,
+      urlop_to: undefined,
     };
 
     it('should delete the company with the specified id', async () => {
       jest.spyOn(companyRepository, 'findOne').mockResolvedValue(companyData);
-      jest.spyOn(companyRepository, 'delete').mockResolvedValue({ affected: 1 } as DeleteResult);
+      jest
+        .spyOn(companyRepository, 'delete')
+        .mockResolvedValue({ affected: 1 } as DeleteResult);
 
       const response = await request(app.getHttpServer()).delete('/company/1');
 
@@ -227,14 +331,19 @@ describe('CompanyController (e2e)', () => {
     });
 
     it('should return 404 if the company does not exist', async () => {
-      jest.spyOn(companyRepository, 'findOne').mockRejectedValue(new HttpException('Company not found', HttpStatus.NOT_FOUND));
-   
+      jest
+        .spyOn(companyRepository, 'findOne')
+        .mockRejectedValue(
+          new HttpException('Company not found', HttpStatus.NOT_FOUND),
+        );
 
       const response = await request(app.getHttpServer()).delete('/company/1');
 
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ message: 'Company not found', statusCode: 404 });
+      expect(response.body).toEqual({
+        message: 'Company not found',
+        statusCode: 404,
+      });
     });
   });
 });
-
