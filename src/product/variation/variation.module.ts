@@ -9,6 +9,6 @@ import { PhotoService } from 'src/service/photoService';
 @Module({
   imports: [TypeOrmModule.forFeature([ProduktVariations]), AuthModule],
   controllers: [VariationController],
-  providers: [VariationService, PhotoService]
+  providers: [VariationService, PhotoService],
 })
 export class VariationModule {}

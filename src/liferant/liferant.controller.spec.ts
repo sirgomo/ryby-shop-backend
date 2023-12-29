@@ -20,14 +20,15 @@ describe('Liferant', () => {
         LiferantService,
         {
           provide: getRepositoryToken(Lieferant),
-          useClass: Repository
+          useClass: Repository,
         },
       ],
     }).compile();
-    repository = module.get<Repository<Lieferant>>(getRepositoryToken(Lieferant));
+    repository = module.get<Repository<Lieferant>>(
+      getRepositoryToken(Lieferant),
+    );
     controller = module.get<LiferantController>(LiferantController);
     service = module.get<LiferantService>(LiferantService);
-   
   });
 
   describe('findAll', () => {
@@ -45,11 +46,11 @@ describe('Liferant', () => {
         zahlart: '',
         umsatzsteuerIdentifikationsnummer: '',
         stellplatz: [],
-        wareneingaenge: []
-      }
+        wareneingaenge: [],
+      };
       const result: Lieferant[] = [tmpLif];
-     jest.spyOn(repository, 'find').mockResolvedValue(result);
-  
+      jest.spyOn(repository, 'find').mockResolvedValue(result);
+
       expect(await controller.findAll()).toBe(result);
       expect(repository.find).toBeCalled();
     });
@@ -70,9 +71,9 @@ describe('Liferant', () => {
         zahlart: '',
         umsatzsteuerIdentifikationsnummer: '',
         stellplatz: [],
-        wareneingaenge: []
-      }
-     
+        wareneingaenge: [],
+      };
+
       jest.spyOn(service, 'findById').mockResolvedValue(tmpLif);
 
       expect(await controller.findById(1)).toBe(tmpLif);
@@ -82,14 +83,23 @@ describe('Liferant', () => {
   describe('create', () => {
     it('should create a new lieferant', async () => {
       const lieferantDto: LieferantDto = {
-        name: 'Lieferant 1', email: 'lieferant1@example.com', telefon: '123456789', steuernummer: '123456', bankkontonummer: '1234567890', ansprechpartner: 'John Doe', zahlart: 'Rechnung', umsatzsteuerIdentifikationsnummer: '1234567890',
-        adresse: new AddressDto(), id: undefined,
+        name: 'Lieferant 1',
+        email: 'lieferant1@example.com',
+        telefon: '123456789',
+        steuernummer: '123456',
+        bankkontonummer: '1234567890',
+        ansprechpartner: 'John Doe',
+        zahlart: 'Rechnung',
+        umsatzsteuerIdentifikationsnummer: '1234567890',
+        adresse: new AddressDto(),
+        id: undefined,
       };
       const result: Lieferant = {
-        id: 1, ...lieferantDto,
+        id: 1,
+        ...lieferantDto,
         produkte: [],
         stellplatz: [],
-        wareneingaenge: []
+        wareneingaenge: [],
       };
       jest.spyOn(service, 'create').mockResolvedValue(result);
 
@@ -100,14 +110,23 @@ describe('Liferant', () => {
   describe('update', () => {
     it('should update a lieferant', async () => {
       const lieferantDto: LieferantDto = {
-        id: 1, name: 'Lieferant 1', email: 'lieferant1@example.com', telefon: '123456789', steuernummer: '123456', bankkontonummer: '1234567890', ansprechpartner: 'John Doe', zahlart: 'Rechnung', umsatzsteuerIdentifikationsnummer: '1234567890',
-        adresse: new AddressDto
+        id: 1,
+        name: 'Lieferant 1',
+        email: 'lieferant1@example.com',
+        telefon: '123456789',
+        steuernummer: '123456',
+        bankkontonummer: '1234567890',
+        ansprechpartner: 'John Doe',
+        zahlart: 'Rechnung',
+        umsatzsteuerIdentifikationsnummer: '1234567890',
+        adresse: new AddressDto(),
       };
       const result: Lieferant = {
-        id: 1, ...lieferantDto,
+        id: 1,
+        ...lieferantDto,
         produkte: [],
         stellplatz: [],
-        wareneingaenge: []
+        wareneingaenge: [],
       };
       jest.spyOn(service, 'update').mockResolvedValue(result);
 

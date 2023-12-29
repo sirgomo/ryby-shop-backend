@@ -40,7 +40,7 @@ export class VariationController {
     return this.produktVariationsService.findByVariationsName(variations_name);
   }
 
-  @Get(':sku')
+  @Get('sku/:sku')
   findOne(@Param('sku') sku: string) {
     return this.produktVariationsService.findOne(sku);
   }

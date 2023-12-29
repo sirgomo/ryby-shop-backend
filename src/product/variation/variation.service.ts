@@ -40,13 +40,17 @@ export class VariationService {
 
   async findOne(sku: string) {
     try {
-      return await this.produktVariationsRepository.findOne({
+      const item = await this.produktVariationsRepository.findOne({
         where: {
           sku: sku,
         },
       });
+      if (!item)
+        throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
+
+      return item;
     } catch (err) {
-      return err;
+      throw err;
     }
   }
 

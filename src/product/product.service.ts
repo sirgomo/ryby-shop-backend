@@ -225,15 +225,18 @@ export class ProductService {
             shipping_costs: true,
           },
         })
+        .then((res) => {
+          if (!res)
+            throw new HttpException('Produkt not found', HttpStatus.NOT_FOUND);
+
+          return res;
+        })
         .catch((err) => {
           console.log(err);
           throw err;
         });
     } catch (error) {
-      throw new HttpException(
-        'Fehler beim Abrufen der Produkte',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Produkt not found', HttpStatus.NOT_FOUND);
     }
   }
   async getAdminProduktById(id: number): Promise<Produkt> {
@@ -269,10 +272,7 @@ export class ProductService {
     try {
       const produkt = await this.produktRepository.create(productDto);
 
-      return await this.produktRepository.save(produkt).catch((err) => {
-        console.log(err);
-        throw err;
-      });
+      return await this.produktRepository.save(produkt);
     } catch (error) {
       throw new HttpException(
         'Fehler beim Erstellen des Produkts',
@@ -294,12 +294,9 @@ export class ProductService {
         throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
       }
 
-      await this.produktRepository.merge(produkt, productDto);
+      const merged = await this.produktRepository.merge(produkt, productDto);
 
-      return await this.produktRepository.save(produkt).catch((err) => {
-        console.log(err);
-        return err;
-      });
+      return await this.produktRepository.save(merged);
     } catch (error) {
       console.log(error);
       throw new HttpException('Produkt nicht gefunden', HttpStatus.NOT_FOUND);
@@ -326,6 +323,9 @@ export class ProductService {
               HttpStatus.BAD_REQUEST,
             );
         }
+      else {
+        throw new HttpException('Produkt not found', HttpStatus.BAD_REQUEST);
+      }
 
       return await this.produktRepository.delete(id).catch((err) => {
         console.log(err);
