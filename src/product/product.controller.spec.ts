@@ -253,49 +253,4 @@ describe('ProductController (e2e)', () => {
       expect(res.body).toEqual({ affected: 0 });
     });
   });
-  /* describe('POST /product/upload', () => {
-    it('should upload a photo', async () => {
-      const file = {
-        buffer: Buffer.from('test'),
-        originalname: 'test.jpg',
-      };
-      jest
-        .spyOn(photoService, 'savePhoto')
-        .mockResolvedValueOnce({ imageid: 'test.jpeg' });
-
-      const response = await request(app.getHttpServer())
-        .post('/product/upload/1')
-        .attach('photo', file.buffer, file.originalname)
-        .expect(201);
-      expect(response.text).toBe(JSON.stringify({ imageid: 'test.jpeg' }));
-    });
-    it('should upload a photo png', async () => {
-      const file = {
-        buffer: Buffer.from('test'),
-        originalname: 'test.png',
-      };
-      jest
-        .spyOn(photoService, 'savePhoto')
-        .mockResolvedValueOnce({ imageid: 'test.png' });
-
-      const response = await request(app.getHttpServer())
-        .post('/product/upload/1')
-        .attach('photo', file.buffer, file.originalname)
-        .expect(201);
-
-      expect(response.text).toBe(JSON.stringify({ imageid: 'test.png' }));
-    });
-
-    it('should return 415 if file type is not supported', async () => {
-      const file = {
-        buffer: Buffer.from('test'),
-        originalname: 'test.gif',
-      };
-
-      await request(app.getHttpServer())
-        .post('/product/upload/1')
-        .attach('photo', file.buffer, file.originalname)
-        .expect(415);
-    });
-  });*/
 });

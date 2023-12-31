@@ -22,7 +22,7 @@ export class VariationService {
         .groupBy('variations_name')
         .getRawMany();
     } catch (err) {
-      return err;
+      throw err;
     }
   }
 
@@ -34,7 +34,7 @@ export class VariationService {
         },
       });
     } catch (err) {
-      return err;
+      throw err;
     }
   }
 
@@ -59,7 +59,9 @@ export class VariationService {
       const item =
         await this.produktVariationsRepository.create(produktVariations);
       return await this.produktVariationsRepository.save(item);
-    } catch (err) {}
+    } catch (err) {
+      throw err;
+    }
   }
 
   async delete(sku: string) {
@@ -67,10 +69,15 @@ export class VariationService {
       const item = await this.produktVariationsRepository.findOne({
         where: { sku: sku },
       });
-
-      if (item.quanity > 0)
+      if (!item)
         throw new HttpException(
-          'Item kann nicht gelöscht werden, Menge is größer als 0',
+          `Item with ${sku} not found`,
+          HttpStatus.NOT_FOUND,
+        );
+
+      if (item.quanity > 0 || item.quanity_sold)
+        throw new HttpException(
+          'Item quantitat is bigger then 0, its not popssible to delete it',
           HttpStatus.BAD_REQUEST,
         );
 
@@ -79,7 +86,7 @@ export class VariationService {
 
       return await this.produktVariationsRepository.delete(sku);
     } catch (err) {
-      return err;
+      throw err;
     }
   }
 
@@ -90,7 +97,7 @@ export class VariationService {
         produktVariations,
       );
     } catch (err) {
-      return err;
+      throw err;
     }
   }
   async deleteImage(image: DeleteFileDto): Promise<boolean> {
@@ -98,11 +105,13 @@ export class VariationService {
       const item = await this.produktVariationsRepository.findOne({
         where: { sku: image.produktid },
       });
+      //if item is praoduktVariationclass
       if (item) {
         item.image = '';
         await this.produktVariationsRepository.save(item);
         return true;
       }
+      //if item is Produkt class
       const itemP: Produkt = await this.dataSource
         .getRepository(Produkt)
         .findOne({ where: { sku: image.produktid } });
@@ -110,14 +119,12 @@ export class VariationService {
       if (itemP) {
         itemP.produkt_image = '';
         await this.dataSource.getRepository(Produkt).save(itemP);
-
         return true;
       }
 
       return false;
     } catch (err) {
-      console.log(err);
-      return err;
+      throw err;
     }
   }
   async addImage(image: string, productid: string): Promise<boolean> {
@@ -147,7 +154,7 @@ export class VariationService {
       }
       return false;
     } catch (err) {
-      return err;
+      throw err;
     }
   }
   async saveImageEbayLink(link: { link: string; id: string }) {
@@ -170,10 +177,10 @@ export class VariationService {
         await this.dataSource.getRepository(Produkt).save(prodItem);
         return { imageid: link.link };
       }
-      return prodItem;
+
+      throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
     } catch (err) {
-      console.log(err);
-      throw new Error(err.message);
+      throw err;
     }
   }
 }

@@ -102,8 +102,7 @@ export class VariationController {
 
       return saved;
     } catch (err) {
-      console.log(err);
-      return err;
+      throw err;
     }
   }
   @Post('uploads/')
