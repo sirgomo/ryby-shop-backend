@@ -406,11 +406,7 @@ export class WarenEingangBuchenService {
 
       return await this.warenEingangProductRepository.delete(productId);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw error;
-      }
+      throw error;
     }
   }
 }
