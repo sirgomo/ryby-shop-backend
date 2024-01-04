@@ -12,8 +12,12 @@ import { EanEntity } from 'src/entity/eanEntity';
 import { EbayOffersModule } from './ebay-offers/ebay-offers.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CompanyDataEntity, Produkt, EanEntity]), AuthModule, EbayOffersModule],
+  imports: [
+    TypeOrmModule.forFeature([CompanyDataEntity, Produkt, EanEntity]),
+    AuthModule,
+    EbayOffersModule,
+  ],
   providers: [EbayService, ProductService],
-  controllers: [EbayController, SubsController, EbayInventoryController]
+  controllers: [EbayController, SubsController, EbayInventoryController],
 })
 export class EbayModule {}

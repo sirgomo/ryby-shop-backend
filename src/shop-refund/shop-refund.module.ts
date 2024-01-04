@@ -8,6 +8,6 @@ import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 @Module({
   imports: [TypeOrmModule.forFeature([ProduktRueckgabe]), AuthModule],
   providers: [ShopRefundService],
-  controllers: [ShopRefundController]
+  controllers: [ShopRefundController],
 })
 export class ShopRefundModule {}

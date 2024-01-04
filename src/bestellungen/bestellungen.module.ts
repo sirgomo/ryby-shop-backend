@@ -8,8 +8,11 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Produkt } from 'src/entity/produktEntity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Bestellung, ProduktInBestellung, Produkt]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Bestellung, ProduktInBestellung, Produkt]),
+    AuthModule,
+  ],
   controllers: [BestellungenController],
-  providers: [BestellungenService]
+  providers: [BestellungenService],
 })
 export class BestellungenModule {}

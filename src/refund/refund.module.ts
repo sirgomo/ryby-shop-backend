@@ -8,8 +8,11 @@ import { EbayService } from 'src/ebay/ebay.service';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EbayRefund, CompanyDataEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([EbayRefund, CompanyDataEntity]),
+    AuthModule,
+  ],
   controllers: [RefundController],
-  providers: [RefundService, EbayService]
+  providers: [RefundService, EbayService],
 })
 export class RefundModule {}
