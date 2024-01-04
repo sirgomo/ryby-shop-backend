@@ -8,11 +8,17 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from 'src/dto/register.dto';
 import { UserUpdateDto } from 'src/dto/userUpdate.dto';
-
+jest.mock('bcrypt', () => ({
+  ...jest.requireActual('bcrypt'),
+  compare: jest.fn(),
+  hash: jest.fn(),
+}));
 describe('UsersService', () => {
   let service: UsersService;
   let repo: Repository<Kunde>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let addressRepo: Repository<AdresseKunde>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let laddRepo: Repository<Lieferadresse>;
 
   beforeEach(async () => {
@@ -65,7 +71,7 @@ describe('UsersService', () => {
         role: 'USER',
         registrierungsdatum: new Date(Date.now()),
         treuepunkte: 0,
-        shipping_name: ''
+        shipping_name: '',
       };
 
       const user = new Kunde();
@@ -122,7 +128,7 @@ describe('UsersService', () => {
         role: '',
         registrierungsdatum: new Date(Date.now()),
         treuepunkte: 0,
-        shipping_name: ''
+        shipping_name: '',
       };
 
       const user = new Kunde();
@@ -350,7 +356,7 @@ describe('UsersService', () => {
         .spyOn(bcrypt, 'compare')
         .mockImplementation(() => Promise.resolve(false));
 
-      await expect(service.changePassword(item)).resolves.toThrowError(
+      await expect(service.changePassword(item)).rejects.toThrow(
         'Das falsche Passwort wurde eingegeben.',
       );
       //  await expect(service.changePassword(item))
@@ -380,18 +386,16 @@ describe('UsersService', () => {
         bewertungen: [],
       };
 
-      jest.spyOn(repo, 'findOne').mockResolvedValue(user);
+      jest.spyOn(repo, 'findOne').mockResolvedValueOnce(user);
       jest
         .spyOn(repo, 'update')
-        .mockRejectedValue(new Error('Change password failed'));
-      jest
-        .spyOn(bcrypt, 'compare')
-        .mockImplementation(() => Promise.resolve(true));
+        .mockRejectedValueOnce(new Error('Change password failed'));
 
-      const result = await service.changePassword(item);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(true as never);
 
-      expect(result).toBeInstanceOf(Error);
-      expect(result.message).toBe('Change password failed');
+      await expect(service.changePassword(item)).rejects.toThrow(
+        'Change password failed',
+      );
     });
   });
 });

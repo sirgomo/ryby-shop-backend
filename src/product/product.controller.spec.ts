@@ -165,8 +165,8 @@ describe('ProductController (e2e)', () => {
 
       const res = await request(app.getHttpServer())
         .get(`/product/${productId}`)
-        .expect(200);
-      expect(res.body).toStrictEqual({});
+        .expect(404);
+      expect(res.body.message).toBe('Produkt not found');
     });
   });
 

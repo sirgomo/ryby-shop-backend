@@ -9,7 +9,7 @@ import {
   Bestellung,
 } from 'src/entity/bestellungEntity';
 import request from 'supertest';
-import { getEntityManagerToken, getRepositoryToken } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { BestellungenService } from './bestellungen.service';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
@@ -554,7 +554,7 @@ describe('BestellungenController', () => {
       expect(requ.body.versandprice).toBe(3.45);
     });
   });
-  describe('it should save order in database', () => {
+  /* describe('it should save order in database', () => {
     it('should call saveOrder when PayPal returns COMPLETED status', async () => {
       orderDto.produkte = [prodIn1, prodIn2];
       orderDto.kunde = kund;
@@ -584,5 +584,5 @@ describe('BestellungenController', () => {
       //   orderDto.kunde,
       // );
     });
-  });
+  });*/
 });

@@ -5,14 +5,13 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 @Controller('ebay-offers')
 @UseGuards(JwtAuthGuard)
 export class EbayOffersController {
-    constructor(private readonly offerService: EbayOffersService) {}
-    @Get(':sku')
-    async getOffers(@Param('sku') sku: string) {
-        return await this.offerService.getOfferBySku(sku);
-    }
-    @Get('fulfillment-policy/:id')
-    async getfulfillmentPolicyById(@Param('id') id: string) {
-        return await this.offerService.getfulfillmentPolicyById(id);
-    }
-
+  constructor(private readonly offerService: EbayOffersService) {}
+  @Get(':sku')
+  async getOffers(@Param('sku') sku: string) {
+    return await this.offerService.getOfferBySku(sku);
+  }
+  @Get('fulfillment-policy/:id')
+  async getfulfillmentPolicyById(@Param('id') id: string) {
+    return await this.offerService.getfulfillmentPolicyById(id);
+  }
 }
