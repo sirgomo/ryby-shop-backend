@@ -72,6 +72,7 @@ export class ShopRefundService {
       await this.refundRepository.manager.transaction(
         async (transactionManger) => {
           const variations: ProduktVariations[] = [];
+          console.log(refund);
           if (refund.produkte) {
             for (let i = 0; i < refund.produkte.length; i++) {
               const item: ProduktVariations = await transactionManger.findOne(
