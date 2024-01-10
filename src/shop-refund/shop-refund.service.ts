@@ -56,7 +56,6 @@ export class ShopRefundService {
           },
           body: body,
         });
-
         const response = await handleResponse(paypal_refund);
         if (response.status === 'CANCELLED' || response.status === 'FAILED')
           throw new HttpException(
@@ -72,7 +71,7 @@ export class ShopRefundService {
       await this.refundRepository.manager.transaction(
         async (transactionManger) => {
           const variations: ProduktVariations[] = [];
-          console.log(refund);
+
           if (refund.produkte) {
             for (let i = 0; i < refund.produkte.length; i++) {
               const item: ProduktVariations = await transactionManger.findOne(
@@ -80,8 +79,10 @@ export class ShopRefundService {
                 { where: { sku: refund.produkte[i].color } },
               );
               if (item) {
-                item.quanity += Number(refund.produkte[i].menge);
-                item.quanity_sold -= Number(refund.produkte[i].menge);
+                item.quanity +=
+                  Number(refund.produkte[i].menge) * item.quanity_sold_at_once;
+                item.quanity_sold -=
+                  Number(refund.produkte[i].menge) * item.quanity_sold_at_once;
                 variations.push(item);
               }
             }
@@ -94,8 +95,7 @@ export class ShopRefundService {
 
       return savedRefund;
     } catch (error) {
-      console.log(error);
-      throw new Error('Failed to create refund.');
+      throw error;
     }
   }
   checkPrice(refund: ProduktRueckgabe) {
@@ -138,15 +138,15 @@ export class ShopRefundService {
 
         const response = await handleResponse(paypal_refund);
 
-        if (response.status !== item.paypal_refund_status)
+        if (response.status !== item.paypal_refund_status) {
           item.paypal_refund_status = response.status;
-
-        await this.refundRepository.save(item);
+          return await this.refundRepository.save(item);
+        }
       }
 
       return item;
     } catch (error) {
-      throw new Error('Failed to get refund.');
+      throw error;
     }
   }
 
@@ -174,7 +174,7 @@ export class ShopRefundService {
       const updatedRefund = this.refundRepository.merge(refund, refundDto);
       return await this.refundRepository.save(updatedRefund);
     } catch (error) {
-      throw new Error('Failed to update refund.');
+      throw error;
     }
   }
 
@@ -190,7 +190,10 @@ export class ShopRefundService {
       });
 
       if (!refund)
-        throw new HttpException('Refund not found!', HttpStatus.NOT_ACCEPTABLE);
+        throw new HttpException(
+          `Refund with id ${id} not found! `,
+          HttpStatus.NOT_FOUND,
+        );
 
       let delResult: DeleteResult = { affected: 0 } as DeleteResult;
       await this.refundRepository.manager.transaction(
@@ -203,8 +206,10 @@ export class ShopRefundService {
                 { where: { sku: refund.produkte[i].color } },
               );
               if (item) {
-                item.quanity -= refund.produkte[i].menge;
-                item.quanity_sold += refund.produkte[i].menge;
+                item.quanity -=
+                  refund.produkte[i].menge * item.quanity_sold_at_once;
+                item.quanity_sold +=
+                  refund.produkte[i].menge * item.quanity_sold_at_once;
                 variations.push(item);
               }
             }
@@ -219,7 +224,7 @@ export class ShopRefundService {
 
       return delResult;
     } catch (error) {
-      throw new Error('Failed to delete refund.');
+      throw error;
     }
   }
   async getAllShopRefunds(
@@ -254,7 +259,7 @@ export class ShopRefundService {
         skip: skip,
       });
     } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      throw err;
     }
   }
 }

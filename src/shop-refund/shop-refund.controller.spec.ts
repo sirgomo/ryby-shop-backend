@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShopRefundController } from './shop-refund.controller';
-import { EntityManager, Repository } from 'typeorm';
+import { Any, EntityManager, Repository } from 'typeorm';
 import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -11,10 +11,7 @@ import { ShopRefundService } from './shop-refund.service';
 import { Product_RuckgabeDto } from 'src/dto/product_ruckgabe.dto';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { Produkt } from 'src/entity/produktEntity';
-import {
-  BestellungenService,
-  generateAccessToken,
-} from 'src/bestellungen/bestellungen.service';
+import { BestellungenService } from 'src/bestellungen/bestellungen.service';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { Bestellung } from 'src/entity/bestellungEntity';
 
@@ -25,13 +22,12 @@ describe('ShopRefundController', () => {
   global.fetch = jest.fn();
   let prodRuckDto: Product_RuckgabeDto;
   const prodInBestellung: ProduktInBestellung[] = [];
-  let bestServ: BestellungenService;
-  const apiResponse = 'COMPLETE';
+  let paypalApiResponse = 'COMPLETE';
   let prodVari: ProduktVariations;
   let refund: ProduktRueckgabe;
-  let variationsRepository: Repository<ProduktVariations>;
 
   beforeEach(async () => {
+    paypalApiResponse = 'COMPLETE';
     dataInintiation();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -42,6 +38,9 @@ describe('ShopRefundController', () => {
           provide: getRepositoryToken(ProduktRueckgabe),
           useValue: {
             create: jest.fn(),
+            findOne: jest.fn(),
+            save: jest.fn(),
+            findAndCount: jest.fn(),
             manager: {
               transaction: jest.fn(),
             },
@@ -59,7 +58,6 @@ describe('ShopRefundController', () => {
           provide: BestellungenService,
           useValue: {
             generateAccessToken: jest.fn(async () => 'token'),
-            handleResponse: jest.fn(async () => apiResponse),
           },
         },
       ],
@@ -71,10 +69,6 @@ describe('ShopRefundController', () => {
     repo = module.get<Repository<ProduktRueckgabe>>(
       getRepositoryToken(ProduktRueckgabe),
     );
-    variationsRepository = module.get<Repository<ProduktVariations>>(
-      getRepositoryToken(ProduktVariations),
-    );
-    bestServ = module.get<BestellungenService>(BestellungenService);
     controller = module.get<ShopRefundController>(ShopRefundController);
     app = module.createNestApplication();
     await app.init();
@@ -91,18 +85,12 @@ describe('ShopRefundController', () => {
     jest
       .spyOn(repo, 'create')
       .mockImplementationOnce((dto) => dto as ProduktRueckgabe);
-    const response = new Response(JSON.stringify({ status: apiResponse }), {
-      status: 200,
-    });
-    jest
-      .spyOn(global, 'fetch')
-      .mockResolvedValueOnce(Promise.resolve(response));
     const trans = jest
       .spyOn(repo.manager, 'transaction')
       .mockImplementation((isolationOrCallback: any, maybeCallback?: any) => {
         const manager: Partial<EntityManager> = {
-          save: jest.fn().mockResolvedValue(true),
-          findOne: jest.fn().mockResolvedValue({}),
+          save: jest.fn().mockImplementation((ent) => ent),
+          findOne: jest.fn().mockResolvedValue(prodVari),
           // Add other methods if needed
         };
         if (maybeCallback) {
@@ -113,17 +101,132 @@ describe('ShopRefundController', () => {
           return isolationOrCallback(manager as EntityManager);
         }
       });
-    const prodVar = jest
-      .spyOn(variationsRepository, 'findOne')
-      .mockResolvedValueOnce(prodVari);
 
     const requ = await request(app.getHttpServer())
       .post('/shop-refund')
       .send(prodRuckDto)
       .expect(201);
     expect(trans).toHaveBeenCalled();
-    expect(prodVar).toHaveBeenCalled();
-    console.log(requ.body);
+    expect(requ.body.amount).toBe(
+      prodRuckDto.amount + prodRuckDto.produkte[0].verkauf_price,
+    );
+  });
+  it('should throw not acceptable', async () => {
+    paypalApiResponse = 'CANCELLED';
+    prodRuckDto.bestellung.paypal_order_id = 'payid';
+    prodRuckDto.is_corrective = 0;
+    jest
+      .spyOn(repo, 'create')
+      .mockImplementationOnce((dto) => dto as ProduktRueckgabe);
+
+    jest.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ status: paypalApiResponse }), {
+          status: 200,
+        }),
+      ),
+    );
+
+    const trans = jest
+      .spyOn(repo.manager, 'transaction')
+      .mockImplementationOnce((islevel: any, callback?: any) => {
+        const manager: Partial<EntityManager> = {
+          save: jest.fn().mockImplementation((ent) => ent),
+          findOne: jest.fn().mockResolvedValue(prodVari),
+          // Add other methods if needed
+        };
+        if (callback) {
+          return callback(manager as EntityManager);
+        } else {
+          return islevel(manager as EntityManager);
+        }
+      });
+    await request(app.getHttpServer())
+      .post('/shop-refund')
+      .send(prodRuckDto)
+      .expect(406);
+    expect(trans).toHaveBeenCalledTimes(0);
+  });
+  it('should get item by id with  ', async () => {
+    jest.spyOn(repo, 'findOne').mockResolvedValueOnce(refund);
+    jest
+      .spyOn(repo, 'save')
+      .mockImplementation(async (ent) => ent as ProduktRueckgabe);
+    paypalApiResponse = 'ERROR';
+
+    jest.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ status: paypalApiResponse }), {
+          status: 200,
+        }),
+      ),
+    );
+    const requ = await request(app.getHttpServer())
+      .get('/shop-refund/1')
+      .expect(200);
+    expect(requ.body).toEqual(refund);
+    expect(requ.body.paypal_refund_status).toBe(paypalApiResponse);
+  });
+  it('should try to update refund, response is 406 not acceptable', async () => {
+    const requ = await request(app.getHttpServer())
+      .put('/shop-refund/1')
+      .send(prodRuckDto)
+      .expect(406);
+
+    expect(requ.body.message).toBe('Refund update not possible');
+  });
+  it('should throw not found on delete refund', async () => {
+    const id = 1;
+    jest.spyOn(repo, 'findOne').mockResolvedValueOnce(null);
+    const requ = await request(app.getHttpServer())
+      .delete('/shop-refund/' + id)
+      .expect(404);
+
+    expect(requ.body.message).toBe(`Refund with id ${id} not found! `);
+  });
+  it('should delete refund ', async () => {
+    refund.produkte[0].menge = 1;
+    jest.spyOn(repo, 'findOne').mockResolvedValueOnce(refund);
+    const prodVariSaved = {
+      sku: 'jskdh2',
+      produkt: undefined,
+      variations_name: 'abd',
+      hint: '',
+      value: 'white',
+      unit: '',
+      image: '',
+      price: 2.2,
+      wholesale_price: 0,
+      thumbnail: '',
+      quanity: 5,
+      quanity_sold: 2,
+      quanity_sold_at_once: 1,
+    };
+    jest
+      .spyOn(repo.manager, 'transaction')
+      .mockImplementation((islevel: any, runInTrans?: any) => {
+        const manager = {
+          findOne: jest.fn().mockImplementation(() => prodVari),
+          save: jest.fn().mockImplementation((ent) => {
+            return ent;
+          }),
+          delete: jest.fn().mockResolvedValueOnce({ raw: '', affected: 1 }),
+        };
+        if (runInTrans) {
+          return runInTrans(manager);
+        } else {
+          return islevel(manager);
+        }
+      });
+
+    const requ = await request(app.getHttpServer())
+      .delete('/shop-refund/1')
+      .expect(200);
+    expect(prodVari.quanity).toBe(
+      prodVariSaved.quanity -
+        refund.produkte[0].menge * prodVariSaved.quanity_sold_at_once,
+    );
+    expect(requ.body).toEqual({ raw: '', affected: 1 });
   });
   function dataInintiation() {
     prodVari = {
@@ -142,20 +245,6 @@ describe('ShopRefundController', () => {
       quanity_sold_at_once: 1,
     };
 
-    refund = {
-      id: 0,
-      bestellung: undefined,
-      produkte: [],
-      kunde: undefined,
-      rueckgabegrund: '',
-      rueckgabedatum: undefined,
-      rueckgabestatus: '',
-      amount: 0,
-      paypal_refund_id: '',
-      paypal_refund_status: '',
-      corrective_refund_nr: 0,
-      is_corrective: 0,
-    };
     const prod1: Produkt = {
       id: 1,
       name: 'sdad sads',
@@ -175,7 +264,7 @@ describe('ShopRefundController', () => {
       promocje: [],
       bewertung: [],
       eans: [],
-      variations: [],
+      variations: [prodVari],
       produkt_image: '',
       shipping_costs: [],
     };
@@ -211,10 +300,24 @@ describe('ShopRefundController', () => {
       color_gepackt: 'white',
       rabatt: 0,
       mengeGepackt: 0,
-      verkauf_price: 2.25,
+      verkauf_price: 2.2,
       verkauf_rabat: 0,
       verkauf_steuer: 0,
       productRucgabe: undefined,
+    };
+    refund = {
+      id: 0,
+      bestellung: undefined,
+      produkte: [prodInBest],
+      kunde: undefined,
+      rueckgabegrund: 'bleh bleg',
+      rueckgabedatum: undefined,
+      rueckgabestatus: '',
+      amount: 0,
+      paypal_refund_id: 'aksjdhasd23',
+      paypal_refund_status: 'COMPLETE',
+      corrective_refund_nr: 0,
+      is_corrective: 0,
     };
     const prodInBest2: ProduktInBestellung = {
       id: 2,
