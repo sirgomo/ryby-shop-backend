@@ -16,8 +16,7 @@ export class EbaySoldService {
     try {
       return await this.repo.find();
     } catch (error) {
-      // Handle error
-      throw new Error('Failed to get transactions');
+      throw error;
     }
   }
 
@@ -31,9 +30,7 @@ export class EbaySoldService {
         },
       });
 
-      if (!item) {
-        return { id: -1 } as EbayTransactions;
-      }
+      if (!item) return { id: -1 } as EbayTransactions;
 
       return item;
     } catch (error) {
@@ -60,6 +57,7 @@ export class EbaySoldService {
       let savedTransaction = null;
       await this.repo.manager.transaction(async (manager) => {
         const items: ProduktVariations[] = [];
+
         for (let i = 0; i < transaction.items.length; i++) {
           const item = await manager.findOne(ProduktVariations, {
             where: { sku: transaction.items[i].sku },
