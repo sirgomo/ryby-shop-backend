@@ -8,6 +8,6 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Lieferant]), AuthModule],
   controllers: [LiferantController],
-  providers: [LiferantService]
+  providers: [LiferantService],
 })
 export class LiferantModule {}

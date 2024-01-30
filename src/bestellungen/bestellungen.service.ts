@@ -15,6 +15,9 @@ import { env } from 'src/env/env';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
+import { LOGS_CLASS } from 'src/entity/logsEntity';
 
 @Injectable()
 export class BestellungenService {
@@ -25,6 +28,7 @@ export class BestellungenService {
     private readonly productInRepository: Repository<ProduktInBestellung>,
     @InjectRepository(Produkt)
     private readonly productRepository: Repository<Produkt>,
+    private readonly logsService: LogsService,
   ) {}
 
   async createOrder(bestellungData: OrderDto): Promise<any> {
@@ -106,6 +110,12 @@ export class BestellungenService {
 
       return handleResponse(response);
     } catch (error) {
+      //save error on create order!
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SERVER_LOG,
+        error_message: error,
+      };
+      await this.logsService.saveLog(logs);
       console.log(error);
       throw error;
     }
@@ -123,8 +133,6 @@ export class BestellungenService {
   //Paid, now save the order and current list of products in the transaction
   async saveOrder(readyBesttelung: OrderDto) {
     try {
-      console.log('save order');
-      console.log(readyBesttelung);
       readyBesttelung.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
       readyBesttelung.bestelldatum = new Date(Date.now());
       readyBesttelung.gesamtwert = Number(
@@ -177,7 +185,23 @@ export class BestellungenService {
           await transactionalEntityMange.save(Bestellung, best);
         },
       );
+      //save transaction for checkout
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SERVER_LOG,
+        error_message: JSON.stringify(readyBesttelung),
+        paypal_transaction_id: readyBesttelung.paypal_order_id,
+        user_email: readyBesttelung.kunde.email,
+      };
+      await this.logsService.saveLog(logs);
     } catch (err) {
+      //save log on error on save transaction
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.PAYPAL_ERROR,
+        error_message: err,
+        paypal_transaction_id: readyBesttelung.paypal_order_id,
+        user_email: readyBesttelung.kunde.email,
+      };
+      await this.logsService.saveLog(logs);
       console.log(err);
       throw err;
     }
@@ -347,7 +371,12 @@ export class BestellungenService {
       await this.bestellungRepository.merge(bestellung, bestellungData);
       return await this.bestellungRepository.save(bestellung);
     } catch (error) {
-      throw error;
+      //save error on update
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SERVER_LOG,
+        error_message: error,
+      };
+      await this.logsService.saveLog(logs);
     }
   }
 
@@ -455,6 +484,12 @@ export class BestellungenService {
       }
       return items;
     } catch (err) {
+      //save error on quanity check
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SERVER_LOG,
+        error_message: err,
+      };
+      await this.logsService.saveLog(logs);
       throw err;
     }
   }
@@ -585,6 +620,12 @@ export async function handleResponse(response: Response) {
     }
 
     const errorMessage = await response.text();
+
+    const logs: AcctionLogsDto = {
+      error_class: LOGS_CLASS.PAYPAL_ERROR,
+      error_message: errorMessage,
+    };
+    await this.logsService.saveLog(logs);
     throw new Error(errorMessage);
   } catch (err) {
     throw err;

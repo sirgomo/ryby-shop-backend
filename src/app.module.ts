@@ -41,8 +41,8 @@ import { EbayRefundItem } from './entity/ebay/ebayRefundItem';
 import { EbaySoldModule } from './ebay/ebay-sold/ebay-sold.module';
 import { RefundModule } from './refund/refund.module';
 import { ShopRefundModule } from './shop-refund/shop-refund.module';
-
-
+import { LogsEntity } from './entity/logsEntity';
+import { LogsModule } from './ebay_paypal_logs/logs.module';
 
 @Module({
   imports: [
@@ -77,7 +77,8 @@ import { ShopRefundModule } from './shop-refund/shop-refund.module';
         EbayTransactions,
         EbayItemSold,
         EbayRefund,
-        EbayRefundItem
+        EbayRefundItem,
+        LogsEntity,
       ],
       synchronize: false,
     }),
@@ -94,7 +95,8 @@ import { ShopRefundModule } from './shop-refund/shop-refund.module';
     ShippingModule,
     EbaySoldModule,
     RefundModule,
-    ShopRefundModule
+    ShopRefundModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],

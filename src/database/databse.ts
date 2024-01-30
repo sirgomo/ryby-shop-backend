@@ -369,7 +369,15 @@ export class Database {
             FOREIGN KEY (stellplatze_id) REFERENCES stellplatze (id),
             FOREIGN KEY (produkt_id) REFERENCES produkt (id)
           );
-          
+          CREATE TABLE IF NOT EXISTS logs (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            ebay_transaction_id VARCHAR(255),
+            user_email VARCHAR(255),
+            paypal_transaction_id VARCHAR(255),
+            error_class VARCHAR(255) NOT NULL, 
+            error_message VARCHAR(2000) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
         `,
         )
         .then(

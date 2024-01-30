@@ -13,10 +13,14 @@ import { Request, Response } from 'express';
 import { env } from 'src/env/env';
 import { ebayProccess } from './notifications/ebay.process.notification';
 import { verifyChalange } from './notifications/ebay.notValidator';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 
 @Controller('ebay')
 export class EbayController {
-  constructor(private readonly service: EbayService) {}
+  constructor(
+    private readonly service: EbayService,
+    private readonly logsService: LogsService,
+  ) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -47,7 +51,7 @@ export class EbayController {
     @Query('challenge_code') challenge: string,
     @Res() res: Response,
   ) {
-    const respo = res;
+    //const respo = res;
     /*   const hash = createHash('sha256');
         hash.update(challenge);
         hash.update(env.ebay_deletion_VerificationToken);
@@ -70,6 +74,7 @@ export class EbayController {
       req.body,
       req.headers['x-ebay-signature'],
       this.service,
+      this.logsService,
     );
     return res.status(proc).send();
   }
@@ -79,6 +84,7 @@ export class EbayController {
       req.body,
       req.headers['x-ebay-signature'],
       this.service,
+      this.logsService,
     );
     return res.status(proc).send();
   }
@@ -87,7 +93,7 @@ export class EbayController {
     @Query('challenge_code') challenge: string,
     @Res() res: Response,
   ) {
-    const respo = res;
+    //const respo = res;
     res.set('Content-type', 'application/json').json({
       challengeResponse: verifyChalange(
         challenge,

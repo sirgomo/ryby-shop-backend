@@ -10,14 +10,21 @@ import { ProductService } from 'src/product/product.service';
 import { Produkt } from 'src/entity/produktEntity';
 import { EanEntity } from 'src/entity/eanEntity';
 import { EbayOffersModule } from './ebay-offers/ebay-offers.module';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { LogsEntity } from 'src/entity/logsEntity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CompanyDataEntity, Produkt, EanEntity]),
+    TypeOrmModule.forFeature([
+      CompanyDataEntity,
+      Produkt,
+      EanEntity,
+      LogsEntity,
+    ]),
     AuthModule,
     EbayOffersModule,
   ],
-  providers: [EbayService, ProductService],
+  providers: [EbayService, ProductService, LogsService],
   controllers: [EbayController, SubsController, EbayInventoryController],
 })
 export class EbayModule {}
