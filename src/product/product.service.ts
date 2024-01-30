@@ -371,7 +371,12 @@ export class ProductService {
     try {
       return await this.produktRepository
         .findOne({
-          where: { sku: sku },
+          where: {
+            sku: sku,
+            variations: {
+              quanity: MoreThan(0),
+            },
+          },
           relations: {
             variations: true,
           },
