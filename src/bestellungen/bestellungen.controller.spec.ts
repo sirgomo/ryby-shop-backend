@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BestellungenController } from './bestellungen.controller';
 import { INestApplication } from '@nestjs/common';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Produkt } from 'src/entity/produktEntity';
 import {
   BESTELLUNGSSTATE,
@@ -20,13 +20,19 @@ import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 import { Lieferant } from 'src/entity/lifernatEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { Lieferadresse } from 'src/entity/liferAddresseEntity';
+import { LogsEntity } from 'src/entity/logsEntity';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 
 describe('BestellungenController', () => {
   let controller: BestellungenController;
   let app: INestApplication;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let productRepo: Repository<Produkt>;
   let bestellungRepo: Repository<Bestellung>;
-  let entityManager: EntityManager;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  let logsRepo: Repository<LogsEntity>;
+  // let logsService: LogsService;
 
   //let bestellungService: BestellungenService;
   //let produBestRepo: Repository<ProduktInBestellung>;
@@ -293,18 +299,7 @@ describe('BestellungenController', () => {
     paypal_order_id: '',
     refunds: [],
   };
-  const transactionalEntityManagerMock = {
-    findOne: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
-  };
-  const entityManagerMock = {
-    transaction: jest
-      .fn()
-      .mockImplementationOnce((operation: (item: any) => Promise<any>) => {
-        return operation(transactionalEntityManagerMock);
-      }),
-  };
+
   // Mock fetch
   global.fetch = jest.fn(() =>
     Promise.resolve({
@@ -331,13 +326,24 @@ describe('BestellungenController', () => {
         },
         {
           provide: getRepositoryToken(Bestellung),
-          useClass: Repository,
+          useValue: {
+            manager: {
+              transaction: jest.fn(),
+            },
+            find: jest.fn(),
+            findOne: jest.fn(),
+            create: jest.fn(),
+            merge: jest.fn(),
+            save: jest.fn(),
+            findAndCount: jest.fn(),
+          },
         },
         {
-          provide: EntityManager,
-          useValue: entityManagerMock,
+          provide: getRepositoryToken(LogsEntity),
+          useClass: Repository,
         },
         BestellungenService,
+        LogsService,
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -347,8 +353,11 @@ describe('BestellungenController', () => {
     bestellungRepo = module.get<Repository<Bestellung>>(
       getRepositoryToken(Bestellung),
     );
-    entityManager = module.get<EntityManager>(EntityManager);
+
     productRepo = module.get<Repository<Produkt>>(getRepositoryToken(Produkt));
+    logsRepo = module.get<Repository<LogsEntity>>(
+      getRepositoryToken(LogsEntity),
+    );
     //bestellungService = module.get<BestellungenService>(BestellungenService);
     controller = module.get<BestellungenController>(BestellungenController);
     await app.init();
@@ -391,6 +400,8 @@ describe('BestellungenController', () => {
   });
   describe('should update an order', () => {
     it('should update', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       jest.spyOn(bestellungRepo, 'findOne').mockResolvedValueOnce(best1);
 
       const tmpItem: Bestellung = {} as Bestellung;
@@ -410,6 +421,8 @@ describe('BestellungenController', () => {
       expect(update.body.status).toBe(BESTELLUNGSSTATUS.INBEARBEITUNG);
     });
     it('should return an error, item not found', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       jest.spyOn(bestellungRepo, 'findOne').mockResolvedValueOnce(null);
       jest
         .spyOn(bestellungRepo, 'merge')
@@ -424,6 +437,8 @@ describe('BestellungenController', () => {
         .expect(404);
     });
     it('An error should be thrown when the order is done and we wanna break it', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       orderDto.status = BESTELLUNGSSTATE.ABGEBROCHEN;
       best2.bestellungstatus = BESTELLUNGSSTATUS.VERSCHICKT;
       jest.spyOn(bestellungRepo, 'findOne').mockResolvedValueOnce(best2);
@@ -438,6 +453,8 @@ describe('BestellungenController', () => {
       );
     });
     it('An error should be thrown when the order is being processed but the status is changed to complet', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       orderDto.status = BESTELLUNGSSTATE.COMPLETE;
       best2.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
       jest.spyOn(bestellungRepo, 'findOne').mockResolvedValueOnce(best2);
@@ -450,6 +467,8 @@ describe('BestellungenController', () => {
       expect(requ.body.message).toBe('Bestellung ist nocht nicht verschickt');
     });
     it('An error should be thrown when the order is being processed but the status is changed to archived', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       orderDto.status = BESTELLUNGSSTATE.ARCHIVED;
       jest.spyOn(bestellungRepo, 'findOne').mockResolvedValueOnce(best2);
       jest.spyOn(bestellungRepo, 'merge').mockReturnThis();
@@ -461,6 +480,8 @@ describe('BestellungenController', () => {
       expect(requ.body.message).toBe('Bestellung ist nocht nicht verschickt');
     });
     it('An error should be thrown when the order is already complet or archiviert and we wanna something to change', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       best2.status = BESTELLUNGSSTATE.ABGEBROCHEN;
       orderDto.status = BESTELLUNGSSTATE.BEZAHLT;
       jest.spyOn(bestellungRepo, 'findOne').mockResolvedValueOnce(best2);
@@ -473,6 +494,8 @@ describe('BestellungenController', () => {
       expect(requ.body.message).toBe('Bestellung kann nicht geändert werden!');
     });
     it('It should throw an error when quantity are smaller then quantity shipped', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       const tmpProdInBeste: ProduktInBestellung = {} as ProduktInBestellung;
       Object.assign(tmpProdInBeste, prodIn1);
       tmpProdInBeste.menge = 5;
@@ -497,6 +520,8 @@ describe('BestellungenController', () => {
         .expect(400);
     });
     it('It should throw an error when order is shipped but we wanna change quantit', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       const tmpProdInBeste: ProduktInBestellung = {} as ProduktInBestellung;
       Object.assign(tmpProdInBeste, prodIn1);
       tmpProdInBeste.mengeGepackt = 5;
@@ -523,6 +548,8 @@ describe('BestellungenController', () => {
         .expect(406);
     });
     it('should save with no errors', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       const prodIn: ProduktInBestellung = {} as ProduktInBestellung;
       Object.assign(prodIn, prodIn2);
       prodIn.mengeGepackt = 5;
@@ -554,8 +581,10 @@ describe('BestellungenController', () => {
       expect(requ.body.versandprice).toBe(3.45);
     });
   });
-  /* describe('it should save order in database', () => {
+  describe('it should save order in database', () => {
     it('should call saveOrder when PayPal returns COMPLETED status', async () => {
+      jest.spyOn(logsRepo, 'create').mockReturnThis();
+      jest.spyOn(logsRepo, 'save').mockReturnThis();
       orderDto.produkte = [prodIn1, prodIn2];
       orderDto.kunde = kund;
       jest.spyOn(productRepo, 'findOne').mockImplementation((opt: any) => {
@@ -565,24 +594,30 @@ describe('BestellungenController', () => {
 
         return Promise.resolve(null);
       });
+      jest
+        .spyOn(bestellungRepo.manager, 'transaction')
+        .mockImplementation(async (isoLevel: any, runIn?: any) => {
+          const manager = {
+            findOne: jest.fn().mockResolvedValue(kund),
+            create: jest.fn().mockImplementation((ent) => ent),
+            save: jest.fn().mockImplementation((ent) => ent),
+          };
+          try {
+            if (runIn) return await runIn(manager);
 
-      //TODO its not ready ... i have problem to test transactions
-      //jest.spyOn(entityManager, 'findOne').mockReturnThis();
-      // Spy on the `transaction` method of the `entityManagerMock`
-      //const transactionSpy = jest.spyOn(bestellungRepo.manager, 'findOne');
+            return await isoLevel(manager);
+          } catch (err) {
+            console.log(err);
+          }
+        });
 
-      // Mock the `findOne` method on the `transactionalEntityManagerMock`
-      // transactionalEntityManagerMock.findOne.mockResolvedValueOnce(kund);
       const requ = await request(app.getHttpServer())
         .post('/order/capture')
         .send({ orderID: '1', bestellung: orderDto })
         .expect(201);
-      console.log(requ.body);
+      expect(requ.body).toEqual({ id: '1', status: 'COMPLETED' });
       expect(global.fetch).toHaveBeenCalled();
-      // expect(transactionSpy).toHaveBeenCalled();
-      // expect(transactionalEntityManagerMock.findOne).toHaveBeenCalledWith(
-      //   orderDto.kunde,
-      // );
+      expect(bestellungRepo.manager.transaction).toHaveBeenCalled();
     });
-  });*/
+  });
 });

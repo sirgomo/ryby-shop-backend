@@ -13,12 +13,16 @@ import { ProduktVariations } from 'src/entity/produktVariations';
 import { Repository } from 'typeorm';
 import { describe } from 'node:test';
 import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { LogsEntity } from 'src/entity/logsEntity';
 
 describe('BestellungenService', () => {
   let service: BestellungenService;
   let bestellungRepository: Repository<Bestellung>;
   //let productIn: Repository<ProduktInBestellung>;
   let productRepository: Repository<Produkt>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let logsRepo: Repository<LogsEntity>;
   let order: OrderDto;
   let product: Produkt;
   let currentKunde: Kunde;
@@ -60,6 +64,14 @@ describe('BestellungenService', () => {
             create: jest.fn(),
           },
         },
+        {
+          provide: getRepositoryToken(LogsEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+          },
+        },
+        LogsService,
       ],
     }).compile();
 
@@ -67,6 +79,7 @@ describe('BestellungenService', () => {
     bestellungRepository = module.get(getRepositoryToken(Bestellung));
     // productIn = module.get(getRepositoryToken(ProduktInBestellung));
     productRepository = module.get(getRepositoryToken(Produkt));
+    logsRepo = module.get(getRepositoryToken(LogsEntity));
 
     currentKunde = {
       id: 1,
