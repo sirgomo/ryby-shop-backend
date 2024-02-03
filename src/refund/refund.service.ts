@@ -1,9 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
 import { EbayRefundDto } from 'src/dto/ebay/transactionAndRefunds/ebayRefundDto';
 import { EbayRequest } from 'src/ebay/ebay.request';
 import { EbayService } from 'src/ebay/ebay.service';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { EbayRefund } from 'src/entity/ebay/ebayRefund';
+import { LOGS_CLASS } from 'src/entity/logsEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { env } from 'src/env/env';
 
@@ -15,6 +18,7 @@ export class RefundService {
   constructor(
     @InjectRepository(EbayRefund) private repo: Repository<EbayRefund>,
     private readonly ebayService: EbayService,
+    private readonly logsService: LogsService,
   ) {}
   async createRefund(
     refundDto: EbayRefundDto,
@@ -24,8 +28,8 @@ export class RefundService {
       const refund = await this.repo.create(refundDto);
       const testit = false;
       let saved = { id: -1 } as EbayRefund;
+      const refundPorducts: ProduktVariations[] = [];
       await this.repo.manager.transaction(async (transactionManager) => {
-        const refundPorducts: ProduktVariations[] = [];
         if (refund.refund_items && refund.refund_items.length > 0) {
           for (let i = 0; i < refund.refund_items.length; i++) {
             const item = await transactionManager.findOne(ProduktVariations, {
@@ -68,8 +72,26 @@ export class RefundService {
         )) as any;
         console.log(res);
       }
+      const log: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SUCCESS_LOG,
+        error_message: JSON.stringify([
+          saved,
+          'new product quantity',
+          refundPorducts,
+        ]),
+        ebay_transaction_id: saved.orderId,
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(log);
       return await this.getRefundById(saved.orderId);
     } catch (error) {
+      const log: AcctionLogsDto = {
+        error_class: LOGS_CLASS.EBAY_ERROR,
+        error_message: JSON.stringify([refundDto, refundOnEbay, error]),
+        ebay_transaction_id: refundDto.orderId,
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(log);
       console.log(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

@@ -4,7 +4,10 @@ import {
   generateAccessToken,
   handleResponse,
 } from 'src/bestellungen/bestellungen.service';
+import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
 import { Product_RuckgabeDto } from 'src/dto/product_ruckgabe.dto';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { LOGS_CLASS } from 'src/entity/logsEntity';
 import { ProduktInBestellung } from 'src/entity/productBestellungEntity';
 import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
@@ -16,6 +19,7 @@ export class ShopRefundService {
   constructor(
     @InjectRepository(ProduktRueckgabe)
     private readonly refundRepository: Repository<ProduktRueckgabe>,
+    private readonly logsService: LogsService,
   ) {}
 
   async createRefund(
@@ -92,9 +96,21 @@ export class ShopRefundService {
           savedRefund = await transactionManger.save(refund);
         },
       );
-
+      const log: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SUCCESS_LOG,
+        error_message: JSON.stringify(savedRefund),
+        paypal_transaction_id: savedRefund.paypal_refund_id,
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(log);
       return savedRefund;
     } catch (error) {
+      const log: AcctionLogsDto = {
+        error_class: LOGS_CLASS.PAYPAL_ERROR,
+        error_message: JSON.stringify([refundDto, error]),
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(log);
       throw error;
     }
   }
@@ -194,11 +210,10 @@ export class ShopRefundService {
           `Refund with id ${id} not found! `,
           HttpStatus.NOT_FOUND,
         );
-
+      const variations: ProduktVariations[] = [];
       let delResult: DeleteResult = { affected: 0 } as DeleteResult;
       await this.refundRepository.manager.transaction(
         async (transactionManger) => {
-          const variations: ProduktVariations[] = [];
           if (refund.produkte) {
             for (let i = 0; i < refund.produkte.length; i++) {
               const item: ProduktVariations = await transactionManger.findOne(
@@ -221,9 +236,31 @@ export class ShopRefundService {
           });
         },
       );
-
+      if (delResult.affected === 1) {
+        const log: AcctionLogsDto = {
+          error_class: LOGS_CLASS.SUCCESS_LOG,
+          error_message: JSON.stringify([
+            refund,
+            delResult,
+            ' new item quantity ',
+            variations,
+          ]),
+          paypal_transaction_id: refund.paypal_refund_id,
+          created_at: new Date(Date.now()),
+        };
+        await this.logsService.saveLog(log);
+      }
       return delResult;
     } catch (error) {
+      const log: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SERVER_LOG,
+        error_message: JSON.stringify([
+          'Delete item id ' + id + ' ....',
+          error,
+        ]),
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(log);
       throw error;
     }
   }

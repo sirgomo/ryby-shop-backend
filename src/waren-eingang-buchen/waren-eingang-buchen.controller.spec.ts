@@ -14,12 +14,15 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import request from 'supertest';
 import { WareneingangProdVartiaion } from 'src/entity/waren_eingang_prod_variation';
 import { ProductDto } from 'src/dto/product.dto';
+import { LogsEntity } from 'src/entity/logsEntity';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 
 describe('WarenEingangBuchenController (e2e)', () => {
   let app: INestApplication;
   let warenEingangRepository: Repository<Wareneingang>;
   let warenEingangProductRepository: Repository<WareneingangProduct>;
   let wareneingangProdVartiaion: Repository<WareneingangProdVartiaion>;
+  let logRepo: Repository<LogsEntity>;
   // let prod: Repository<Produkt>;
   const productDto: ProductDto = {
     id: 2,
@@ -146,6 +149,7 @@ describe('WarenEingangBuchenController (e2e)', () => {
       controllers: [WarenEingangBuchenController],
       providers: [
         WarenEingangBuchenService,
+        LogsService,
         {
           provide: getRepositoryToken(Wareneingang),
           useClass: Repository,
@@ -162,6 +166,13 @@ describe('WarenEingangBuchenController (e2e)', () => {
           provide: getRepositoryToken(Produkt),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(LogsEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+          },
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -171,6 +182,9 @@ describe('WarenEingangBuchenController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     warenEingangRepository = moduleFixture.get<Repository<Wareneingang>>(
       getRepositoryToken(Wareneingang),
+    );
+    logRepo = moduleFixture.get<Repository<LogsEntity>>(
+      getRepositoryToken(LogsEntity),
     );
     wareneingangProdVartiaion = moduleFixture.get<
       Repository<WareneingangProdVartiaion>

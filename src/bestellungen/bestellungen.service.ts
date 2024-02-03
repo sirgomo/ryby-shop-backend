@@ -189,7 +189,11 @@ export class BestellungenService {
       //save transaction for checkout
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
-        error_message: JSON.stringify(readyBesttelung),
+        error_message: JSON.stringify([
+          readyBesttelung,
+          ' new item quantity ',
+          itemsTosave,
+        ]),
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
         created_at: new Date(Date.now()),

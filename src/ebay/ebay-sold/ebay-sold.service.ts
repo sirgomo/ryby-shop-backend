@@ -106,7 +106,7 @@ export class EbaySoldService {
     } catch (error) {
       const transLog: AcctionLogsDto = {
         error_class: LOGS_CLASS.EBAY_ERROR,
-        error_message: JSON.stringify(transaction),
+        error_message: JSON.stringify([transaction, error]),
         ebay_transaction_id: transaction.orderId,
         created_at: new Date(Date.now()),
       };
@@ -141,7 +141,7 @@ export class EbaySoldService {
     } catch (error) {
       const transLog: AcctionLogsDto = {
         error_class: LOGS_CLASS.EBAY_ERROR,
-        error_message: JSON.stringify(transaction),
+        error_message: JSON.stringify([transaction, error]),
         ebay_transaction_id: transaction.orderId,
         created_at: new Date(Date.now()),
       };
@@ -169,7 +169,7 @@ export class EbaySoldService {
     } catch (error) {
       const transLog: AcctionLogsDto = {
         error_class: LOGS_CLASS.DELETE,
-        error_message: 'Delete id ' + id,
+        error_message: JSON.stringify(['Delete id ' + id + ' ....', error]),
         created_at: new Date(Date.now()),
       };
       await this.logsService.saveLog(transLog);

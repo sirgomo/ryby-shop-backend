@@ -5,9 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
 
 import { WarenEingangDto } from 'src/dto/warenEingang.dto';
 import { WarenEingangProductDto } from 'src/dto/warenEingangProduct.dto';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { LOGS_CLASS, LogsEntity } from 'src/entity/logsEntity';
 import { Produkt } from 'src/entity/produktEntity';
 import { Wareneingang } from 'src/entity/warenEingangEntity';
 import { WareneingangProduct } from 'src/entity/warenEingangProductEntity';
@@ -25,6 +28,7 @@ export class WarenEingangBuchenService {
     private readonly prodRepo: Repository<Produkt>,
     @InjectRepository(WareneingangProdVartiaion)
     private readonly variRepo: Repository<WareneingangProdVartiaion>,
+    private readonly logsService: LogsService,
   ) {}
   /**
    * Returns all wareneingang entries
@@ -149,6 +153,12 @@ export class WarenEingangBuchenService {
 
       return await this.warenEingangRepository.save(merged);
     } catch (error) {
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.WARENEINGANG,
+        error_message: JSON.stringify([wareneingangDto, error]),
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(logs);
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
@@ -203,6 +213,16 @@ export class WarenEingangBuchenService {
 
     return await this.prodRepo.manager.transaction(
       async (transactionEntityManager) => {
+        const log: Partial<LogsEntity> = {
+          error_class: LOGS_CLASS.WARENEINGANG,
+          error_message: JSON.stringify([
+            foundWareneingang,
+            ' New Produkts quantity ',
+            itemsSave,
+          ]),
+          created_at: new Date(Date.now()),
+        };
+        await transactionEntityManager.save(LogsEntity, log);
         await transactionEntityManager.save(itemsSave);
         const updatedItem = await transactionEntityManager.save(merged);
         return updatedItem;

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShopRefundController } from './shop-refund.controller';
-import { Any, EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { ProduktRueckgabe } from 'src/entity/productRuckgabeEntity';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -14,10 +14,13 @@ import { Produkt } from 'src/entity/produktEntity';
 import { BestellungenService } from 'src/bestellungen/bestellungen.service';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { Bestellung } from 'src/entity/bestellungEntity';
+import { LogsEntity } from 'src/entity/logsEntity';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 
 describe('ShopRefundController', () => {
   let controller: ShopRefundController;
   let repo: Repository<ProduktRueckgabe>;
+  let logsRepo: Repository<LogsEntity>;
   let app: INestApplication;
   global.fetch = jest.fn();
   let prodRuckDto: Product_RuckgabeDto;
@@ -34,6 +37,7 @@ describe('ShopRefundController', () => {
       controllers: [ShopRefundController],
       providers: [
         ShopRefundService,
+        LogsService,
         {
           provide: getRepositoryToken(ProduktRueckgabe),
           useValue: {
@@ -44,6 +48,13 @@ describe('ShopRefundController', () => {
             manager: {
               transaction: jest.fn(),
             },
+          },
+        },
+        {
+          provide: getRepositoryToken(LogsEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
           },
         },
         {
@@ -68,6 +79,9 @@ describe('ShopRefundController', () => {
 
     repo = module.get<Repository<ProduktRueckgabe>>(
       getRepositoryToken(ProduktRueckgabe),
+    );
+    logsRepo = module.get<Repository<LogsEntity>>(
+      getRepositoryToken(LogsEntity),
     );
     controller = module.get<ShopRefundController>(ShopRefundController);
     app = module.createNestApplication();
