@@ -41,6 +41,27 @@ export class EbayRequest {
       return err;
     }
   }
+  async sendRequestXml(
+    endpoint: string,
+    method: string,
+    plusHeaders,
+    body,
+  ): Promise<any> {
+    const headers = {
+      ...plusHeaders,
+    };
+    try {
+      const res = await fetch(endpoint, {
+        headers: headers,
+        method: method,
+        body: body,
+      });
+      const data = await res.text();
+      return data;
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }
 export const base64Encode = (encodeData) => {
   const buff = Buffer.from(encodeData);

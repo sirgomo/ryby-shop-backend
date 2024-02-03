@@ -241,6 +241,16 @@ export class BestellungenService {
           },
           refunds: true,
         },
+        select: {
+          kunde: {
+            id: true,
+            nachname: true,
+            vorname: true,
+            email: true,
+            telefon: true,
+            treuepunkte: true,
+          },
+        },
       });
       if (!item)
         throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
@@ -266,6 +276,16 @@ export class BestellungenService {
             },
           },
           refunds: true,
+        },
+        select: {
+          kunde: {
+            id: true,
+            nachname: true,
+            vorname: true,
+            email: true,
+            telefon: true,
+            treuepunkte: true,
+          },
         },
       });
     } catch (err) {
@@ -369,12 +389,22 @@ export class BestellungenService {
       }
 
       await this.bestellungRepository.merge(bestellung, bestellungData);
-      return await this.bestellungRepository.save(bestellung);
+      const save = await this.bestellungRepository.save(bestellung);
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SUCCESS_LOG,
+        error_message: JSON.stringify({ bestellungData, save }),
+        user_email: bestellungData.kunde.email,
+        paypal_transaction_id: bestellungData.paypal_order_id,
+      };
+      await this.logsService.saveLog(logs);
+      return save;
     } catch (error) {
       //save error on update
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
         error_message: JSON.stringify({ bestellungData, error }),
+        user_email: bestellungData.kunde.email,
+        paypal_transaction_id: bestellungData.paypal_order_id,
       };
       await this.logsService.saveLog(logs);
       throw error;

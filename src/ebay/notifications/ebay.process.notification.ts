@@ -20,20 +20,20 @@ export const ebayProccess = async (
     if (message.metadata.topic !== 'MARKETPLACE_ACCOUNT_DELETION') {
       const newLog: AcctionLogsDto = {
         error_class: LOGS_CLASS.EBAY,
-        error_message: message,
+        error_message: JSON.stringify(message),
         created_at: new Date(Date.now()),
       };
       await logs_service.saveLog(newLog);
-      return 204;
+      return 200;
     }
     //TODO: process message
     //NO_CONTENT
-    return 204;
+    return 200;
   }
   //PRECONDITION_FAILED
   const newLog: AcctionLogsDto = {
     error_class: LOGS_CLASS.EBAY_ERROR,
-    error_message: message,
+    error_message: JSON.stringify(message),
     created_at: new Date(Date.now()),
   };
   await logs_service.saveLog(newLog);
