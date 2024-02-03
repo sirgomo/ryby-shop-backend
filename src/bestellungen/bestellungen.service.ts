@@ -114,6 +114,7 @@ export class BestellungenService {
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
         error_message: JSON.stringify({ bestellungData, error }),
+        created_at: new Date(Date.now()),
       };
       await this.logsService.saveLog(logs);
       console.log(error);
@@ -191,6 +192,7 @@ export class BestellungenService {
         error_message: JSON.stringify(readyBesttelung),
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
+        created_at: new Date(Date.now()),
       };
       await this.logsService.saveLog(logs);
     } catch (err) {
@@ -200,6 +202,7 @@ export class BestellungenService {
         error_message: JSON.stringify({ readyBesttelung, err }),
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
+        created_at: new Date(Date.now()),
       };
       await this.logsService.saveLog(logs);
       console.log(err);

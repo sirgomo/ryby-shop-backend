@@ -51,14 +51,6 @@ export class EbayController {
     @Query('challenge_code') challenge: string,
     @Res() res: Response,
   ) {
-    //const respo = res;
-    /*   const hash = createHash('sha256');
-        hash.update(challenge);
-        hash.update(env.ebay_deletion_VerificationToken);
-        hash.update(env.ebay_deletion_Link);
-        const resHash = hash.digest('hex');
-        console.log({"challengeResponse": resHash.toString()});*/
-
     res.set('Content-type', 'application/json').json({
       challengeResponse: verifyChalange(
         challenge,

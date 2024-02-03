@@ -10,11 +10,14 @@ import { EbaySoldService } from './ebay-sold.service';
 import { EbayTranscationsDto } from 'src/dto/ebay/transactionAndRefunds/ebayTransactionDto';
 import { EbayTransactionsItemDto } from 'src/dto/ebay/transactionAndRefunds/ebayTransactionItemDto';
 import { ProduktVariations } from 'src/entity/produktVariations';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { LogsEntity } from 'src/entity/logsEntity';
 
 describe('EbaySoldController', () => {
   let controller: EbaySoldController;
   let app: INestApplication;
   let repo: Repository<EbayTransactions>;
+  let logsRep: Repository<LogsEntity>;
   const transactionsArr: EbayTransactions[] = [];
   let trans: EbayTransactions = {} as EbayTransactions;
   let transDto: EbayTranscationsDto = {} as EbayTranscationsDto;
@@ -35,6 +38,14 @@ describe('EbaySoldController', () => {
             create: jest.fn(),
           },
         },
+        {
+          provide: getRepositoryToken(LogsEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+          },
+        },
+        LogsService,
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -43,6 +54,9 @@ describe('EbaySoldController', () => {
     app = module.createNestApplication();
     repo = module.get<Repository<EbayTransactions>>(
       getRepositoryToken(EbayTransactions),
+    );
+    logsRep = module.get<Repository<LogsEntity>>(
+      getRepositoryToken(LogsEntity),
     );
     controller = module.get<EbaySoldController>(EbaySoldController);
     await app.init();

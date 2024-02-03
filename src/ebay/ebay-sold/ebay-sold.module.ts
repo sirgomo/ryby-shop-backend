@@ -4,11 +4,15 @@ import { EbaySoldService } from './ebay-sold.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 import { AuthModule } from 'src/auth/auth.module';
-import { EbayItemSold } from 'src/entity/ebay/ebayItemSold';
+import { LogsEntity } from 'src/entity/logsEntity';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EbayTransactions]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([EbayTransactions, LogsEntity]),
+    AuthModule,
+  ],
   controllers: [EbaySoldController],
-  providers: [EbaySoldService]
+  providers: [EbaySoldService, LogsService],
 })
 export class EbaySoldModule {}
