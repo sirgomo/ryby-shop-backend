@@ -6,7 +6,7 @@ import { EbayRequest } from 'src/ebay/ebay.request';
 import { EbayService } from 'src/ebay/ebay.service';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { EbayRefund } from 'src/entity/ebay/ebayRefund';
-import { LOGS_CLASS } from 'src/entity/logsEntity';
+import { LOGS_CLASS, LogsEntity } from 'src/entity/logsEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { env } from 'src/env/env';
 
@@ -171,10 +171,22 @@ export class RefundService {
             refundPorducts.push(item);
           }
         }
+        const log: AcctionLogsDto = {
+          error_class: LOGS_CLASS.DELETE,
+          error_message: JSON.stringify([refund, refundPorducts]),
+          created_at: new Date(Date.now()),
+        };
+        await transactionManager.save(LogsEntity, log);
         await transactionManager.save(ProduktVariations, refundPorducts);
         return await transactionManager.delete(EbayRefund, { id: id });
       });
     } catch (error) {
+      const log: AcctionLogsDto = {
+        error_class: LOGS_CLASS.DELETE,
+        error_message: JSON.stringify(['delete id ' + id + ' error ', error]),
+        created_at: new Date(Date.now()),
+      };
+      await this.logsService.saveLog(log);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }

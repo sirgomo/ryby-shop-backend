@@ -10,16 +10,21 @@ import {
 import { LogsService } from './logs.service';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { LogsEntity } from 'src/entity/logsEntity';
+import { DeleteResult } from 'typeorm';
 
 @Controller('logs')
 @UseGuards(JwtAuthGuard)
 export class LogsController {
   constructor(private readonly logsService: LogsService) {}
 
-  @Get()
-  async getAllLogs(): Promise<LogsEntity[]> {
+  @Get(':class/:site/:take')
+  async getAllLogs(
+    @Param('class') er_class: string,
+    @Param('site') site: number,
+    @Param('take') take: number,
+  ): Promise<[LogsEntity[], number]> {
     try {
-      return await this.logsService.getAllLog();
+      return await this.logsService.getAllLog(er_class, site, take);
     } catch (error) {
       throw new HttpException(
         'Failed to get logs',
@@ -59,12 +64,13 @@ export class LogsController {
   }
 
   @Delete('/:id')
-  async deleteLogById(@Param('id') id: string): Promise<void> {
+  async deleteLogById(@Param('id') id: string): Promise<DeleteResult> {
     try {
       const result = await this.logsService.deleteLogById(Number(id));
       if (result.affected === 0) {
         throw new HttpException('Log not found', HttpStatus.NOT_FOUND);
       }
+      return result;
     } catch (error) {
       throw new HttpException(
         'Failed to delete log',

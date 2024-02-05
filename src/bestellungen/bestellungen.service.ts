@@ -113,7 +113,7 @@ export class BestellungenService {
       //save error on create order!
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
-        error_message: JSON.stringify({ bestellungData, error }),
+        error_message: JSON.stringify([bestellungData, error]),
         created_at: new Date(Date.now()),
       };
       await this.logsService.saveLog(logs);
@@ -187,6 +187,7 @@ export class BestellungenService {
         },
       );
       //save transaction for checkout
+      readyBesttelung.kunde.password = undefined;
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
         error_message: JSON.stringify([
@@ -201,9 +202,10 @@ export class BestellungenService {
       await this.logsService.saveLog(logs);
     } catch (err) {
       //save log on error on save transaction
+      readyBesttelung.kunde.password = undefined;
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.PAYPAL_ERROR,
-        error_message: JSON.stringify({ readyBesttelung, err }),
+        error_message: JSON.stringify([readyBesttelung, err]),
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
         created_at: new Date(Date.now()),
@@ -399,7 +401,7 @@ export class BestellungenService {
       const save = await this.bestellungRepository.save(bestellung);
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
-        error_message: JSON.stringify({ bestellungData, save }),
+        error_message: JSON.stringify([bestellungData, save]),
         user_email: bestellungData.kunde.email,
         paypal_transaction_id: bestellungData.paypal_order_id,
       };
@@ -409,7 +411,7 @@ export class BestellungenService {
       //save error on update
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
-        error_message: JSON.stringify({ bestellungData, error }),
+        error_message: JSON.stringify([bestellungData, error]),
         user_email: bestellungData.kunde.email,
         paypal_transaction_id: bestellungData.paypal_order_id,
       };

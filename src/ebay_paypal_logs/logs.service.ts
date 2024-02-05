@@ -9,16 +9,44 @@ export class LogsService {
   constructor(
     @InjectRepository(LogsEntity) private readonly repo: Repository<LogsEntity>,
   ) {}
-  async getAllLog(): Promise<LogsEntity[]> {
+  async getAllLog(
+    log_class: string,
+    site: number,
+    take: number,
+  ): Promise<[LogsEntity[], number]> {
     try {
-      return await this.repo.find({
-        select: {
-          id: true,
-          error_class: true,
-          user_email: true,
-          created_at: true,
-        },
-      });
+      const skip = site * take - take;
+
+      if (log_class === 'NULL') {
+        return await this.repo.findAndCount({
+          select: {
+            id: true,
+            error_class: true,
+            user_email: true,
+            created_at: true,
+            paypal_transaction_id: true,
+            ebay_transaction_id: true,
+          },
+          take: take,
+          skip: skip,
+        });
+      } else {
+        return await this.repo.findAndCount({
+          where: {
+            error_class: log_class,
+          },
+          select: {
+            id: true,
+            error_class: true,
+            user_email: true,
+            created_at: true,
+            paypal_transaction_id: true,
+            ebay_transaction_id: true,
+          },
+          take: take,
+          skip: skip,
+        });
+      }
     } catch (err) {
       console.log(err);
       throw err;

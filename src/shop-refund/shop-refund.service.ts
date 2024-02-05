@@ -238,7 +238,7 @@ export class ShopRefundService {
       );
       if (delResult.affected === 1) {
         const log: AcctionLogsDto = {
-          error_class: LOGS_CLASS.SUCCESS_LOG,
+          error_class: LOGS_CLASS.DELETE,
           error_message: JSON.stringify([
             refund,
             delResult,
@@ -253,7 +253,7 @@ export class ShopRefundService {
       return delResult;
     } catch (error) {
       const log: AcctionLogsDto = {
-        error_class: LOGS_CLASS.SERVER_LOG,
+        error_class: LOGS_CLASS.DELETE,
         error_message: JSON.stringify([
           'Delete item id ' + id + ' ....',
           error,

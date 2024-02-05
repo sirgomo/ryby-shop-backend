@@ -132,7 +132,11 @@ export class EbaySoldService {
       );
       const transLog: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
-        error_message: JSON.stringify(updatedTransaction),
+        error_message: JSON.stringify([
+          updatedTransaction,
+          ' old ... ',
+          existingTransaction,
+        ]),
         ebay_transaction_id: transaction.orderId,
         created_at: new Date(Date.now()),
       };
