@@ -1,8 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderDto } from 'src/dto/order.dto';
-import { Payid } from 'src/dto/payId.dto';
-import { PaypalItem } from 'src/dto/paypalItem.dto';
 import {
   BESTELLUNGSSTATE,
   BESTELLUNGSSTATUS,
@@ -18,6 +16,20 @@ import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
 import { LOGS_CLASS } from 'src/entity/logsEntity';
+import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
+import {
+  generateAccessToken,
+  getPaypalItems,
+  handleResponse,
+} from './paypal_function';
+import { isEbayMengeChecked } from './ebay_functions';
+import {
+  getTotalNettoValue,
+  getTotalPrice,
+  getTotalTax,
+  isPriceMengeChecked,
+  setProduktQuanity,
+} from './helper_functions';
 
 @Injectable()
 export class BestellungenService {
@@ -29,17 +41,27 @@ export class BestellungenService {
     @InjectRepository(Produkt)
     private readonly productRepository: Repository<Produkt>,
     private readonly logsService: LogsService,
+    private readonly ebayOfferService: EbayOffersService,
   ) {}
 
   async createOrder(bestellungData: OrderDto): Promise<any> {
     try {
       //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order,
       //quantity cannot be less than 0.
-      await this.isPriceMengeChecked(bestellungData);
+      await isPriceMengeChecked(
+        bestellungData,
+        this.logsService,
+        this.productRepository,
+      );
+      await isEbayMengeChecked(
+        bestellungData,
+        this.ebayOfferService,
+        this.logsService,
+      );
       bestellungData.gesamtwert = Number(
-        (
-          this.getTotalPrice(bestellungData) + bestellungData.versandprice
-        ).toFixed(2),
+        (getTotalPrice(bestellungData) + bestellungData.versandprice).toFixed(
+          2,
+        ),
       );
 
       const purchaseAmount = bestellungData.gesamtwert;
@@ -59,14 +81,14 @@ export class BestellungenService {
           intent: 'CAPTURE',
           purchase_units: [
             {
-              items: this.getPaypalItems(bestellungData),
+              items: getPaypalItems(bestellungData),
               amount: {
                 currency_code: 'EUR',
                 value: purchaseAmount,
                 breakdown: {
                   item_total: {
                     currency_code: 'EUR',
-                    value: this.getTotalNettoValue(bestellungData),
+                    value: getTotalNettoValue(bestellungData),
                   },
                   shipping: {
                     currency_code: 'EUR',
@@ -74,7 +96,7 @@ export class BestellungenService {
                   },
                   tax_total: {
                     currency_code: 'EUR',
-                    value: this.getTotalTax(bestellungData),
+                    value: getTotalTax(bestellungData),
                   },
                 },
               },
@@ -108,7 +130,7 @@ export class BestellungenService {
         }),
       });
 
-      return handleResponse(response);
+      return handleResponse(response, this.logsService);
     } catch (error) {
       //save error on create order!
       const logs: AcctionLogsDto = {
@@ -121,31 +143,26 @@ export class BestellungenService {
       throw error;
     }
   }
-  //get total netto value - promotion
-  getTotalNettoValue(bestellungData: OrderDto) {
-    let total = 0;
-    for (let i = 0; i < bestellungData.produkte.length; i++) {
-      total +=
-        this.getPiceNettoPrice(bestellungData, i) *
-        bestellungData.produkte[i].produkt[0].variations[0].quanity;
-    }
-    return total.toFixed(2);
-  }
+
   //Paid, now save the order and current list of products in the transaction
   async saveOrder(readyBesttelung: OrderDto) {
     try {
       readyBesttelung.bestellungstatus = BESTELLUNGSSTATUS.INBEARBEITUNG;
       readyBesttelung.bestelldatum = new Date(Date.now());
       readyBesttelung.gesamtwert = Number(
-        (
-          this.getTotalPrice(readyBesttelung) + readyBesttelung.versandprice
-        ).toFixed(2),
+        (getTotalPrice(readyBesttelung) + readyBesttelung.versandprice).toFixed(
+          2,
+        ),
       );
       //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order,
       //quantity cannot be less than 0.
-      const itemsTosave = await this.isPriceMengeChecked(readyBesttelung);
+      const itemsTosave = await isPriceMengeChecked(
+        readyBesttelung,
+        this.logsService,
+        this.productRepository,
+      );
 
-      this.setProduktQuanity(readyBesttelung);
+      setProduktQuanity(readyBesttelung);
 
       readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
       await this.bestellungRepository.manager.transaction(
@@ -213,24 +230,6 @@ export class BestellungenService {
       await this.logsService.saveLog(logs);
       console.log(err);
       throw err;
-    }
-  }
-
-  private setProduktQuanity(readyBesttelung: OrderDto) {
-    for (let i = 0; i < readyBesttelung.produkte.length; i++) {
-      readyBesttelung.produkte[i].menge = 0;
-      if (
-        readyBesttelung.produkte[i].produkt[0].variations[0]
-          .quanity_sold_at_once === 1
-      ) {
-        readyBesttelung.produkte[i].menge +=
-          readyBesttelung.produkte[i].produkt[0].variations[0].quanity;
-      } else {
-        readyBesttelung.produkte[i].menge +=
-          readyBesttelung.produkte[i].produkt[0].variations[0].quanity *
-          readyBesttelung.produkte[i].produkt[0].variations[0]
-            .quanity_sold_at_once;
-      }
     }
   }
 
@@ -418,256 +417,5 @@ export class BestellungenService {
       await this.logsService.saveLog(logs);
       throw error;
     }
-  }
-
-  private getTotalTax(bestellungData: OrderDto): number {
-    let tax = 0;
-    for (let i = 0; i < bestellungData.produkte.length; i++) {
-      tax +=
-        this.getTax(bestellungData, i) *
-        bestellungData.produkte[i].produkt[0].variations[0].quanity;
-    }
-    return Number(tax.toFixed(2));
-  }
-  private getPaypalItems(bestellungData: OrderDto): PaypalItem[] {
-    const items: PaypalItem[] = [];
-    for (let i = 0; i < bestellungData.produkte.length; i++) {
-      const item = {} as PaypalItem;
-      item.name = bestellungData.produkte[i].produkt[0].name;
-      //  item.description = bestellungData.produkte[i].produkt[0].beschreibung;
-      item.quantity =
-        bestellungData.produkte[i].produkt[0].variations[0].quanity;
-      item.sku = bestellungData.produkte[i].produkt[0].sku;
-      item.unit_amount = {
-        currency_code: 'EUR',
-        value: this.getPiceNettoPrice(bestellungData, i),
-      };
-      item.tax = {
-        currency_code: 'EUR',
-        value: this.getTax(bestellungData, i),
-      };
-      items.push(item);
-    }
-    return items;
-  }
-  //Check if there is sufficient quantity of items, set the prices, set item sku as color
-  private async isPriceMengeChecked(data: OrderDto) {
-    try {
-      const items: Produkt[] = [];
-
-      for (let i = 0; i < data.produkte.length; i++) {
-        const index = items.findIndex(
-          (item) => item.id === data.produkte[i].produkt[0].id,
-        );
-
-        let tmpItem: Produkt;
-
-        if (index === -1) {
-          tmpItem = await this.productRepository.findOne({
-            where: {
-              id: data.produkte[i].produkt[0].id,
-            },
-            relations: {
-              promocje: true,
-              variations: true,
-            },
-          });
-          if (!tmpItem)
-            throw new HttpException(
-              'Produkct ' +
-                data.produkte[i].produkt[0].id +
-                ' wurde nicht gefunden!',
-              HttpStatus.NOT_FOUND,
-            );
-
-          if (tmpItem.promocje && tmpItem.promocje[0])
-            data.produkte[i].rabatt = tmpItem.promocje[0].rabattProzent;
-        } else {
-          tmpItem = items[index];
-          if (items[index].promocje && items[index].promocje[0])
-            data.produkte[i].rabatt = items[index].promocje[0].rabattProzent;
-        }
-
-        //check quanity
-        for (let j = 0; j < tmpItem.variations.length; j++) {
-          if (
-            tmpItem.variations[j].sku ===
-            data.produkte[i].produkt[0].variations[0].sku
-          ) {
-            tmpItem.variations[j].quanity -=
-              data.produkte[i].produkt[0].variations[0].quanity *
-              data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
-            data.produkte[i].produkt[0].variations[0].price =
-              tmpItem.variations[j].price;
-            tmpItem.variations[j].quanity_sold +=
-              data.produkte[i].produkt[0].variations[0].quanity *
-              data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
-            console.log(tmpItem.variations[j].quanity);
-            if (tmpItem.variations[j].quanity < 0)
-              throw new HttpException(
-                'Error 3000/ quanity by item ' +
-                  data.produkte[i].produkt[0].name +
-                  ' ist ' +
-                  tmpItem.variations[j].quanity,
-                HttpStatus.NOT_ACCEPTABLE,
-              );
-          }
-        }
-
-        data.produkte[i].verkauf_price = this.getPiceNettoPrice(data, i);
-        data.produkte[i].verkauf_rabat = this.getPromotionCost(data, i);
-        data.produkte[i].verkauf_steuer = this.getTax(data, i);
-        data.produkte[i].color = data.produkte[i].produkt[0].variations[0].sku;
-        data.produkte[i].mengeGepackt = 0;
-
-        items.push(tmpItem);
-      }
-      return items;
-    } catch (err) {
-      //save error on quanity check
-      const logs: AcctionLogsDto = {
-        error_class: LOGS_CLASS.SERVER_LOG,
-        error_message: err,
-      };
-      await this.logsService.saveLog(logs);
-      throw err;
-    }
-  }
-  //get price - promotion % and + tax
-  private getTotalPrice(bestellungData: OrderDto): number {
-    let totalPrice = 0;
-    for (let i = 0; i < bestellungData.produkte.length; i++) {
-      const piceNetto = this.getPiceNettoPrice(bestellungData, i);
-      const tax = this.getTax(bestellungData, i);
-
-      totalPrice +=
-        (piceNetto + tax) *
-        bestellungData.produkte[i].produkt[0].variations[0].quanity;
-    }
-
-    return totalPrice;
-  }
-  //get tax for item
-  private getTax(bestellungData: OrderDto, i: number): number {
-    const picePrice = Number(
-      bestellungData.produkte[i].produkt[0].variations[0].price,
-    );
-    let tax = 0;
-    if (
-      bestellungData.produkte[i].produkt[0] &&
-      bestellungData.produkte[i].produkt[0].mehrwehrsteuer > 0
-    )
-      tax =
-        (picePrice * bestellungData.produkte[i].produkt[0].mehrwehrsteuer) /
-        100;
-
-    return Number(tax.toFixed(2));
-  }
-  //get netto price - promotion
-  private getPiceNettoPrice(bestellungData: OrderDto, i: number): number {
-    let picePrice = Number(
-      bestellungData.produkte[i].produkt[0].variations[0].price,
-    );
-    if (
-      bestellungData.produkte[i].produkt[0].promocje &&
-      bestellungData.produkte[i].produkt[0].promocje[0] &&
-      bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent
-    )
-      picePrice -=
-        (picePrice *
-          bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent) /
-        100;
-
-    return picePrice;
-  }
-  //get promotion cost
-  private getPromotionCost(bestellungData: OrderDto, i: number): number {
-    let rabatCost = 0;
-    if (
-      bestellungData.produkte[i].produkt[0].promocje &&
-      bestellungData.produkte[i].produkt[0].promocje[0] &&
-      bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent > 0
-    )
-      rabatCost =
-        (bestellungData.produkte[i].produkt[0].variations[i].price *
-          bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent) /
-        100;
-    return Number(rabatCost.toFixed(2));
-  }
-
-  //capture Payment
-  async capturePayment(data: Payid) {
-    const accessToken = await generateAccessToken();
-    const url = `${env.PAYPAL_URL}/v2/checkout/orders/${data.orderID}/capture`;
-    const response = await fetch(url, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    const respons = await handleResponse(response);
-    if (respons.id === data.orderID && respons.status === 'COMPLETED') {
-      data.bestellung.paypal_order_id = respons.id;
-      await this.saveOrder(data.bestellung);
-    }
-
-    return respons;
-  }
-  // generate client token
-  async generateClientToken() {
-    const accessToken = await generateAccessToken();
-    const response = await fetch(
-      `${env.PAYPAL_URL}/v1/identity/generate-token`,
-      {
-        method: 'post',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Accept-Language': 'en_US',
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-
-    const jsonData = await response.json();
-    return jsonData.client_token;
-  }
-}
-
-// generate access token
-export async function generateAccessToken() {
-  const auth = Buffer.from(env.CLIENT_ID + ':' + env.APP_SECRET).toString(
-    'base64',
-  );
-  const response = await fetch(`${env.PAYPAL_URL}/v1/oauth2/token`, {
-    method: 'post',
-    body: 'grant_type=client_credentials',
-    headers: {
-      Authorization: `Basic ${auth}`,
-    },
-  });
-  const jsonData = await response.json();
-  return jsonData.access_token;
-}
-
-export async function handleResponse(response: Response) {
-  try {
-    if (response.status === 200 || response.status === 201) {
-      const jsonResponse = await response.json();
-
-      return jsonResponse;
-    }
-
-    const errorMessage = await response.text();
-
-    const logs: AcctionLogsDto = {
-      error_class: LOGS_CLASS.PAYPAL_ERROR,
-      error_message: errorMessage,
-    };
-    await this.logsService.saveLog(logs);
-    throw new Error(errorMessage);
-  } catch (err) {
-    throw err;
   }
 }

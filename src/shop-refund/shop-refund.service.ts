@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   generateAccessToken,
   handleResponse,
-} from 'src/bestellungen/bestellungen.service';
+} from 'src/bestellungen/paypal_function';
 import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
 import { Product_RuckgabeDto } from 'src/dto/product_ruckgabe.dto';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
@@ -60,7 +60,7 @@ export class ShopRefundService {
           },
           body: body,
         });
-        const response = await handleResponse(paypal_refund);
+        const response = await handleResponse(paypal_refund, this.logsService);
         if (response.status === 'CANCELLED' || response.status === 'FAILED')
           throw new HttpException(
             'Refund not created',
@@ -152,7 +152,7 @@ export class ShopRefundService {
           },
         });
 
-        const response = await handleResponse(paypal_refund);
+        const response = await handleResponse(paypal_refund, this.logsService);
 
         if (response.status !== item.paypal_refund_status) {
           item.paypal_refund_status = response.status;

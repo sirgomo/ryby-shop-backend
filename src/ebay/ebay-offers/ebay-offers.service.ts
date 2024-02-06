@@ -13,11 +13,11 @@ export class EbayOffersService {
     try {
       await this.authServ.checkAccessToken();
 
-      const headers = {
+      /* const headers = {
         'Content-Type': 'application/json',
         'Accept-Language': 'de-DE',
         'Accept-Encoding': 'application/gzip',
-      };
+      };*/
 
       return await this.ebayRequest.getRequest(
         `${env.ebay_api}/sell/inventory/v1/offer?sku=${sku}`,
@@ -28,15 +28,21 @@ export class EbayOffersService {
       return err;
     }
   }
-  async getfulfillmentPolicyById(id: string) {
+  async getInventoryItemBySku(sku: string) {
     try {
       await this.authServ.checkAccessToken();
 
-      const headers = {
-        'Content-Type': 'application/json',
-        'Accept-Language': 'de-DE',
-        'Accept-Encoding': 'application/gzip',
-      };
+      return await this.ebayRequest.getRequest(
+        `${env.ebay_api}/sell/inventory/v1/inventory_item/${sku}`,
+        this.authServ.currentToken.access_token,
+      );
+    } catch (err) {
+      return err;
+    }
+  }
+  async getfulfillmentPolicyById(id: string) {
+    try {
+      await this.authServ.checkAccessToken();
 
       return await this.ebayRequest.getRequest(
         `${env.ebay_api}/sell/account/v1/fulfillment_policy/${id}`,

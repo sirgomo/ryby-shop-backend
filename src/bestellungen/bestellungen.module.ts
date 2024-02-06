@@ -8,6 +8,9 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Produkt } from 'src/entity/produktEntity';
 import { LogsEntity } from 'src/entity/logsEntity';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { CompanyDataEntity } from 'src/entity/companyDataEntity';
+import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
+import { EbayService } from 'src/ebay/ebay.service';
 
 @Module({
   imports: [
@@ -16,10 +19,11 @@ import { LogsService } from 'src/ebay_paypal_logs/logs.service';
       ProduktInBestellung,
       Produkt,
       LogsEntity,
+      CompanyDataEntity,
     ]),
     AuthModule,
   ],
   controllers: [BestellungenController],
-  providers: [BestellungenService, LogsService],
+  providers: [BestellungenService, LogsService, EbayService, EbayOffersService],
 })
 export class BestellungenModule {}

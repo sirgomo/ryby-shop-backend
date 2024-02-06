@@ -9,6 +9,6 @@ import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 @Module({
   imports: [TypeOrmModule.forFeature([CompanyDataEntity]), AuthModule],
   controllers: [EbayOffersController],
-  providers: [EbayOffersService, EbayService]
+  providers: [EbayOffersService, EbayService],
 })
 export class EbayOffersModule {}

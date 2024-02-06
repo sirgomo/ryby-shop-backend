@@ -14,6 +14,7 @@ import { env } from 'src/env/env';
 import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
 import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
+import { capturePayment, generateClientToken } from './paypal_function';
 
 @Controller('order')
 export class BestellungenController {
@@ -21,7 +22,7 @@ export class BestellungenController {
   @Get()
   async getClinet() {
     const client_id = env.CLIENT_ID;
-    const clientToken = await this.service.generateClientToken();
+    const clientToken = await generateClientToken();
     return {
       client_id,
       clientToken,
@@ -59,6 +60,6 @@ export class BestellungenController {
   }
   @Post('capture')
   async capturePayment(@Body(ValidationPipe) data: Payid) {
-    return await this.service.capturePayment(data);
+    return await capturePayment(data);
   }
 }
