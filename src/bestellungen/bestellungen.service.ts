@@ -161,7 +161,7 @@ export class BestellungenService {
         this.logsService,
         this.productRepository,
       );
-
+      //set produkt quantity for item where there is more items are selled at once ( only in online-shop, in ebay they are default sold as 1 stuck)
       setProduktQuanity(readyBesttelung);
 
       readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
@@ -216,6 +216,12 @@ export class BestellungenService {
         user_email: readyBesttelung.kunde.email,
         created_at: new Date(Date.now()),
       };
+      await isEbayMengeChecked(
+        readyBesttelung,
+        this.ebayOfferService,
+        this.logsService,
+        true,
+      );
       await this.logsService.saveLog(logs);
     } catch (err) {
       //save log on error on save transaction

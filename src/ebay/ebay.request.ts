@@ -35,7 +35,6 @@ export class EbayRequest {
         headers: headers,
         method: 'GET',
       });
-
       return res.json();
     } catch (err) {
       return err;
@@ -58,6 +57,29 @@ export class EbayRequest {
       });
       const data = await res.text();
       return data;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  async sendCreateUpdateRequest(
+    endpoint: string,
+    method: string,
+    token: string,
+    plusHeaders,
+    body,
+  ): Promise<[any, number]> {
+    const headers = {
+      Authorization: 'Bearer ' + token,
+      ...plusHeaders,
+    };
+    try {
+      const res = await fetch(endpoint, {
+        headers: headers,
+        method: method,
+        body: body,
+      });
+
+      return [res, res.status];
     } catch (err) {
       console.log(err);
     }

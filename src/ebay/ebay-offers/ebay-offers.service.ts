@@ -53,4 +53,42 @@ export class EbayOffersService {
       return err;
     }
   }
+  async updateOffer(offerId: string, offer: any) {
+    try {
+      await this.authServ.checkAccessToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Content-Language': 'de-DE',
+      };
+      return await this.ebayRequest.sendRequest(
+        `${env.ebay_api}/sell/inventory/v1/offer/${offerId}`,
+        'PUT',
+        this.authServ.currentToken.access_token,
+        headers,
+        offer,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  async updateEbayInventoryItem(sku: string, item: string) {
+    console.log(item);
+    try {
+      await this.authServ.checkAccessToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Content-Language': 'de-DE',
+        'Accept-Language': 'de-DE',
+      };
+      return await this.ebayRequest.sendCreateUpdateRequest(
+        `${env.ebay_api}/sell/inventory/v1/inventory_item/${sku}`,
+        'PUT',
+        this.authServ.currentToken.access_token,
+        headers,
+        item,
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }

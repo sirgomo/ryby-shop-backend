@@ -15,10 +15,14 @@ import { OrderDto } from 'src/dto/order.dto';
 import { Payid } from 'src/dto/payId.dto';
 import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 import { capturePayment, generateClientToken } from './paypal_function';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 
 @Controller('order')
 export class BestellungenController {
-  constructor(private readonly service: BestellungenService) {}
+  constructor(
+    private readonly service: BestellungenService,
+    private readonly logService: LogsService,
+  ) {}
   @Get()
   async getClinet() {
     const client_id = env.CLIENT_ID;
@@ -60,6 +64,6 @@ export class BestellungenController {
   }
   @Post('capture')
   async capturePayment(@Body(ValidationPipe) data: Payid) {
-    return await capturePayment(data);
+    return await capturePayment(data, this.service, this.logService);
   }
 }

@@ -6,6 +6,7 @@ import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { LOGS_CLASS } from 'src/entity/logsEntity';
 import { env } from 'src/env/env';
 import { getPiceNettoPrice, getTax } from './helper_functions';
+import { BestellungenService } from './bestellungen.service';
 
 export function getPaypalItems(bestellungData: OrderDto): PaypalItem[] {
   const items: PaypalItem[] = [];
@@ -68,7 +69,11 @@ export async function handleResponse(response: Response, logser: LogsService) {
   }
 }
 //capture Payment
-export async function capturePayment(data: Payid) {
+export async function capturePayment(
+  data: Payid,
+  service: BestellungenService,
+  logsService: LogsService,
+) {
   try {
     const accessToken = await generateAccessToken();
     const url = `${env.PAYPAL_URL}/v2/checkout/orders/${data.orderID}/capture`;
@@ -80,10 +85,10 @@ export async function capturePayment(data: Payid) {
       },
     });
 
-    const respons = await handleResponse(response, this.logsService);
+    const respons = await handleResponse(response, logsService);
     if (respons.id === data.orderID && respons.status === 'COMPLETED') {
       data.bestellung.paypal_order_id = respons.id;
-      await this.saveOrder(data.bestellung);
+      await service.saveOrder(data.bestellung);
     }
 
     return respons;
