@@ -41,11 +41,13 @@ describe('LogsController', () => {
     expect(controller).toBeDefined();
   });
   it('should get all errors', async () => {
-    jest.spyOn(repo, 'find').mockResolvedValueOnce(errors);
+    jest.spyOn(repo, 'findAndCount').mockResolvedValueOnce([errors, 1]);
 
-    const requ = await supertest(app.getHttpServer()).get('/logs').expect(200);
+    const requ = await supertest(app.getHttpServer())
+      .get('/logs/null/3/5')
+      .expect(200);
 
-    expect(requ.body).toEqual(errors);
+    expect(requ.body).toEqual([errors, 1]);
   });
   it('should get all errors by class', async () => {
     jest

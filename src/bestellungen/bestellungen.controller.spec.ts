@@ -22,6 +22,9 @@ import { ProduktVariations } from 'src/entity/produktVariations';
 import { Lieferadresse } from 'src/entity/liferAddresseEntity';
 import { LogsEntity } from 'src/entity/logsEntity';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
+import { EbayService } from 'src/ebay/ebay.service';
+import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 
 describe('BestellungenController', () => {
   let controller: BestellungenController;
@@ -32,6 +35,7 @@ describe('BestellungenController', () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   let logsRepo: Repository<LogsEntity>;
+  let compRepo: Repository<CompanyDataEntity>;
   // let logsService: LogsService;
 
   //let bestellungService: BestellungenService;
@@ -344,6 +348,12 @@ describe('BestellungenController', () => {
         },
         BestellungenService,
         LogsService,
+        EbayOffersService,
+        EbayService,
+        {
+          provide: getRepositoryToken(CompanyDataEntity),
+          useClass: Repository,
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -353,7 +363,9 @@ describe('BestellungenController', () => {
     bestellungRepo = module.get<Repository<Bestellung>>(
       getRepositoryToken(Bestellung),
     );
-
+    compRepo = module.get<Repository<CompanyDataEntity>>(
+      getRepositoryToken(CompanyDataEntity),
+    );
     productRepo = module.get<Repository<Produkt>>(getRepositoryToken(Produkt));
     logsRepo = module.get<Repository<LogsEntity>>(
       getRepositoryToken(LogsEntity),

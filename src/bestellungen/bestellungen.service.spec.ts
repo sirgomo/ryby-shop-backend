@@ -15,6 +15,9 @@ import { describe } from 'node:test';
 import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { LogsEntity } from 'src/entity/logsEntity';
+import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
+import { EbayService } from 'src/ebay/ebay.service';
+import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 
 describe('BestellungenService', () => {
   let service: BestellungenService;
@@ -26,7 +29,7 @@ describe('BestellungenService', () => {
   let order: OrderDto;
   let product: Produkt;
   let currentKunde: Kunde;
-
+  let compRepo: Repository<CompanyDataEntity>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -72,11 +75,20 @@ describe('BestellungenService', () => {
           },
         },
         LogsService,
+        EbayOffersService,
+        EbayService,
+        {
+          provide: getRepositoryToken(CompanyDataEntity),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
     service = module.get<BestellungenService>(BestellungenService);
     bestellungRepository = module.get(getRepositoryToken(Bestellung));
+    compRepo = module.get<Repository<CompanyDataEntity>>(
+      getRepositoryToken(CompanyDataEntity),
+    );
     // productIn = module.get(getRepositoryToken(ProduktInBestellung));
     productRepository = module.get(getRepositoryToken(Produkt));
     logsRepo = module.get(getRepositoryToken(LogsEntity));
