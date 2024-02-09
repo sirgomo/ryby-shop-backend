@@ -287,6 +287,8 @@ export class Database {
             price_shipping DECIMAL(10,2) NOT NULL,
             price_tax DECIMAL(10,2) NOT NULL,
             price_discont DECIMAL(10,2) NOT NULL,
+            ebay_fee DECIMAL(10,2),
+            ebay_advertising_cost DECIMAL(10,2),
             sel_amount INT NOT NULL,
             payment_status VARCHAR(50) NOT NULL
         );

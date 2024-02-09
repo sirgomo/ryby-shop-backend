@@ -18,6 +18,10 @@ export class EbayTransactions {
   price_tax: number;
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price_discont: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  ebay_fee: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  ebay_advertising_cost: number;
   @Column('int')
   sel_amount: number;
   @Column('varchar', { length: 50 })
