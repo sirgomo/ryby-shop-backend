@@ -43,6 +43,7 @@ import { RefundModule } from './refund/refund.module';
 import { ShopRefundModule } from './shop-refund/shop-refund.module';
 import { LogsEntity } from './entity/logsEntity';
 import { LogsModule } from './ebay_paypal_logs/logs.module';
+import { AktionModule } from './aktion/aktion.module';
 
 @Module({
   imports: [
@@ -97,6 +98,7 @@ import { LogsModule } from './ebay_paypal_logs/logs.module';
     RefundModule,
     ShopRefundModule,
     LogsModule,
+    AktionModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],
