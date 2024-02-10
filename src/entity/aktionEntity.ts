@@ -11,7 +11,8 @@ import { Produkt } from './produktEntity';
 export class Aktion {
   @PrimaryGeneratedColumn()
   id: number;
-
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  aktion_key: string;
   @ManyToMany(() => Produkt)
   @JoinTable()
   produkt: Produkt[];

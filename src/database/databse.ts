@@ -131,6 +131,7 @@ export class Database {
           
           CREATE TABLE IF NOT EXISTS aktion (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            aktion_key VARCHAR(255) NOT NULL
             startdatum DATE,
             enddatum DATE,
             rabattProzent DECIMAL(5,2)
