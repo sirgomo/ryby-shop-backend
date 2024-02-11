@@ -5,7 +5,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import { Lieferant } from './lifernatEntity';
 import { Stellplatze } from './stellplatzeEntity';
@@ -29,8 +29,6 @@ export class Produkt {
   @Column('varchar')
   sku: string;
 
-
-
   @Column({ unique: true, nullable: false, type: 'int' })
   artid: number;
 
@@ -45,7 +43,7 @@ export class Produkt {
   lagerorte: Stellplatze[];
 
   @ManyToMany(() => ProduktInBestellung)
-  @JoinTable({ name: 'product_in_bestellung_produkt_produkt'})
+  @JoinTable({ name: 'product_in_bestellung_produkt_produkt' })
   bestellungen: ProduktInBestellung[];
 
   @Column({ type: 'date' })
@@ -61,37 +59,45 @@ export class Produkt {
   @Column('varchar')
   product_sup_id: string;
 
-  @Column({type: 'tinyint', default: 0 })
-  ebay:number;
-
+  @Column({ type: 'tinyint', default: 0 })
+  ebay: number;
 
   @ManyToMany(() => WareneingangProduct, (products) => products.produkt)
   wareneingang: WareneingangProduct[];
 
-
   @Column('int')
   mehrwehrsteuer: number;
 
-  @ManyToMany(() => Aktion)
-  @JoinTable()
+  @ManyToMany(() => Aktion, (promocje) => promocje.produkt)
   promocje: Aktion[];
-
 
   @OneToMany(() => Kundenbewertung, (bewertung) => bewertung.produkt)
   @JoinTable()
   bewertung: Kundenbewertung[];
 
-  @OneToMany(() => EanEntity, (ean) => ean.product, {cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @OneToMany(() => EanEntity, (ean) => ean.product, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinTable()
   eans: EanEntity[];
 
-  @OneToMany(() => ProduktVariations, (vari) => vari.produkt, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @OneToMany(() => ProduktVariations, (vari) => vari.produkt, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinTable()
   variations: ProduktVariations[];
   @Column('varchar')
   produkt_image: string;
 
-  @ManyToMany(() => ShippingEntity, (ship) => ship.produkt, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
-  @JoinTable({ name: 'produkt_shipping_costs'})
+  @ManyToMany(() => ShippingEntity, (ship) => ship.produkt, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinTable({ name: 'produkt_shipping_costs' })
   shipping_costs: ShippingEntity[];
 }

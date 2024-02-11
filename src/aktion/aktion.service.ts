@@ -29,7 +29,16 @@ export class AktionService {
 
   async findAll(): Promise<Aktion[]> {
     try {
-      return await this.repo.find();
+      return await this.repo.find({
+        relations: {
+          produkt: true,
+        },
+        select: {
+          produkt: {
+            id: true,
+          },
+        },
+      });
     } catch (error) {
       throw new Error('Error finding Aktions: ' + error.message);
     }

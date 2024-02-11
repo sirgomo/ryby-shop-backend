@@ -326,14 +326,14 @@ export class Database {
             produktId INT,
             kategorieId INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id) ON DELETE CASCADE ON UPDATE CASCADE, 
-            FOREIGN KEY (kategorieId) REFERENCES kategorie (id)
+            FOREIGN KEY (kategorieId) REFERENCES kategorie (id) 
           );
           
           CREATE TABLE IF NOT EXISTS produkt_promocje_aktion (
             produktId INT,
             aktionId INT,
             FOREIGN KEY (produktId) REFERENCES produkt (id),
-            FOREIGN KEY (aktionId) REFERENCES aktion (id)
+            FOREIGN KEY (aktionId) REFERENCES aktion (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
           
           CREATE TABLE IF NOT EXISTS product_in_bestellung_produkt_produkt (

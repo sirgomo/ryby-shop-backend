@@ -43,14 +43,8 @@ export class KategorieService {
 
   async getAllCategories(): Promise<Kategorie[]> {
     try {
-      return await this.kategorieRepository.find().catch((err) => {
-        throw new HttpException(
-          'Es ist ein feheler Aufgetreten',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      });
+      return await this.kategorieRepository.find();
     } catch (error) {
-      console.error(error);
       throw error;
     }
   }
@@ -143,6 +137,22 @@ export class KategorieService {
       return await this.kategorieRepository.save(category);
     } catch (error) {
       console.error(error);
+    }
+  }
+  async getCategoryWithProducts(): Promise<Kategorie[]> {
+    try {
+      return await this.kategorieRepository.find({
+        relations: {
+          products: true,
+        },
+        select: {
+          products: {
+            id: true,
+          },
+        },
+      });
+    } catch (err) {
+      throw err;
     }
   }
 }

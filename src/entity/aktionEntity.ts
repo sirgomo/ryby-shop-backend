@@ -13,8 +13,12 @@ export class Aktion {
   id: number;
   @Column({ type: 'varchar', length: 255, nullable: false })
   aktion_key: string;
-  @ManyToMany(() => Produkt)
-  @JoinTable()
+  @ManyToMany(() => Produkt, (produkt) => produkt.promocje, {
+    cascade: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({ name: 'produkt_promocje_aktion' })
   produkt: Produkt[];
 
   @Column({ type: 'date' })

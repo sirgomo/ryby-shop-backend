@@ -16,6 +16,11 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 export class KategorieController {
   constructor(private readonly kategorieService: KategorieService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Get('products')
+  async getCategoriewithProducts(): Promise<Kategorie[]> {
+    return await this.kategorieService.getCategoryWithProducts();
+  }
   @Post()
   @UseGuards(JwtAuthGuard)
   createCategory(@Body() categoryData: Partial<Kategorie>): Promise<Kategorie> {
