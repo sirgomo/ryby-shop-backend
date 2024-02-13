@@ -88,32 +88,35 @@ async function getEbayResponse(
     }
 
     const respo = await ebayOfferService.getInventoryItemBySku(sku);
-    const itemQuantity = respo.availability.shipToLocationAvailability.quantity;
+    if (respo.availability.shipToLocationAvailability) {
+      const itemQuantity =
+        respo.availability.shipToLocationAvailability.quantity;
 
-    if (!itemQuantity)
-      await getEbayResponse(
-        sku,
-        quantity,
-        requestquantity - 1,
-        bestellungData,
-        ebayOfferService,
-        logsService,
-      );
-    if (itemQuantity - quantity < 0) {
-      const logs: AcctionLogsDto = {
-        error_class: LOGS_CLASS.EBAY_ERROR,
-        error_message: JSON.stringify([
+      if (!itemQuantity)
+        await getEbayResponse(
+          sku,
+          quantity,
+          requestquantity - 1,
           bestellungData,
-          `sku : ${sku} quantity : ${quantity} ebay quantity: ${itemQuantity}`,
+          ebayOfferService,
+          logsService,
+        );
+      if (itemQuantity - quantity < 0) {
+        const logs: AcctionLogsDto = {
+          error_class: LOGS_CLASS.EBAY_ERROR,
+          error_message: JSON.stringify([
+            bestellungData,
+            `sku : ${sku} quantity : ${quantity} ebay quantity: ${itemQuantity}`,
+            'Insufficient quantity of the item in stock!',
+          ]),
+          created_at: new Date(Date.now()),
+        };
+        await logsService.saveLog(logs);
+        throw new HttpException(
           'Insufficient quantity of the item in stock!',
-        ]),
-        created_at: new Date(Date.now()),
-      };
-      await logsService.saveLog(logs);
-      throw new HttpException(
-        'Insufficient quantity of the item in stock!',
-        HttpStatus.FAILED_DEPENDENCY,
-      );
+          HttpStatus.FAILED_DEPENDENCY,
+        );
+      }
     }
   } catch (err) {
     console.log(err);

@@ -68,6 +68,12 @@ export async function isPriceMengeChecked(
             promocje: true,
             variations: true,
           },
+          select: {
+            id: true,
+            promocje: true,
+            variations: true,
+            sku: true,
+          },
         });
         if (!tmpItem)
           throw new HttpException(
@@ -101,7 +107,7 @@ export async function isPriceMengeChecked(
             data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
           if (tmpItem.variations[j].quanity < 0)
             throw new HttpException(
-              'Error 3000/ quanity by item ' +
+              'Error quantity in variation by item ' +
                 data.produkte[i].produkt[0].name +
                 ' ist ' +
                 tmpItem.variations[j].quanity,
@@ -137,11 +143,11 @@ export function getTotalPrice(bestellungData: OrderDto): number {
     const tax = getTax(bestellungData, i);
 
     totalPrice +=
-      (piceNetto + tax) *
+      Number((piceNetto + tax).toFixed(2)) *
       bestellungData.produkte[i].produkt[0].variations[0].quanity;
   }
 
-  return totalPrice;
+  return Number(totalPrice.toFixed(2));
 }
 //get tax for item
 export function getTax(bestellungData: OrderDto, i: number): number {
@@ -168,12 +174,15 @@ export function getPiceNettoPrice(bestellungData: OrderDto, i: number): number {
     bestellungData.produkte[i].produkt[0].promocje[0] &&
     bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent
   )
-    picePrice -=
-      (picePrice *
-        bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent) /
-      100;
+    picePrice -= Number(
+      (
+        (picePrice *
+          bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent) /
+        100
+      ).toFixed(2),
+    );
 
-  return picePrice;
+  return Number(picePrice.toFixed(2));
 }
 //get promotion cost
 export function getPromotionCost(bestellungData: OrderDto, i: number): number {
@@ -184,7 +193,7 @@ export function getPromotionCost(bestellungData: OrderDto, i: number): number {
     bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent > 0
   )
     rabatCost =
-      (bestellungData.produkte[i].produkt[0].variations[i].price *
+      (bestellungData.produkte[i].produkt[0].variations[0].price *
         bestellungData.produkte[i].produkt[0].promocje[0].rabattProzent) /
       100;
   return Number(rabatCost.toFixed(2));

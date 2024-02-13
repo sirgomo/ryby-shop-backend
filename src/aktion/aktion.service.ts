@@ -61,7 +61,9 @@ export class AktionService {
 
   async updateAktion(id: number, aktionData: AktionDto): Promise<UpdateResult> {
     try {
-      return await this.repo.update(id, aktionData);
+      const item = await this.repo.create(aktionData);
+      await this.repo.save(item);
+      return { raw: '', affected: 1 } as UpdateResult;
     } catch (error) {
       throw new Error(`Error updating Aktion with ID ${id}: ${error.message}`);
     }
@@ -72,6 +74,25 @@ export class AktionService {
       return await this.repo.delete(id);
     } catch (error) {
       throw new Error(`Error deleting Aktion with ID ${id}: ${error.message}`);
+    }
+  }
+  async getPromo(aktion_key: string) {
+    try {
+      return await this.repo.findOne({
+        where: {
+          aktion_key: aktion_key,
+        },
+        relations: {
+          produkt: true,
+        },
+        select: {
+          produkt: {
+            id: true,
+          },
+        },
+      });
+    } catch (err) {
+      throw err;
     }
   }
 }

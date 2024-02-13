@@ -63,7 +63,6 @@ export class BestellungenService {
           2,
         ),
       );
-
       const purchaseAmount = bestellungData.gesamtwert;
 
       const accessToken = await generateAccessToken();
@@ -194,7 +193,6 @@ export class BestellungenService {
             readyBesttelung.kunde = newKunde;
           }
           readyBesttelung.zahlungsart = 'PAYPAL';
-
           await transactionalEntityMange.save(Produkt, itemsTosave);
           const best = await transactionalEntityMange.create(
             Bestellung,
