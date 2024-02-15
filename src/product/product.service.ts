@@ -22,7 +22,7 @@ export class ProductService {
   ): Promise<[Produkt[], number]> {
     if (!isFinite(pagenr) || pagenr < 1) pagenr = 1;
     const start = pagecount * pagenr - pagecount;
-    const end = pagecount * pagenr;
+    const end = pagecount;
     try {
       if (search != 'null' && katid != 0) {
         return await this.produktRepository
@@ -103,7 +103,7 @@ export class ProductService {
   ): Promise<[Produkt[], number]> {
     if (!isFinite(pagenr) || pagenr < 1) pagenr = 1;
     const start = pagecount * pagenr - pagecount;
-    const end = pagecount * pagenr;
+    const end = pagecount;
 
     try {
       if (search != 'null' && katid != 0) {

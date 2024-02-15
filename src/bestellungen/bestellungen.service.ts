@@ -266,7 +266,6 @@ export class BestellungenService {
       });
       if (!item)
         throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
-
       return item;
     } catch (error) {
       throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
