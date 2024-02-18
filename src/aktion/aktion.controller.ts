@@ -16,9 +16,9 @@ import { AktionDto } from 'src/dto/aktion.dto';
 export class AktionController {
   constructor(private readonly service: AktionService) {}
 
-  @Get('promo/:code')
-  async getCode(@Param('code') code: string) {
-    return await this.service.getPromo(code);
+  @Get('promo/:code/:prodid')
+  async getCode(@Param('code') code: string, @Param('prodid') prodid: number) {
+    return await this.service.getPromo(code, prodid);
   }
 
   @Post()

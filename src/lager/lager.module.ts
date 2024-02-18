@@ -8,6 +8,6 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Lager]), AuthModule],
   providers: [LagerService],
-  controllers: [LagerController]
+  controllers: [LagerController],
 })
 export class LagerModule {}

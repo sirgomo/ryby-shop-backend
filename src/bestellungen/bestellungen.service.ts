@@ -30,6 +30,7 @@ import {
   isPriceMengeChecked,
   setProduktQuanity,
 } from './helper_functions';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class BestellungenService {
@@ -42,6 +43,7 @@ export class BestellungenService {
     private readonly productRepository: Repository<Produkt>,
     private readonly logsService: LogsService,
     private readonly ebayOfferService: EbayOffersService,
+    private readonly mailService: MailService,
   ) {}
 
   async createOrder(bestellungData: OrderDto): Promise<any> {
@@ -198,7 +200,9 @@ export class BestellungenService {
             Bestellung,
             readyBesttelung,
           );
-          await transactionalEntityMange.save(Bestellung, best);
+          readyBesttelung.id = (
+            await transactionalEntityMange.save(Bestellung, best)
+          ).id;
         },
       );
       //save transaction for checkout
@@ -220,6 +224,8 @@ export class BestellungenService {
         this.logsService,
         true,
       );
+
+      await this.mailService.sendItemBughtEmail(readyBesttelung);
       await this.logsService.saveLog(logs);
     } catch (err) {
       //save log on error on save transaction
@@ -407,6 +413,7 @@ export class BestellungenService {
         user_email: bestellungData.kunde.email,
         paypal_transaction_id: bestellungData.paypal_order_id,
       };
+
       await this.logsService.saveLog(logs);
       return save;
     } catch (error) {

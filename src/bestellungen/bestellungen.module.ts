@@ -11,6 +11,7 @@ import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
 import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
 import { EbayService } from 'src/ebay/ebay.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -24,6 +25,12 @@ import { EbayService } from 'src/ebay/ebay.service';
     AuthModule,
   ],
   controllers: [BestellungenController],
-  providers: [BestellungenService, LogsService, EbayService, EbayOffersService],
+  providers: [
+    BestellungenService,
+    LogsService,
+    EbayService,
+    EbayOffersService,
+    MailService,
+  ],
 })
 export class BestellungenModule {}

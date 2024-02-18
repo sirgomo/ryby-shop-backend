@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kaufbestätigung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 0.5em;
+        }
+        strong {
+            color: #555;
+        }
+        .artikel-liste li {
+            background-color: #f9f9f9;
+            border: 1px solid #eaeaea;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            text-align: center;
+            color: #777;
+        }
+        .bestell-details {
+            background-color: #f2f2f2;
+            padding: 15px;
+            border: 1px solid #eaeaea;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kaufbestätigung</h1>
+    <p>Liebe(r) {{name}},</p>
+    <p>Vielen Dank für Ihren Einkauf! Der folgende Artikel wurde erfolgreich gekauft:</p>
+    <ul class="artikel-liste">
+        {{#each produkte}}
+         <li>
+            <strong>SKU:</strong> {{color}}
+            {{#each produkt}}
+                <strong>Produktname:</strong> {{name}}
+            {{/each}}
+                <strong>Preis:</strong> {{verkauf_price}} €
+                <strong>Anzahl:</strong> {{menge}}
+            </li>
+        {{/each}}
+    </ul>
+    <p>Die Bestellung wird bald an die angegebene Adresse verschickt: {{ adresse.shipping_name}},</p>
+    <p>{{adresse.postleitzahl}}  {{adresse.stadt}}, {{adresse.strasse}} {{adresse.hausnummer}}.</p>
+    <div class="bestell-details">
+        <p>Bestelldetails:</p>
+        <ul>
+            <li><strong>Bestelldatum:</strong> {{bestelldatum}}</li>
+            <li><strong>Zahlungsart:</strong> {{zahlungsart}}</li>
+            <li><strong>Gesamtwert:</strong> {{gesamtwert}} €</li>
+            <li><strong>Versandkosten:</strong> {{versandprice}} €</li>
+            <li><strong>Versandart:</strong> {{versandart}}</li>
+            <li><strong>Status der Bestellung:</strong> {{bestellungstatus}}</li>
+            <li><strong>Zahlungsstatus:</strong> {{status}}</li>
+        </ul>
+    </div>
+    <p>Wenn Sie Fragen zu Ihrer Bestellung haben (nr: <b>{{orderid}}</b>), können Sie uns jederzeit kontaktieren.</p>
+    <div class="footer">
+        <p>Mit freundlichen Grüßen,</p>
+        <p>Ihr {{unternehmensname}} Team</p>
+    </div>
+</body>
+</html>

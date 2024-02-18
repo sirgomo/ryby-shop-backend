@@ -76,11 +76,14 @@ export class AktionService {
       throw new Error(`Error deleting Aktion with ID ${id}: ${error.message}`);
     }
   }
-  async getPromo(aktion_key: string) {
+  async getPromo(aktion_key: string, produktid: number) {
     try {
       return await this.repo.findOne({
         where: {
           aktion_key: aktion_key,
+          produkt: {
+            id: produktid,
+          },
         },
         relations: {
           produkt: true,
