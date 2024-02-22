@@ -136,7 +136,9 @@ export class BestellungenService {
       //save error on create order!
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
-        error_message: JSON.stringify([bestellungData, error]),
+        error_message:
+          ' ------------ CREATE ORDER ------------\n' +
+          JSON.stringify([bestellungData, error]),
         created_at: new Date(Date.now()),
       };
       await this.logsService.saveLog(logs);
@@ -195,6 +197,17 @@ export class BestellungenService {
             readyBesttelung.kunde = newKunde;
           }
           readyBesttelung.zahlungsart = 'PAYPAL';
+          readyBesttelung.shipping_address_json = readyBesttelung.kunde
+            .lieferadresse
+            ? JSON.stringify(readyBesttelung.kunde.lieferadresse)
+            : JSON.stringify({
+                ...readyBesttelung.kunde.adresse,
+                shipping_name: readyBesttelung.kunde.vorname
+                  ? readyBesttelung.kunde.vorname +
+                    ' ' +
+                    readyBesttelung.kunde.nachname
+                  : readyBesttelung.kunde.nachname,
+              });
           await transactionalEntityMange.save(Produkt, itemsTosave);
           const best = await transactionalEntityMange.create(
             Bestellung,
@@ -209,11 +222,9 @@ export class BestellungenService {
       readyBesttelung.kunde.password = undefined;
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
-        error_message: JSON.stringify([
-          readyBesttelung,
-          ' new item quantity ',
-          itemsTosave,
-        ]),
+        error_message:
+          ' --------- TRANSACTION SUCCESSFULL ------- \n' +
+          JSON.stringify([readyBesttelung, ' new item quantity ', itemsTosave]),
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
         created_at: new Date(Date.now()),
@@ -232,7 +243,9 @@ export class BestellungenService {
       readyBesttelung.kunde.password = undefined;
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.PAYPAL_ERROR,
-        error_message: JSON.stringify([readyBesttelung, err]),
+        error_message:
+          ' -------- ERROR ON SAVE ORDER TO DATABASE ------------ \n' +
+          JSON.stringify([readyBesttelung, err]),
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
         created_at: new Date(Date.now()),
@@ -268,6 +281,23 @@ export class BestellungenService {
             telefon: true,
             treuepunkte: true,
           },
+          produkte: {
+            id: true,
+            menge: true,
+            color: true,
+            color_gepackt: true,
+            rabatt: true,
+            mengeGepackt: true,
+            verkauf_price: true,
+            verkauf_rabat: true,
+            verkauf_steuer: true,
+            produkt: {
+              id: true,
+              name: true,
+              sku: true,
+              variations: true,
+            },
+          },
         },
       });
       if (!item)
@@ -302,6 +332,23 @@ export class BestellungenService {
             email: true,
             telefon: true,
             treuepunkte: true,
+          },
+          produkte: {
+            id: true,
+            menge: true,
+            color: true,
+            color_gepackt: true,
+            rabatt: true,
+            mengeGepackt: true,
+            verkauf_price: true,
+            verkauf_rabat: true,
+            verkauf_steuer: true,
+            produkt: {
+              id: true,
+              name: true,
+              sku: true,
+              variations: true,
+            },
           },
         },
       });
@@ -347,6 +394,7 @@ export class BestellungenService {
           produkte: true,
         },
       });
+
       if (!bestellung)
         throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
 
@@ -388,10 +436,7 @@ export class BestellungenService {
             HttpStatus.BAD_REQUEST,
           );
       }
-      if (
-        bestellungData.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT &&
-        bestellung.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT
-      ) {
+      if (bestellung.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT) {
         for (let i = 0; i < bestellungData.produkte.length; i++) {
           if (
             bestellungData.produkte[i].menge !== bestellung.produkte[i].menge ||
@@ -404,23 +449,32 @@ export class BestellungenService {
             );
         }
       }
-
       await this.bestellungRepository.merge(bestellung, bestellungData);
       const save = await this.bestellungRepository.save(bestellung);
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
-        error_message: JSON.stringify([bestellungData, save]),
-        user_email: bestellungData.kunde.email,
+        error_message:
+          ' ------ ORDER UPDATED --------\n' +
+          JSON.stringify([bestellungData, save]) +
+          '\n',
+        user_email: bestellungData.kunde.email + '\n',
         paypal_transaction_id: bestellungData.paypal_order_id,
       };
-
+      if (
+        bestellung.versand_datum !== null &&
+        bestellung.bestellungstatus === BESTELLUNGSSTATUS.VERSCHICKT &&
+        bestellungData.bestellungstatus == BESTELLUNGSSTATUS.VERSCHICKT
+      )
+        await this.mailService.itemSendEmail(bestellungData);
       await this.logsService.saveLog(logs);
       return save;
     } catch (error) {
       //save error on update
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
-        error_message: JSON.stringify([bestellungData, error]),
+        error_message:
+          ' ------ ERROR ON UPDATE ORDER --------\n' +
+          JSON.stringify([bestellungData, error]),
         user_email: bestellungData.kunde.email,
         paypal_transaction_id: bestellungData.paypal_order_id,
       };

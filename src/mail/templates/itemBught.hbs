@@ -58,8 +58,11 @@
             </li>
         {{/each}}
     </ul>
-    <p>Die Bestellung wird bald an die angegebene Adresse verschickt: {{ adresse.shipping_name}},</p>
-    <p>{{adresse.postleitzahl}}  {{adresse.stadt}}, {{adresse.strasse}} {{adresse.hausnummer}}.</p>
+    <p>Die Bestellung wird bald an die angegebene Adresse verschickt:</p>
+    <p> {{ adresse.shipping_name}},</p>
+    <p>{{adresse.postleitzahl}}  {{adresse.stadt}},</p>
+    <p> {{adresse.strasse}} {{adresse.hausnummer}}.</p>
+    <p>{{adresse.land}}</p>
     <div class="bestell-details">
         <p>Bestelldetails:</p>
         <ul>

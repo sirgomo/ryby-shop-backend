@@ -5,9 +5,14 @@ import { env } from 'src/env/env';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { AuthModule } from 'src/auth/auth.module';
+import { LogsService } from 'src/ebay_paypal_logs/logs.service';
+import { LogsModule } from 'src/ebay_paypal_logs/logs.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { LogsEntity } from 'src/entity/logsEntity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([LogsEntity]),
     MailerModule.forRoot({
       transport: {
         host: env.email_host,
@@ -29,8 +34,9 @@ import { AuthModule } from 'src/auth/auth.module';
       },
     }),
     AuthModule,
+    LogsModule,
   ],
-  providers: [MailService],
+  providers: [MailService, LogsService],
   exports: [MailService],
 })
 export class MailModule {}

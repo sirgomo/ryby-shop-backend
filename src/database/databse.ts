@@ -204,6 +204,7 @@ export class Database {
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL(10,2),
             zahlungsstatus VARCHAR(255),
+            shipping_address_json VARCHAR(1000),
             bestellungstatus VARCHAR(255) NOT NULL,
             versandart VARCHAR(255) NOT NULL,
             versandprice DECIMAL(10,2) NOT NULL,

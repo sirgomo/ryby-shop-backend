@@ -41,6 +41,8 @@ export class Bestellung {
 
   @Column()
   zahlungsstatus: string;
+  @Column({ type: 'varchar', length: 1000 })
+  shipping_address_json: string;
 
   @Column({ type: 'varchar', nullable: false })
   bestellungstatus: string;
