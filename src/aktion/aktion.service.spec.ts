@@ -116,13 +116,14 @@ describe('AktionService', () => {
 
   describe('updateAktion', () => {
     it('should update a aktion', async () => {
-      const updateResult = { raw: '', affected: 1, generatedMaps: null };
-      jest.spyOn(repository, 'update').mockResolvedValue(updateResult);
+      const updateResult = { raw: '', affected: 1 };
+      jest.spyOn(repository, 'create').mockReturnThis();
+      jest.spyOn(repository, 'save').mockReturnThis();
 
       expect(
         await service.updateAktion(1, mockAktion as unknown as AktionDto),
       ).toEqual(updateResult);
-      expect(repository.update).toHaveBeenCalledWith(1, mockAktion);
+      expect(repository.save).toHaveBeenCalledWith(mockAktion);
     });
   });
 

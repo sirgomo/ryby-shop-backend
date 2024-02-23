@@ -90,9 +90,8 @@ describe('AktionController', () => {
   });
 
   it('/aktion/:id (PUT)', () => {
-    jest
-      .spyOn(repo, 'update')
-      .mockResolvedValueOnce({ raw: '', affected: 1, generatedMaps: null });
+    jest.spyOn(repo, 'create').mockImplementation((res) => res as Aktion);
+    jest.spyOn(repo, 'save').mockReturnThis();
     return supertest(app.getHttpServer())
       .put('/aktion/1') // Assuming '1' is a valid ID for an Aktion
       .send({

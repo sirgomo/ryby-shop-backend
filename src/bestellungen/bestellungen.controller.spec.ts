@@ -25,6 +25,8 @@ import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
 import { EbayService } from 'src/ebay/ebay.service';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
+import { MailService } from 'src/mail/mail.service';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 describe('BestellungenController', () => {
   let controller: BestellungenController;
@@ -33,7 +35,7 @@ describe('BestellungenController', () => {
   let productRepo: Repository<Produkt>;
   let bestellungRepo: Repository<Bestellung>;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
+  let mailService: MailService;
   let logsRepo: Repository<LogsEntity>;
   let compRepo: Repository<CompanyDataEntity>;
   // let logsService: LogsService;
@@ -262,6 +264,7 @@ describe('BestellungenController', () => {
     varsandnr: '123',
     paypal_order_id: '',
     refunds: [],
+    shipping_address_json: '',
   };
   const best2: Bestellung = {
     id: 1,
@@ -279,6 +282,7 @@ describe('BestellungenController', () => {
     varsandnr: '345',
     paypal_order_id: '',
     refunds: [],
+    shipping_address_json: '',
   };
   const orderSettings: GetOrderSettingsDto = {
     state: undefined,
@@ -302,6 +306,7 @@ describe('BestellungenController', () => {
     varsandnr: '',
     paypal_order_id: '',
     refunds: [],
+    shipping_address_json: '',
   };
 
   // Mock fetch
@@ -350,16 +355,23 @@ describe('BestellungenController', () => {
         LogsService,
         EbayOffersService,
         EbayService,
+        MailService,
         {
           provide: getRepositoryToken(CompanyDataEntity),
           useClass: Repository,
         },
+      ],
+      imports: [
+        MailerModule.forRoot({
+          transport: jest.fn(),
+        }),
       ],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: true })
       .compile();
     app = module.createNestApplication();
+    mailService = module.get<MailService>(MailService);
     bestellungRepo = module.get<Repository<Bestellung>>(
       getRepositoryToken(Bestellung),
     );

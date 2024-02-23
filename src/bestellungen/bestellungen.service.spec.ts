@@ -18,6 +18,8 @@ import { LogsEntity } from 'src/entity/logsEntity';
 import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
 import { EbayService } from 'src/ebay/ebay.service';
 import { CompanyDataEntity } from 'src/entity/companyDataEntity';
+import { MailService } from 'src/mail/mail.service';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 describe('BestellungenService', () => {
   let service: BestellungenService;
@@ -30,6 +32,7 @@ describe('BestellungenService', () => {
   let product: Produkt;
   let currentKunde: Kunde;
   let compRepo: Repository<CompanyDataEntity>;
+  let mailService: MailService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -77,14 +80,21 @@ describe('BestellungenService', () => {
         LogsService,
         EbayOffersService,
         EbayService,
+        MailService,
         {
           provide: getRepositoryToken(CompanyDataEntity),
           useClass: Repository,
         },
       ],
+      imports: [
+        MailerModule.forRoot({
+          transport: jest.fn(),
+        }),
+      ],
     }).compile();
 
     service = module.get<BestellungenService>(BestellungenService);
+    mailService = module.get<MailService>(MailService);
     bestellungRepository = module.get(getRepositoryToken(Bestellung));
     compRepo = module.get<Repository<CompanyDataEntity>>(
       getRepositoryToken(CompanyDataEntity),
@@ -192,6 +202,7 @@ describe('BestellungenService', () => {
       varsandnr: '',
       paypal_order_id: '',
       refunds: [],
+      shipping_address_json: '',
     };
   });
 
@@ -208,6 +219,12 @@ describe('BestellungenService', () => {
         },
         where: {
           id: product.id,
+        },
+        select: {
+          id: true,
+          promocje: true,
+          variations: true,
+          sku: true,
         },
       });
     });
@@ -229,6 +246,7 @@ describe('BestellungenService', () => {
         varsandnr: '',
         paypal_order_id: '',
         refunds: [],
+        shipping_address_json: '',
       };
 
       jest
@@ -337,6 +355,12 @@ describe('BestellungenService', () => {
         },
         where: {
           id: product.id,
+        },
+        select: {
+          id: true,
+          promocje: true,
+          variations: true,
+          sku: true,
         },
       });
       expect(entManger).toHaveBeenCalledWith(expect.any(Function));
