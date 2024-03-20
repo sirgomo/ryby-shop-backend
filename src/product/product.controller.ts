@@ -91,4 +91,8 @@ export class ProductController {
   async getProductsForSitemap() {
     return await this.productService.getProductsForSitemap();
   }
+  @Get('with-buy-price/:id')
+  async getProductWithBuyPrice(@Param('id') id: number) {
+    return await this.productService.getProduktWithBuyPrice(id);
+  }
 }

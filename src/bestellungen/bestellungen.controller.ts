@@ -66,4 +66,9 @@ export class BestellungenController {
   async capturePayment(@Body(ValidationPipe) data: Payid) {
     return await capturePayment(data, this.service, this.logService);
   }
+  @Post('own-order')
+  @UseGuards(JwtAuthGuard)
+  async saveOwnOrder(@Body(ValidationPipe) body: OrderDto) {
+    return await this.service.saveOwnOrder(body);
+  }
 }

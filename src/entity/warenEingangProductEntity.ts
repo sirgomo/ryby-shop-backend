@@ -22,7 +22,10 @@ export class WareneingangProduct {
   @JoinTable()
   produkt: Produkt[];
 
-  @OneToMany(() => WareneingangProdVartiaion, (vari) => vari.waren_eingang_product, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @OneToMany(
+    () => WareneingangProdVartiaion,
+    (vari) => vari.waren_eingang_product,
+    { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' },
+  )
   product_variation: WareneingangProdVartiaion[];
-
 }

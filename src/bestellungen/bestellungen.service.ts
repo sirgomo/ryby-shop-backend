@@ -28,6 +28,7 @@ import {
   getTotalPrice,
   getTotalTax,
   isPriceMengeChecked,
+  setOwnProducs,
   setProduktQuanity,
 } from './helper_functions';
 import { MailService } from 'src/mail/mail.service';
@@ -480,6 +481,83 @@ export class BestellungenService {
       };
       await this.logsService.saveLog(logs);
       throw error;
+    }
+  }
+  async saveOwnOrder(order: OrderDto) {
+    try {
+      console.log(order);
+      if (order.kunde.role === 'ADMIN') {
+        const prod = await setOwnProducs(
+          order,
+          this.logsService,
+          this.productRepository,
+        );
+        await setProduktQuanity(order);
+
+        order.status = BESTELLUNGSSTATE.BEZAHLT;
+        await this.bestellungRepository.manager.transaction(
+          async (transactionalEntityMange) => {
+            // ... existing code
+            if (order.kunde.id) {
+              const kunde = await transactionalEntityMange.findOne(Kunde, {
+                where: {
+                  email: order.kunde.email,
+                },
+                relations: {
+                  adresse: true,
+                  lieferadresse: true,
+                },
+              });
+              order.kunde = kunde;
+            } else {
+              throw new Error(
+                'User not found - it should by user with Admin rights ',
+              );
+            }
+            order.zahlungsart = 'BAR';
+
+            await transactionalEntityMange.save(Produkt, prod);
+            const best = await transactionalEntityMange.create(
+              Bestellung,
+              order,
+            );
+            order.id = (
+              await transactionalEntityMange.save(Bestellung, best)
+            ).id;
+          },
+        );
+        //save transaction for checkout
+        order.kunde.password = undefined;
+        const logs: AcctionLogsDto = {
+          error_class: LOGS_CLASS.SUCCESS_LOG,
+          error_message:
+            ' --------- OWN TRANSACTION SUCCESSFULL ------- \n' +
+            JSON.stringify([order, ' new item quantity ', prod]),
+          paypal_transaction_id: 'BAR ZAHLUNG',
+          user_email: order.kunde.email,
+          created_at: new Date(Date.now()),
+        };
+        await isEbayMengeChecked(
+          order,
+          this.ebayOfferService,
+          this.logsService,
+          true,
+        );
+
+        await this.mailService.sendItemBughtEmail(order);
+        await this.logsService.saveLog(logs);
+      }
+    } catch (err) {
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.SERVER_LOG,
+        error_message:
+          ' ------ ERROR ON SAVE OWN ORDER --------\n' +
+          JSON.stringify([order, err]),
+        user_email: order.kunde.email,
+        paypal_transaction_id: order.paypal_order_id,
+      };
+      await this.logsService.saveLog(logs);
+      throw err;
     }
   }
 }

@@ -14,7 +14,11 @@ export class Wareneingang {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => WareneingangProduct, (product) => product.wareneingang, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+  @OneToMany(() => WareneingangProduct, (product) => product.wareneingang, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   products: WareneingangProduct[];
 
   @ManyToOne(() => Lieferant, (lieferant) => lieferant.wareneingaenge)
@@ -48,18 +52,18 @@ export class Wareneingang {
   other_cost: number;
 
   @ManyToOne(() => Lager, (lager) => lager.wareneingang)
-  location: Lager
+  location: Lager;
 
-  @Column({type: 'varchar', default: 'EUR', length: 3})
+  @Column({ type: 'varchar', default: 'EUR', length: 3 })
   wahrung: string;
-  @Column({type: 'varchar', default: 'EUR', length: 3})
+  @Column({ type: 'varchar', default: 'EUR', length: 3 })
   wahrung2: string;
-  @Column({type: 'decimal', default: 1.0, precision: 10, scale: 4})
+  @Column({ type: 'decimal', default: 1.0, precision: 10, scale: 4 })
   wahrung_rate: number;
 
   @Column('decimal')
   shipping_cost_eur: number;
-  
+
   @Column('decimal')
   other_cost_eur: number;
 }

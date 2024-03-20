@@ -435,4 +435,29 @@ export class ProductService {
       );
     }
   }
+  async getProduktWithBuyPrice(id: number) {
+    try {
+      return await this.produktRepository.findOne({
+        where: {
+          id: id,
+        },
+        relations: {
+          variations: true,
+          wareneingang: {
+            product_variation: true,
+            wareneingang: true,
+          },
+        },
+        order: {
+          wareneingang: {
+            wareneingang: {
+              datenEingabe: 'DESC',
+            },
+          },
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
 }

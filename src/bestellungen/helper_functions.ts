@@ -198,3 +198,87 @@ export function getPromotionCost(bestellungData: OrderDto, i: number): number {
       100;
   return Number(rabatCost.toFixed(2));
 }
+export async function setOwnProducs(
+  data: OrderDto,
+  logsService: LogsService,
+  productRepository: Repository<Produkt>,
+) {
+  try {
+    const items: Produkt[] = [];
+
+    for (let i = 0; i < data.produkte.length; i++) {
+      const index = items.findIndex(
+        (item) => item.id === data.produkte[i].produkt[0].id,
+      );
+
+      let tmpItem: Produkt;
+
+      if (index === -1) {
+        tmpItem = await productRepository.findOne({
+          where: {
+            id: data.produkte[i].produkt[0].id,
+          },
+          relations: {
+            variations: true,
+          },
+          select: {
+            id: true,
+            variations: true,
+            sku: true,
+          },
+        });
+        if (!tmpItem)
+          throw new HttpException(
+            'Produkct ' +
+              data.produkte[i].produkt[0].id +
+              ' wurde nicht gefunden!',
+            HttpStatus.NOT_FOUND,
+          );
+      } else {
+        tmpItem = items[index];
+      }
+
+      //check quanity
+      for (let j = 0; j < tmpItem.variations.length; j++) {
+        if (
+          tmpItem.variations[j].sku ===
+          data.produkte[i].produkt[0].variations[0].sku
+        ) {
+          tmpItem.variations[j].quanity -=
+            data.produkte[i].produkt[0].variations[0].quanity *
+            data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
+          data.produkte[i].produkt[0].variations[0].price =
+            tmpItem.variations[j].price;
+          tmpItem.variations[j].quanity_sold +=
+            data.produkte[i].produkt[0].variations[0].quanity *
+            data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
+          if (tmpItem.variations[j].quanity < 0)
+            throw new HttpException(
+              'Error quantity in variation by item ' +
+                data.produkte[i].produkt[0].name +
+                ' ist ' +
+                tmpItem.variations[j].quanity,
+              HttpStatus.NOT_ACCEPTABLE,
+            );
+        }
+        data.produkte[i].mengeGepackt +=
+          data.produkte[i].produkt[0].variations[0].quanity *
+          data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
+      }
+
+      data.produkte[i].verkauf_steuer = getTax(data, i);
+      data.produkte[i].color = data.produkte[i].produkt[0].variations[0].sku;
+
+      items.push(tmpItem);
+    }
+    return items;
+  } catch (err) {
+    //save error on quanity check
+    const logs: AcctionLogsDto = {
+      error_class: LOGS_CLASS.SERVER_LOG,
+      error_message: err,
+    };
+    await logsService.saveLog(logs);
+    throw err;
+  }
+}
