@@ -485,7 +485,6 @@ export class BestellungenService {
   }
   async saveOwnOrder(order: OrderDto) {
     try {
-      console.log(order);
       if (order.kunde.role === 'ADMIN') {
         const prod = await setOwnProducs(
           order,
@@ -495,6 +494,12 @@ export class BestellungenService {
         await setProduktQuanity(order);
 
         order.status = BESTELLUNGSSTATE.BEZAHLT;
+        order.bestellungstatus = BESTELLUNGSSTATUS.VERSCHICKT;
+        order.bestelldatum = new Date(Date.now());
+        order.versand_datum = new Date(Date.now());
+        order.gesamtwert = Number(
+          (getTotalPrice(order) + order.versandprice).toFixed(2),
+        );
         await this.bestellungRepository.manager.transaction(
           async (transactionalEntityMange) => {
             // ... existing code
@@ -537,17 +542,24 @@ export class BestellungenService {
           user_email: order.kunde.email,
           created_at: new Date(Date.now()),
         };
-        await isEbayMengeChecked(
+        //TODO odblokowac po pierwszym uzyciu
+        /*await isEbayMengeChecked(
           order,
           this.ebayOfferService,
           this.logsService,
           true,
-        );
+        );*/
 
         await this.mailService.sendItemBughtEmail(order);
         await this.logsService.saveLog(logs);
+        return { status: 200, message: 'ok' };
+      } else {
+        throw new Error(
+          'User not found - it should by user with Admin rights ',
+        );
       }
     } catch (err) {
+      console.log(err);
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SERVER_LOG,
         error_message:

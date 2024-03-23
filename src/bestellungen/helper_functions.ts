@@ -247,8 +247,7 @@ export async function setOwnProducs(
           tmpItem.variations[j].quanity -=
             data.produkte[i].produkt[0].variations[0].quanity *
             data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
-          data.produkte[i].produkt[0].variations[0].price =
-            tmpItem.variations[j].price;
+
           tmpItem.variations[j].quanity_sold +=
             data.produkte[i].produkt[0].variations[0].quanity *
             data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
@@ -261,12 +260,17 @@ export async function setOwnProducs(
               HttpStatus.NOT_ACCEPTABLE,
             );
         }
-        data.produkte[i].mengeGepackt +=
+        data.produkte[i].mengeGepackt =
           data.produkte[i].produkt[0].variations[0].quanity *
           data.produkte[i].produkt[0].variations[0].quanity_sold_at_once;
       }
 
       data.produkte[i].verkauf_steuer = getTax(data, i);
+      data.produkte[i].verkauf_price = getPiceNettoPrice(data, i);
+      data.produkte[i].verkauf_rabat = getPromotionCost(data, i);
+      data.produkte[i].verkauf_steuer = getTax(data, i);
+      data.produkte[i].color = data.produkte[i].produkt[0].variations[0].sku;
+      data.produkte[i].mengeGepackt = 0;
       data.produkte[i].color = data.produkte[i].produkt[0].variations[0].sku;
 
       items.push(tmpItem);
