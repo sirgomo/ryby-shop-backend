@@ -38,4 +38,6 @@ export class EbayTransactions {
     onUpdate: 'CASCADE',
   })
   refunds: EbayRefund[];
+  @Column({ type: 'varchar', length: 50 })
+  zahlungsart: string;
 }

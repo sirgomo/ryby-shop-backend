@@ -15,4 +15,5 @@ export class EbayTranscationsDto {
   sel_amount: number;
   items: EbayItemSold[];
   refunds: EbayRefund[];
+  zahlungsart: string;
 }

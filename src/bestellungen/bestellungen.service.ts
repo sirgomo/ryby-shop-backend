@@ -542,13 +542,13 @@ export class BestellungenService {
           user_email: order.kunde.email,
           created_at: new Date(Date.now()),
         };
-        //TODO odblokowac po pierwszym uzyciu
-        /*await isEbayMengeChecked(
+
+        await isEbayMengeChecked(
           order,
           this.ebayOfferService,
           this.logsService,
           true,
-        );*/
+        );
 
         await this.mailService.sendItemBughtEmail(order);
         await this.logsService.saveLog(logs);
