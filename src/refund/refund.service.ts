@@ -6,6 +6,7 @@ import { EbayRequest } from 'src/ebay/ebay.request';
 import { EbayService } from 'src/ebay/ebay.service';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { EbayRefund } from 'src/entity/ebay/ebayRefund';
+import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 import { LOGS_CLASS, LogsEntity } from 'src/entity/logsEntity';
 import { ProduktVariations } from 'src/entity/produktVariations';
 import { env } from 'src/env/env';
@@ -26,10 +27,24 @@ export class RefundService {
   ): Promise<EbayRefund[]> {
     try {
       const refund = await this.repo.create(refundDto);
-      const testit = false;
+      const testit = true;
       let saved = { id: -1 } as EbayRefund;
       const refundPorducts: ProduktVariations[] = [];
       await this.repo.manager.transaction(async (transactionManager) => {
+        const transaction: EbayTransactions = await transactionManager.findOne(
+          EbayTransactions,
+          {
+            where: {
+              id: refundDto.transaction.id,
+            },
+          },
+        );
+        if (!transaction)
+          throw new HttpException(
+            'Transaction not found',
+            HttpStatus.NOT_FOUND,
+          );
+        let money = 0;
         if (refund.refund_items && refund.refund_items.length > 0) {
           for (let i = 0; i < refund.refund_items.length; i++) {
             const item = await transactionManager.findOne(ProduktVariations, {
@@ -37,16 +52,24 @@ export class RefundService {
                 sku: refund.refund_items[i].sku,
               },
             });
+            if (Number(refund.refund_items[i].amount) > 0)
+              money += Number(refund.refund_items[i].amount);
             // ebay count it as 1 item sold
-            item.quanity -=
+            item.quanity +=
               Number(refund.refund_items[i].item_quanity) *
               item.quanity_sold_at_once;
-            item.quanity_sold +=
+            item.quanity_sold -=
               Number(refund.refund_items[i].item_quanity) *
               item.quanity_sold_at_once;
             refundPorducts.push(item);
           }
         }
+        //it should check, if the refund its greater then the amount received
+        if (refund.amount + money > transaction.price_total)
+          throw new HttpException(
+            'The amount of the refund cannot be greater than the amount received.',
+            HttpStatus.BAD_REQUEST,
+          );
         await transactionManager.save(ProduktVariations, refundPorducts);
         return (saved = await transactionManager.save(refund));
       });
