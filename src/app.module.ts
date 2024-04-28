@@ -45,6 +45,8 @@ import { LogsEntity } from './entity/logsEntity';
 import { LogsModule } from './ebay_paypal_logs/logs.module';
 import { AktionModule } from './aktion/aktion.module';
 import { MailModule } from './mail/mail.module';
+import { Destruction_protocolEntity } from './entity/destruction_protocolEntity';
+import { DestructionProModule } from './destruction_pro/destruction_pro.module';
 
 @Module({
   imports: [
@@ -81,6 +83,7 @@ import { MailModule } from './mail/mail.module';
         EbayRefund,
         EbayRefundItem,
         LogsEntity,
+        Destruction_protocolEntity,
       ],
       synchronize: false,
     }),
@@ -101,6 +104,7 @@ import { MailModule } from './mail/mail.module';
     LogsModule,
     AktionModule,
     MailModule,
+    DestructionProModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],

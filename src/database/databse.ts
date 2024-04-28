@@ -97,7 +97,18 @@ export class Database {
             name VARCHAR(255),
             adresse VARCHAR(255)
           );
-          
+          CREATE TABLE IF NOT EXISTS destruction_protocol (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            produktId INT NOT NULL,
+            variationId VARCHAR(255) NOT NULL,
+            produkt_name VARCHAR(255) NOT NULL,
+            quantity INT NOT NULL,
+            type VARCHAR(55) NOT NULL,
+            destruction_date DATE NOT NULL,
+            responsible_person VARCHAR(255) NOT NULL,
+            status VARCHAR(55) NOT NULL,
+            description TEXT
+          );
           CREATE TABLE IF NOT EXISTS stellplatze (
             id INT AUTO_INCREMENT PRIMARY KEY,
             platzid VARCHAR(255),
