@@ -78,7 +78,8 @@ export class DestructionProService {
             if(delRes.affected !== 1)
                 throw new Error('Protocol cannot be deleted.... ')    
 
-            return delRes.affected;
+          
+            return delRes;
             })
         } catch (err) {
             throw err;
@@ -115,7 +116,7 @@ export class DestructionProService {
                 if(oldProt.quantity !== prot.quantity && variation.quanity < 0)
                     throw new Error('Produkt Quantity after -  willbe smaller then 0!')
 
-                const merged = await manager.merge(Destruction_protocolEntity, prot, oldProt);
+                const merged = await manager.merge(Destruction_protocolEntity, oldProt, prot);
 
                 await manager.save(ProduktVariations, variation);
 

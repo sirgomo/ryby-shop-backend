@@ -7,7 +7,9 @@ import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import request from 'supertest';
 import { DestructionProService } from './destruction_pro.service';
 import { INestApplication } from '@nestjs/common';
-import { Destruction_Protocol_Status, Destruction_Protocol_Type } from 'src/dto/destruction_protocol.dto';
+import { Destruction_Protocol_Status, Destruction_Protocol_Type, Destruction_protocolDTO } from 'src/dto/destruction_protocol.dto';
+import { ProduktVariations } from 'src/entity/produktVariations';
+import { Produkt } from 'src/entity/produktEntity';
 
 const item: Destruction_protocolEntity = {
   id: 1,
@@ -15,10 +17,10 @@ const item: Destruction_protocolEntity = {
   variationId: 'sjd72',
   produkt_name: 'jkasjhasd',
   quantity: 3,
-  type: Destruction_Protocol_Type.Gestohlen.toString(),
+  type: Destruction_Protocol_Type['Beschädigt im Transport'],
   destruction_date: undefined,
   responsible_person: 'sadasd',
-  status: Destruction_Protocol_Status.CLOSED.toString(),
+  status: Destruction_Protocol_Status.CLOSED,
   description: ''
 };
 const item2: Destruction_protocolEntity = {
@@ -27,11 +29,27 @@ const item2: Destruction_protocolEntity = {
   variationId: 'asjd72',
   produkt_name: 'dd jkasjhasd',
   quantity: 5,
-  type: Destruction_Protocol_Type.Gestohlen.toString(),
+  type: Destruction_Protocol_Type.Gestohlen,
   destruction_date: undefined,
   responsible_person: 'sadasd',
-  status: Destruction_Protocol_Status.CLOSED.toString(),
+  status: Destruction_Protocol_Status.CLOSED,
   description: ''
+};
+
+const prod: ProduktVariations = {
+  sku: 'saddasd',
+  produkt: new Produkt(),
+  variations_name: 'name',
+  hint: '',
+  value: '2',
+  unit: '2',
+  image: '',
+  price: 2.97,
+  wholesale_price: 2.33,
+  thumbnail: '',
+  quanity: 10,
+  quanity_sold: 1,
+  quanity_sold_at_once: 1
 };
 const items: Destruction_protocolEntity[] = [item, item2];
 
@@ -87,58 +105,139 @@ describe('DestructionProController', () => {
         expect(res.body).toEqual([[item, item2], 2])
     });
   });
-  /*
+  
   describe('/GET destruction-pro/:id', () => {
     it('should return a single protocol', async () => {
       const result = { id: 1 };
-      jest.spyOn(destructionProService, 'getProtocolById').mockImplementation(async () => result);
+      jest.spyOn(protocolRepo, 'findOne').mockImplementation(async () => item);
 
-      return request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .get('/destruction-pro/1')
         .expect(200)
-        .expect(result);
+        
+        expect(res.body).toEqual(item);
     });
   });
-
+  
   describe('/POST destruction-pro', () => {
     it('should create a new protocol', async () => {
-      const newProtocol = { name: 'Test Protocol' };
-      const result = { id: 1, ...newProtocol };
-      jest.spyOn(destructionProService, 'createProtocol').mockImplementation(async () => result);
+      const newProtocol = {  
+      produktId: 1,
+      variationId: 'sjd72',
+      produkt_name: 'jkasjhasd',
+      quantity: 3,
+      type: Destruction_Protocol_Type['Beschädigt im Transport'],
+      destruction_date: new Date(Date.now()),
+      responsible_person: 'sadasd',
+      status: Destruction_Protocol_Status.CLOSED,
+      description: null
+    }
+      const result = { id: null, ...newProtocol };
+      jest.spyOn(protocolRepo, 'create').mockImplementation(() => result);
+      jest.spyOn(protocolRepo.manager, 'transaction')
+        .mockImplementation(async (isoLevel: any, runIn: any) => {
+          const transaction = {
+            findOne: jest.fn().mockResolvedValue(prod),
+            save: jest.fn().mockImplementation((data) => {
+              return data.sku ? prod : item 
+            })
+          };
+          if(isoLevel)
+            return await isoLevel(transaction);
 
-      return request(app.getHttpServer())
+          return await runIn(transaction);
+        })
+
+      const res = await request(app.getHttpServer())
         .post('/destruction-pro')
         .send(newProtocol)
-        .expect(201)
-        .expect(result);
+        .expect(201);
+        
+        expect(res.body).toEqual(item);
+        expect(prod.quanity).toEqual(7);
     });
   });
 
   describe('/DELETE destruction-pro/:id', () => {
     it('should delete a protocol', async () => {
-      jest.spyOn(destructionProService, 'deleteProtocolById').mockImplementation(async () => ({ deleted: true }));
+      jest.spyOn(protocolRepo.manager, 'transaction')
+        .mockImplementation(async (isoLevel: any, runIn: any) => {
+          const transaction = {
+            findOne: jest.fn().mockImplementation((data) => {
+              return data.sku ? prod: item
+            }),
+            save: jest.fn().mockReturnValue(prod),
+            delete: jest.fn().mockResolvedValue({affected: 1, raw : ''} )
+          };
+          if(isoLevel)
+              return await isoLevel(transaction);
 
-      return request(app.getHttpServer())
+          return await runIn(transaction);
+        })
+
+      const requ = await request(app.getHttpServer())
         .delete('/destruction-pro/1')
-        .expect(200)
-        .expect({ deleted: true });
+        .expect(200);
+      expect(requ.body).toEqual({ affected: 1, raw : ''});
     });
   });
 
   describe('/PUT destruction-pro/:id', () => {
     it('should update a protocol', async () => {
-      const updatedProtocol = { name: ' Protocol' };
-      const result = { id: 1, ...updatedProtocol };
-      jest.spyOn(destructionProService, 'editProtocol').mockImplementation(async () => result);
+      const updatedProtocol: Destruction_protocolDTO = {
+        id: 12,
+        produktId: 22,
+        variationId: 'ksjd8',
+        produkt_name: 'dd jkasjhasd',
+        quantity: 5,
+        type: Destruction_Protocol_Type.Gestohlen,
+        destruction_date: new Date(Date.now()),
+        responsible_person: 'sadasd',
+        status: Destruction_Protocol_Status.CLOSED,
+        description: 'tu nie ma nic a teraz jest'
+      };
+      const result = { 
+        id: 12,
+        produktId: 22,
+        variationId: 'ksjd8',
+        produkt_name: 'dd jkasjhasd',
+        quantity: 5,
+        type: Destruction_Protocol_Type.Gestohlen,
+        destruction_date: "2023-12-31T23:00:00.000Z",
+        responsible_person: 'sadasd',
+        status: Destruction_Protocol_Status.CLOSED,
+        description: 'tu nie ma nic a teraz jest'
+      };
+      jest.spyOn(protocolRepo, 'create').mockReturnValueOnce(updatedProtocol);
+      jest.spyOn(protocolRepo.manager, 'transaction')
+        .mockImplementation(async (isoLevel: any, runIn: any) => {
+          const transaction = {
+            findOne: jest.fn().mockImplementation((data) => {
+              return data.sku ? prod: item2;
+            }),
+            merge: jest.fn().mockImplementation((old, curr) => {
+              return { ...old, ...curr};
+            }),
+            save: jest.fn().mockImplementation((data) => {
+    
+              return data.sku ? prod: result;
+            })
+          };
+          if(isoLevel)
+            return await isoLevel(transaction);
 
-      return request(app.getHttpServer())
+          return await runIn(transaction);
+        })
+
+      const requ = await request(app.getHttpServer())
         .put('/destruction-pro/1')
         .send(updatedProtocol)
-        .expect(200)
-        .expect(result);
+        .expect(200);
+     
+      expect(requ.body).toEqual(result);
     });
   });
-  */
+  
   afterAll(async () => {
     await app.close();
   });

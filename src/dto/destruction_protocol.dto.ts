@@ -24,12 +24,12 @@ export class Destruction_protocolDTO {
 }
 
 export enum Destruction_Protocol_Status {
-    'CLOSED',
-    'OPEN',
-    'ABGEBROCHEN'
+    CLOSED = 'CLOSED',
+    OPEN = 'OPEN',
+    ABGEBROCHEN='ABGEBROCHEN'
 }
 export enum Destruction_Protocol_Type {
-    'Beschädigt im Transport',
-    'Gestohlen',
-    'Verloren im Transport'
+    'Beschädigt im Transport' ='Beschädigt im Transport',
+    'Gestohlen' ='Gestohlen',
+    'Verloren im Transport'='Verloren im Transport'
 }
