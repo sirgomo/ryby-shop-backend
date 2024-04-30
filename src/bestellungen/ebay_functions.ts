@@ -22,14 +22,14 @@ export async function isEbayMengeChecked(
     );
     if (index !== -1) {
       itemsQuanity[index].quantity +=
-        bestellungData.produkte[i].produkt[0].variations[0].quanity *
+        bestellungData.produkte[i].produkt[0].variations[0].quanity /
         bestellungData.produkte[i].produkt[0].variations[0]
           .quanity_sold_at_once;
     } else {
       const item: { sku: string; quantity: number } = {
         sku: bestellungData.produkte[i].produkt[0].variations[0].sku,
         quantity:
-          bestellungData.produkte[i].produkt[0].variations[0].quanity *
+          bestellungData.produkte[i].produkt[0].variations[0].quanity /
           bestellungData.produkte[i].produkt[0].variations[0]
             .quanity_sold_at_once,
       };
