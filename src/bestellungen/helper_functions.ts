@@ -27,7 +27,7 @@ export function setProduktQuanity(readyBesttelung: OrderDto) {
         readyBesttelung.produkte[i].produkt[0].variations[0].quanity;
     } else {
       readyBesttelung.produkte[i].menge +=
-        readyBesttelung.produkte[i].produkt[0].variations[0].quanity *
+        readyBesttelung.produkte[i].produkt[0].variations[0].quanity /
         readyBesttelung.produkte[i].produkt[0].variations[0]
           .quanity_sold_at_once;
     }
