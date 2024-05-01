@@ -160,12 +160,14 @@ export class BestellungenService {
       );
       //Check the quantity and price of the product, if it is correct, return the current list of products with quantity reduced by the order,
       //quantity cannot be less than 0.
+      //set quantity, quantity * quanity_sold_at_once
       const itemsTosave = await isPriceMengeChecked(
         readyBesttelung,
         this.logsService,
         this.productRepository,
       );
-      //set produkt quantity for item where there is more items are selled at once ( only in online-shop, in ebay they are default sold as 1 stuck)
+      //set produkt quantity for item where there is more items sold at once ( only in online-shop, in ebay they are default sold as 1 stuck)
+      //quantity / quanity_sold_at_once 
       setProduktQuanity(readyBesttelung);
 
       readyBesttelung.status = BESTELLUNGSSTATE.BEZAHLT;
@@ -486,11 +488,13 @@ export class BestellungenService {
   async saveOwnOrder(order: OrderDto) {
     try {
       if (order.kunde.role === 'ADMIN') {
+        //set quantity to save on product variation, quantity * quanity_sold_at_once
         const prod = await setOwnProducs(
           order,
           this.logsService,
           this.productRepository,
         );
+        //set quanity for order, quantity / quanity_sold_at_once
         await setProduktQuanity(order);
 
         order.status = BESTELLUNGSSTATE.BEZAHLT;
