@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { updateEbayOffer } from 'src/bestellungen/ebay_functions';
 import { Destruction_protocolDTO } from 'src/dto/destruction_protocol.dto';
@@ -21,7 +21,17 @@ export class DestructionProService {
         try {
             return await this.service.findAndCount({
                 take: itemProSite,
-                skip: skip
+                skip: skip,
+                select: {
+                  id: true,
+                  produkt_name: true,
+                  quantity: true,
+                  quantity_at_once: true,
+                  type: true,
+                  responsible_person: true,
+                  destruction_date: true,
+                  status: true,
+                }
             });
         } catch (err) {
             throw err;
@@ -42,12 +52,13 @@ export class DestructionProService {
                 }});
 
                 if(!product)
-                    throw new Error('Produkt not found!')
+                    throw new HttpException('Produkt not found!', HttpStatus.NOT_FOUND);
 
                 if(!variation)
                     throw new Error('Produkt Variation not found!')
                 //only for local update, when at once we sell more then 1 item
                 prot.quantity = protocol.quantity * variation.quanity_sold_at_once;
+                prot.quantity_at_once = variation.quanity_sold_at_once;
 
                 if(variation.quanity - prot.quantity < 0)
                     throw new Error('Produkt Quantity after -  willbe smaller then 0!')
@@ -172,7 +183,7 @@ export class DestructionProService {
 
                 if(oldProt.quantity !== prot.quantity && variation.quanity < 0)
                     throw new Error('Produkt Quantity after -  willbe smaller then 0!')
-                
+
                 if( eby_quantity !== 0) {
                     let do_update = { update: '', menge: 0, item: 'saved' };
                     if(product.ebay === 1)

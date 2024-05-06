@@ -16,6 +16,8 @@ export class Destruction_protocolEntity {
 
     @Column()
     quantity: number;
+    @Column()
+    quantity_at_once: number;
 
     @Column()
     type: string;

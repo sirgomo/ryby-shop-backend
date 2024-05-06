@@ -11,6 +11,8 @@ export class Destruction_protocolDTO {
     produkt_name: string;
     @IsNumber()
     quantity: number;
+    @IsOptional()
+    quantity_at_once: number;
     @IsNotEmpty()
     type: string;
     @IsNotEmpty()

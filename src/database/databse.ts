@@ -103,6 +103,7 @@ export class Database {
             variationId VARCHAR(255) NOT NULL,
             produkt_name VARCHAR(255) NOT NULL,
             quantity INT NOT NULL,
+            quantity_at_once INT NOT NULL,
             type VARCHAR(55) NOT NULL,
             destruction_date DATE NOT NULL,
             responsible_person VARCHAR(255) NOT NULL,
