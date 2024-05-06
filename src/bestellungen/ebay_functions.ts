@@ -122,7 +122,7 @@ async function getEbayResponse(
     console.log(err);
   }
 }
-async function updateEbayOffer(
+export async function updateEbayOffer(
   sku: string,
   quantity: number,
   requestquantity: number,
@@ -140,10 +140,11 @@ async function updateEbayOffer(
       created_at: new Date(Date.now()),
     };
     await logsService.saveLog(logs);
-    throw new HttpException(
+    return { update: sku, menge: quantity, item: 'updateEbayOffer has no response..., please try once more' }
+    /*throw new HttpException(
       'updateEbayOffer has no response..., please try once more ',
       HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    );*/
   }
   try {
     const group: EbayGroupItemDto =
@@ -169,13 +170,16 @@ async function updateEbayOffer(
     }
     if (group.packageWeightAndSize.weight.value === 0)
       group.packageWeightAndSize = undefined;
-    await updateEbayGroupItem(
+
+    const do_update = await updateEbayGroupItem(
       group,
       quantity,
       3,
       ebayOfferService,
       logsService,
     );
+
+    return do_update;
   } catch (err) {}
 }
 async function updateEbayGroupItem(
@@ -192,16 +196,18 @@ async function updateEbayGroupItem(
       created_at: new Date(Date.now()),
     };
     await logsService.saveLog(logs);
-    throw new HttpException(
+    return { update: group.sku, menge: quantity, item: 'ebay group item updated not possible' }
+    /*throw new HttpException(
       'ebay group item updated not possible',
       HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    );*/
   }
   try {
     const requ = await offerService.updateEbayInventoryItem(
       group.sku,
       JSON.stringify(group),
     );
+    console.log(requ);
     if (requ[1] === 204) {
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
@@ -209,6 +215,7 @@ async function updateEbayGroupItem(
         created_at: new Date(Date.now()),
       };
       await logsService.saveLog(logs);
+      return { update: group.sku, menge: quantity, item: 'saved' }
     } else {
       await updateEbayGroupItem(
         [group, await requ[0].text()] as EbayGroupItemDto,
