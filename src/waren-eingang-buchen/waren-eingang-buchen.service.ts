@@ -211,15 +211,26 @@ export class WarenEingangBuchenService {
       }
     }
 
-    return await this.prodRepo.manager.transaction(
+    return await this.prodRepo.manager.transaction( 
       async (transactionEntityManager) => {
+        let logs = '';
+        logs += 'Receipt of Goods ID + ' + foundWareneingang.id + ' date: ' + foundWareneingang.empfangsdatum+ '\n'
+        logs += ' items : \n'
+        foundWareneingang.products.forEach((item) => {
+          item.product_variation.forEach((vari) => {
+           logs +=' sku: ' + vari.sku + 'total quantity: ' + vari.quanity + ' price in (e): ' + vari.price_in_euro + '\n'
+          })
+        })
+        + ' new saved items :\n'
+        itemsSave.forEach((prod) => {
+          prod.variations.forEach((vari) => {
+           logs +=' sku: ' + vari.sku + 'new quantity: ' + vari.quanity + '\n'
+          })
+        }) 
+        console.log(JSON.stringify(logs));
         const log: Partial<LogsEntity> = {
           error_class: LOGS_CLASS.WARENEINGANG,
-          error_message: JSON.stringify([
-            foundWareneingang,
-            ' New Produkts quantity ',
-            itemsSave,
-          ]),
+          error_message: JSON.stringify(logs),
           created_at: new Date(Date.now()),
         };
         await transactionEntityManager.save(LogsEntity, log);

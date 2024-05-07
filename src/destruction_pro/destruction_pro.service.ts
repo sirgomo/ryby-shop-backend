@@ -55,13 +55,14 @@ export class DestructionProService {
                     throw new HttpException('Produkt not found!', HttpStatus.NOT_FOUND);
 
                 if(!variation)
-                    throw new Error('Produkt Variation not found!')
+                  throw new HttpException('Produkt Variation not found!', HttpStatus.NOT_FOUND);
+                   
                 //only for local update, when at once we sell more then 1 item
                 prot.quantity = protocol.quantity * variation.quanity_sold_at_once;
                 prot.quantity_at_once = variation.quanity_sold_at_once;
 
                 if(variation.quanity - prot.quantity < 0)
-                    throw new Error('Produkt Quantity after -  willbe smaller then 0!')
+                    throw new HttpException('Produkt Quantity after -  willbe smaller then 0!', HttpStatus.FAILED_DEPENDENCY)
 
                 variation.quanity -= prot.quantity;
                 let do_update = { update: '', menge: 0, item: 'saved' };
@@ -99,13 +100,13 @@ export class DestructionProService {
             }})
 
             if (!prot)
-                throw new Error('Protocol not found!')
+                throw new HttpException('Protocol not found!', HttpStatus.NOT_FOUND)
 
             const item = await manager.findOne(ProduktVariations, { where : {
                 sku: prot.variationId
             }})
             if (!item)
-                throw new Error('Produkt Varation not found!')
+                throw new HttpException('Produkt Varation not found!', HttpStatus.NOT_FOUND)
 
             
             const product = await manager.findOne(Produkt, {where: {
@@ -113,7 +114,7 @@ export class DestructionProService {
             }});
 
             if(!product)
-                throw new Error('Produkt not found!')
+                throw new HttpException('Produkt not found!', HttpStatus.NOT_FOUND)
 
             item.quanity += prot.quantity;
 
@@ -128,7 +129,7 @@ export class DestructionProService {
 
             const delRes: DeleteResult = await manager.delete(DestructionProService, { id: id });
             if(delRes.affected !== 1)
-                throw new Error('Protocol cannot be deleted.... ')    
+                throw new HttpException('Protocol cannot be deleted.... ', HttpStatus.CONFLICT)    
 
           
             return delRes;
@@ -147,14 +148,14 @@ export class DestructionProService {
                 }});
 
                 if(!variation)
-                    throw new Error('Produkt Variation not found!')
+                    throw new HttpException('Produkt Variation not found!', HttpStatus.NOT_FOUND)
 
                 const oldProt = await manager.findOne(Destruction_protocolEntity,{ where: {
                     id: prot.id
                 }});
 
                 if(!oldProt)
-                    throw new Error('Protocol not found!')
+                    throw new HttpException('Protocol not found!', HttpStatus.NOT_FOUND)
 
                 
                 const product = await manager.findOne(Produkt, {where: {
@@ -162,7 +163,7 @@ export class DestructionProService {
                 }});
 
                 if(!product)
-                    throw new Error('Produkt not found!')
+                    throw new HttpException('Produkt not found!', HttpStatus.NOT_FOUND)
 
                 prot.quantity = protocol.quantity * variation.quanity_sold_at_once;
                 let eby_quantity = 0;
@@ -182,7 +183,7 @@ export class DestructionProService {
                 }
 
                 if(oldProt.quantity !== prot.quantity && variation.quanity < 0)
-                    throw new Error('Produkt Quantity after -  willbe smaller then 0!')
+                    throw new HttpException('Produkt Quantity after -  willbe smaller then 0!', HttpStatus.FAILED_DEPENDENCY)
 
                 if( eby_quantity !== 0) {
                     let do_update = { update: '', menge: 0, item: 'saved' };

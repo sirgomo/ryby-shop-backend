@@ -271,7 +271,6 @@ export class ProductService {
   async createProdukt(productDto: ProductDto): Promise<Produkt> {
     try {
       const produkt = await this.produktRepository.create(productDto);
-
       return await this.produktRepository.save(produkt);
     } catch (error) {
       throw new HttpException(
