@@ -153,12 +153,25 @@ export class WarenEingangBuchenService {
 
       return await this.warenEingangRepository.save(merged);
     } catch (error) {
-      const logs: AcctionLogsDto = {
+      let logs = '';
+        logs += 'Update of Receipt of Goods ID: ' + wareneingangDto.id + ' date: ' + wareneingangDto.empfangsdatum+ '\n'
+        logs += ' items : \n'
+        if(wareneingangDto.products && wareneingangDto.products.length > 0)
+        wareneingangDto.products.forEach((item) => {
+          item.product_variation.forEach((vari) => {
+           logs +=' sku: ' + vari.sku + ' total quantity: ' + vari.quanity + ' price in (e): ' + vari.price_in_euro + '\n'
+          })
+        })
+        logs += ' An error occurred during the update attempt. Items are not saved! \n';
+        logs += error.message;
+        
+    
+      const elogs: AcctionLogsDto = {
         error_class: LOGS_CLASS.WARENEINGANG,
-        error_message: JSON.stringify([wareneingangDto, error]),
+        error_message: JSON.stringify(logs),
         created_at: new Date(Date.now()),
       };
-      await this.logsService.saveLog(logs);
+      await this.logsService.saveLog(elogs);
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
       } else {
@@ -214,20 +227,20 @@ export class WarenEingangBuchenService {
     return await this.prodRepo.manager.transaction( 
       async (transactionEntityManager) => {
         let logs = '';
-        logs += 'Receipt of Goods ID + ' + foundWareneingang.id + ' date: ' + foundWareneingang.empfangsdatum+ '\n'
+        logs += 'Receipt of Goods ID: ' + foundWareneingang.id + ' date: ' + foundWareneingang.empfangsdatum+ '\n'
         logs += ' items : \n'
         foundWareneingang.products.forEach((item) => {
           item.product_variation.forEach((vari) => {
-           logs +=' sku: ' + vari.sku + 'total quantity: ' + vari.quanity + ' price in (e): ' + vari.price_in_euro + '\n'
+           logs +=' sku: ' + vari.sku + ' total quantity: ' + vari.quanity + ' price in (e): ' + vari.price_in_euro + '\n'
           })
         })
         + ' new saved items :\n'
         itemsSave.forEach((prod) => {
           prod.variations.forEach((vari) => {
-           logs +=' sku: ' + vari.sku + 'new quantity: ' + vari.quanity + '\n'
+           logs +=' sku: ' + vari.sku + ' new quantity: ' + vari.quanity + '\n'
           })
         }) 
-        console.log(JSON.stringify(logs));
+    
         const log: Partial<LogsEntity> = {
           error_class: LOGS_CLASS.WARENEINGANG,
           error_message: JSON.stringify(logs),
@@ -322,14 +335,6 @@ export class WarenEingangBuchenService {
       }
       prod.product_variation = await this.variRepo.save(vari);
       return prod;
-      //its not working, i donkt know why, but its save only one element from variations array, when there is more then one
-      /*wareneingang.products.push(product);
- 
-      const saved = await this.warenEingangRepository.save(wareneingang).catch(err => {
-        console.log(err);
-        throw new HttpException('Es ist ein Fehler aufgetreten beim Speichern vom Produkt, abgebrochen', HttpStatus.INTERNAL_SERVER_ERROR);
-      });
-      return saved.products[saved.products.length -1];*/
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
