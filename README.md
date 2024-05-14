@@ -13,3 +13,7 @@ Tests are performed using the 'Jest' library.
 6. Endpoint for goods receipt - goods receipt, change in the number of available items and saving in the database using transactions
 7. Endpoint for handling orders and PayPal - saving the order and changes in the quantity of products using transactions
 8. Start working on eBay API functionality, focusing only on what's necessary
+9. Logging and saving some operations, ebay item quantity change
+
+And many more....
+

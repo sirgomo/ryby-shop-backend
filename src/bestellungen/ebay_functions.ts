@@ -161,7 +161,7 @@ export async function updateEbayOffer(
       );
     
     if (
-      group.availability.shipToLocationAvailability.quantity - quantity >=
+      group.availability?.shipToLocationAvailability?.quantity - quantity >=
       0
     ) {
       group.availability.shipToLocationAvailability.quantity -= quantity;
@@ -194,7 +194,8 @@ async function updateEbayGroupItem(
   if (retry === 0) {
     const logs: AcctionLogsDto = {
       error_class: LOGS_CLASS.EBAY_ERROR,
-      error_message: JSON.stringify([group, 'item quantity - ' + quantity]),
+      error_message: JSON.stringify([group, 'item quantity - ' + quantity]) + '\n'
+      +' Ebay error, new quantity not saved !',
       created_at: new Date(Date.now()),
     };
     await logsService.saveLog(logs);
@@ -213,7 +214,8 @@ async function updateEbayGroupItem(
     if (requ[1] === 204) {
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
-        error_message: JSON.stringify([group, 'item quantity - ' + quantity]),
+        error_message: JSON.stringify([group, 'item quantity - ' + quantity]) + '\n'
+        +'New ebay quanity '+ group?.availability?.shipToLocationAvailability?.quantity + ' changed on ebay....',
         created_at: new Date(Date.now()),
       };
       await logsService.saveLog(logs);

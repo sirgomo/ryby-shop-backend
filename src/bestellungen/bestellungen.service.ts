@@ -227,7 +227,8 @@ export class BestellungenService {
         error_class: LOGS_CLASS.SUCCESS_LOG,
         error_message:
           ' --------- TRANSACTION SUCCESSFULL ------- \n' +
-          JSON.stringify([readyBesttelung, ' new item quantity ', itemsTosave]),
+          JSON.stringify([readyBesttelung, ' new item quantity ', itemsTosave]) +'\n'
+          +'-------- ITEM SAVED IN DATABASE',
         paypal_transaction_id: readyBesttelung.paypal_order_id,
         user_email: readyBesttelung.kunde.email,
         created_at: new Date(Date.now()),
