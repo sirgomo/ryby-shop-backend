@@ -119,7 +119,7 @@ async function getEbayResponse(
       }
     }
   } catch (err) {
-    console.log(err);
+    throw err;
   }
 }
 export async function updateEbayOffer(
@@ -159,7 +159,7 @@ export async function updateEbayOffer(
         ebayOfferService,
         logsService,
       );
-
+    
     if (
       group.availability.shipToLocationAvailability.quantity - quantity >=
       0
@@ -168,7 +168,7 @@ export async function updateEbayOffer(
     } else {
       group.availability.shipToLocationAvailability.quantity = 0;
     }
-    if (group.packageWeightAndSize.weight.value === 0)
+    if (group.packageWeightAndSize?.weight?.value === 0)
       group.packageWeightAndSize = undefined;
 
     const do_update = await updateEbayGroupItem(
@@ -180,7 +180,9 @@ export async function updateEbayOffer(
     );
 
     return do_update;
-  } catch (err) {}
+  } catch (err) {
+    throw err;
+  }
 }
 async function updateEbayGroupItem(
   group: EbayGroupItemDto,
@@ -207,7 +209,7 @@ async function updateEbayGroupItem(
       group.sku,
       JSON.stringify(group),
     );
-    console.log(requ);
+    //console.log(requ);
     if (requ[1] === 204) {
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,

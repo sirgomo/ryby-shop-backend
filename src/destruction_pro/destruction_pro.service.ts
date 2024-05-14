@@ -65,19 +65,23 @@ export class DestructionProService {
                     throw new HttpException('Produkt Quantity after -  willbe smaller then 0!', HttpStatus.FAILED_DEPENDENCY)
 
                 variation.quanity -= prot.quantity;
-                let do_update = { update: '', menge: 0, item: 'saved' };
-                if(product.ebay === 1) {
-                    // on ebay 1 item is 1 item,
-                    do_update = await updateEbayOffer(prot.variationId, protocol.quantity, 3, null, this.offerService, this.logsService);
-                }
-                    
-
-                if(product.ebay === 1 && do_update.item !== 'saved')
-                    throw new Error(do_update.item)
+                
+   
 
                 await manager.save(ProduktVariations, variation);
 
-                return await manager.save(Destruction_protocolEntity, prot);   
+                const protSave =  await manager.save(Destruction_protocolEntity, prot);   
+                let do_update = { update: '', menge: 0, item: 'saved' };
+                if(product.ebay === 1) {
+                  // on ebay 1 item is 1 item,
+                  do_update = await updateEbayOffer(prot.variationId, protocol.quantity, 3, null, this.offerService, this.logsService);
+                }
+                  
+
+                if(product.ebay === 1 && do_update.item !== 'saved')
+                  throw new Error(do_update.item)
+
+                return protSave;
             })
 
         } catch (err) {
@@ -93,14 +97,17 @@ export class DestructionProService {
     }
     async deleteProtocolById(id: number) {
         try {
+          
+          const prot = await this.service.findOne( {
+             where: {
+            id: id
+          }})
 
+          if (!prot)
+            throw new HttpException('Protocol not found!', HttpStatus.NOT_FOUND)
+          
           return await this.service.manager.transaction(async (manager) => {
-            const prot = await manager.findOne(Destruction_protocolEntity, { where: {
-                id: id
-            }})
-
-            if (!prot)
-                throw new HttpException('Protocol not found!', HttpStatus.NOT_FOUND)
+        
 
             const item = await manager.findOne(ProduktVariations, { where : {
                 sku: prot.variationId
@@ -118,26 +125,30 @@ export class DestructionProService {
 
             item.quanity += prot.quantity;
 
-            let do_update = { update: '', menge: 0, item: 'saved' };
-            if(product.ebay === 1)
-                do_update = await updateEbayOffer(prot.variationId, -(prot.quantity / item.quanity_sold_at_once), 3, null, this.offerService, this.logsService);
-
-            if(product.ebay === 1 && do_update.item !== 'saved')
-                throw new Error(do_update.item)
+            
             
             await manager.save(ProduktVariations, item);
-
-            const delRes: DeleteResult = await manager.delete(DestructionProService, { id: id });
+            
+            const delRes : DeleteResult = await manager.delete(Destruction_protocolEntity, { id: id });
+            console.log(delRes)
             if(delRes.affected !== 1)
                 throw new HttpException('Protocol cannot be deleted.... ', HttpStatus.CONFLICT)    
+   
+            let do_update = { update: '', menge: 0, item: 'saved' };
+            if(product.ebay === 1)
+              do_update = await updateEbayOffer(prot.variationId, -(prot.quantity / item.quanity_sold_at_once), 3, null, this.offerService, this.logsService);
 
-          
+            console.log(do_update)
+            if(product.ebay === 1 && do_update.item !== 'saved')
+              throw new Error(do_update.item)
+
             return delRes;
             })
         } catch (err) {
             throw err;
         }
     }
+
     async editProtocol(protocol: Destruction_protocolDTO) {
         try {
             const prot: Destruction_protocolEntity = await this.service.create(protocol);
@@ -185,21 +196,25 @@ export class DestructionProService {
                 if(oldProt.quantity !== prot.quantity && variation.quanity < 0)
                     throw new HttpException('Produkt Quantity after -  willbe smaller then 0!', HttpStatus.FAILED_DEPENDENCY)
 
-                if( eby_quantity !== 0) {
-                    let do_update = { update: '', menge: 0, item: 'saved' };
-                    if(product.ebay === 1)
-                        do_update = await updateEbayOffer(prot.variationId,  eby_quantity / variation.quanity_sold_at_once, 3, null, this.offerService, this.logsService);
-        
-                    if(product.ebay === 1 && do_update.item !== 'saved')
-                        throw new Error(do_update.item)
-                }
+       
            
-
+                prot.id = Number(prot.id);
                 const merged = await manager.merge(Destruction_protocolEntity, oldProt, prot);
-
+      
                 await manager.save(ProduktVariations, variation);
+               
+                const mergedAndSaved = await manager.save(Destruction_protocolEntity, merged);
+            
+                if( eby_quantity !== 0) {
+                  let do_update = { update: '', menge: 0, item: 'saved' };
+                  if(product.ebay === 1)
+                      do_update = await updateEbayOffer(prot.variationId,  eby_quantity / variation.quanity_sold_at_once, 3, null, this.offerService, this.logsService);
+      
+                  if(product.ebay === 1 && do_update.item !== 'saved')
+                      throw new Error(do_update.item)
+              }
 
-                return await manager.save(Destruction_protocolEntity, merged);
+              return mergedAndSaved;
 
             })
 
