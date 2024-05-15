@@ -215,7 +215,7 @@ async function updateEbayGroupItem(
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.SUCCESS_LOG,
         error_message: JSON.stringify([group, 'item quantity - ' + quantity]) + '\n'
-        +'New ebay quanity '+ group?.availability?.shipToLocationAvailability?.quantity + ' changed on ebay....',
+        +'New ebay quanity '+ group?.availability?.shipToLocationAvailability?.quantity + ' saved on ebay....',
         created_at: new Date(Date.now()),
       };
       await logsService.saveLog(logs);

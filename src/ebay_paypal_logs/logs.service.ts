@@ -15,6 +15,7 @@ export class LogsService {
     take: number,
   ): Promise<[LogsEntity[], number]> {
     try {
+      console.log('site ' + site + ' take ' + take);
       const skip = site * take - take;
 
       if (log_class === 'NULL') {
