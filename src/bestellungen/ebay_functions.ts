@@ -70,7 +70,7 @@ async function getEbayResponse(
   logsService: LogsService,
 ) {
   try {
-    //save error when there is repose from ebay
+    //save error when there is no repose from ebay
     if (requestquantity === 0) {
       const logs: AcctionLogsDto = {
         error_class: LOGS_CLASS.EBAY_ERROR,
@@ -88,7 +88,22 @@ async function getEbayResponse(
     }
 
     const respo = await ebayOfferService.getInventoryItemBySku(sku);
-    if (respo.availability.shipToLocationAvailability) {
+    // seave error when there is response from ebay and its an error
+    if(Object(respo).errors) {
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.EBAY_ERROR,
+        error_message: JSON.stringify([
+          'Bestellungs from Kunde: ' + bestellungData.kunde.email +  '\n',
+          ` sku : ${sku} quantity : ${quantity} ebay error: ${Object(respo).errors[0].errorId}\n`,
+          ' Insufficient quantity of the item in stock!  And error on ebay is \n' + 
+          Object(respo).errors[0].message,
+        ]),
+        created_at: new Date(Date.now()),
+      };
+      await logsService.saveLog(logs);
+      return;
+    }
+    if (respo.availability?.shipToLocationAvailability) {
       const itemQuantity =
         respo.availability.shipToLocationAvailability.quantity;
 
@@ -130,6 +145,7 @@ export async function updateEbayOffer(
   ebayOfferService: EbayOffersService,
   logsService: LogsService,
 ) {
+   // seave error when there is no response from ebay 
   if (requestquantity === 0) {
     const logs: AcctionLogsDto = {
       error_class: LOGS_CLASS.EBAY_ERROR,
@@ -149,7 +165,21 @@ export async function updateEbayOffer(
   try {
     const group: EbayGroupItemDto =
       await ebayOfferService.getInventoryItemBySku(sku);
-
+    // seave error when there is response from ebay and its an error
+    if(Object(group).errors) {
+      const logs: AcctionLogsDto = {
+        error_class: LOGS_CLASS.EBAY_ERROR,
+        error_message: JSON.stringify([
+          'Bestellungs from Kunde: ' + bestellungData.kunde.email +  '\n',
+          ` sku : ${sku} quantity : ${quantity} ebay error: ${Object(group).errors[0].errorId}\n`,
+          ' Insufficient quantity of the item in stock!  And error on ebay is \n' + 
+          Object(group).errors[0].message,
+        ]),
+        created_at: new Date(Date.now()),
+      };
+      await logsService.saveLog(logs);
+      return;
+    }
     if (!group || !group.availability)
       await updateEbayOffer(
         sku,
