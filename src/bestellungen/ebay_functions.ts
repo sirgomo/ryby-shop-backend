@@ -150,17 +150,15 @@ export async function updateEbayOffer(
     const logs: AcctionLogsDto = {
       error_class: LOGS_CLASS.EBAY_ERROR,
       error_message: JSON.stringify([
-        bestellungData,
-        'updateEbayOffer has no response..., please try once more ',
+        'Bestellungs from Kunde: ' + bestellungData.kunde.email +  '\n',
+        ' and bestellung id ' + bestellungData.id  +'\n' +
+        ` sku : ${sku} quantity : ${quantity} ebay error: no connection to ebay\n`,
+    
       ]),
       created_at: new Date(Date.now()),
     };
     await logsService.saveLog(logs);
     return { update: sku, menge: quantity, item: 'updateEbayOffer has no response..., please try once more' }
-    /*throw new HttpException(
-      'updateEbayOffer has no response..., please try once more ',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );*/
   }
   try {
     const group: EbayGroupItemDto =
