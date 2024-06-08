@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AcctionLogsDto } from 'src/dto/acction_logs.dto';
 import { EbayTranscationsDto } from 'src/dto/ebay/transactionAndRefunds/ebayTransactionDto';
+import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 import { LOGS_CLASS } from 'src/entity/logsEntity';
@@ -21,6 +22,32 @@ export class EbaySoldService {
       return await this.repo.find();
     } catch (error) {
       throw error;
+    }
+  }
+  async getEbayOrders(getSettings: GetOrderSettingsDto, sitenr: number): Promise<[EbayTransactions[], number]> {
+    try {
+      const skip = sitenr * getSettings.itemsProSite - getSettings.itemsProSite;
+  
+      return this.repo.findAndCount({select: {
+        id: true,
+        orderId: true,
+        creationDate: true,
+        price_total: true,
+        sel_amount: true,
+        payment_status: true,
+      },
+      relations: {
+        items: true,
+        refunds: true,
+      },
+      take: getSettings.itemsProSite,
+      skip: skip,
+      order: {
+        creationDate: 'DESC',
+      }
+    })
+    } catch (err) {
+      throw err;
     }
   }
 

@@ -13,6 +13,7 @@ import { EbayTranscationsDto } from 'src/dto/ebay/transactionAndRefunds/ebayTran
 import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 import { DeleteResult } from 'typeorm';
 import { EbaySoldService } from './ebay-sold.service';
+import { GetOrderSettingsDto } from 'src/dto/getOrderSettings.dto';
 
 @Controller('ebay-sold')
 @UseGuards(JwtAuthGuard)
@@ -22,6 +23,10 @@ export class EbaySoldController {
   @Get()
   async getAllTransactions(): Promise<EbayTransactions[]> {
     return await this.ebaySoldService.getAllTransactions();
+  }
+  @Get('orders/nr')
+  async getEbayOrdersForBestellung(@Body() settings: GetOrderSettingsDto,@Param('nr') nr: number): Promise<[EbayTransactions[], number]> {
+    return await this.ebaySoldService.getEbayOrders(settings, nr);
   }
 
   @Get(':id')

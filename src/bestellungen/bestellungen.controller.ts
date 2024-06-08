@@ -38,10 +38,10 @@ export class BestellungenController {
     return await this.service.getOrderBeiId(id);
   }
 
-  @Get('kunde/:id')
+  @Post('kunde/:id')
   @UseGuards(JwtAuthGuard)
-  async getOrderByKundeId(@Param('id') id: number) {
-    return await this.service.getOrdersBeiKunde(id);
+  async getOrderByKundeId(@Param('id') id: number, @Body() sett: GetOrderSettingsDto ) {
+    return await this.service.getOrdersBeiKunde(id, sett);
   }
 
   @Post('all/get/:sitenr')

@@ -32,6 +32,7 @@ import {
   setProduktQuanity,
 } from './helper_functions';
 import { MailService } from 'src/mail/mail.service';
+import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 
 @Injectable()
 export class BestellungenService {
@@ -311,13 +312,21 @@ export class BestellungenService {
       throw new HttpException('Bestellung not found', HttpStatus.NOT_FOUND);
     }
   }
-  async getOrdersBeiKunde(kundeId: number): Promise<[Bestellung[], number]> {
+  async getOrdersBeiKunde(kundeId: number, sett: GetOrderSettingsDto): Promise<[Bestellung[], number]> {
+    const skip = sett.sitenr * sett.itemsProSite - sett.itemsProSite;
     try {
       return await this.bestellungRepository.findAndCount({
+        take: sett.itemsProSite,
+        skip: skip,
         where: {
           kunde: {
             id: kundeId,
           },
+          bestellungstatus: sett.status,
+          status: sett.state,
+        },
+        order: { 
+          bestelldatum: 'DESC',
         },
         relations: {
           kunde: true,
@@ -389,7 +398,6 @@ export class BestellungenService {
       throw err;
     }
   }
-
   async updateOrder(id: number, bestellungData: OrderDto): Promise<Bestellung> {
     try {
       const bestellung: Bestellung = await this.bestellungRepository.findOne({

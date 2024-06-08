@@ -7,4 +7,6 @@ export class GetOrderSettingsDto {
   status: string;
   @IsNumber()
   itemsProSite: number;
+  @IsNumber()
+  sitenr: number;
 }
