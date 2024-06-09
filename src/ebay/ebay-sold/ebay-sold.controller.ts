@@ -24,9 +24,9 @@ export class EbaySoldController {
   async getAllTransactions(): Promise<EbayTransactions[]> {
     return await this.ebaySoldService.getAllTransactions();
   }
-  @Get('orders/nr')
-  async getEbayOrdersForBestellung(@Body() settings: GetOrderSettingsDto,@Param('nr') nr: number): Promise<[EbayTransactions[], number]> {
-    return await this.ebaySoldService.getEbayOrders(settings, nr);
+  @Post('orders/:sitenr')
+  async getEbayOrdersForBestellung(@Body() settings: GetOrderSettingsDto,@Param('sitenr') sitenr: number): Promise<[EbayTransactions[], number]> {
+    return await this.ebaySoldService.getEbayOrders(settings, sitenr);
   }
 
   @Get(':id')

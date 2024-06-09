@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class GetOrderSettingsDto {
   @IsNotEmpty({ message: 'State darf nicht leer sein !' })
@@ -7,6 +7,7 @@ export class GetOrderSettingsDto {
   status: string;
   @IsNumber()
   itemsProSite: number;
+  @IsOptional()
   @IsNumber()
   sitenr: number;
 }

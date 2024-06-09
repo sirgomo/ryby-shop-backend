@@ -27,8 +27,7 @@ export class EbaySoldService {
   async getEbayOrders(getSettings: GetOrderSettingsDto, sitenr: number): Promise<[EbayTransactions[], number]> {
     try {
       const skip = sitenr * getSettings.itemsProSite - getSettings.itemsProSite;
-  
-      return this.repo.findAndCount({select: {
+      return await this.repo.findAndCount({select: {
         id: true,
         orderId: true,
         creationDate: true,
