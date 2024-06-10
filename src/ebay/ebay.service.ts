@@ -22,11 +22,12 @@ export class EbayService {
     private readonly repo: Repository<CompanyDataEntity>,
   ) {}
 
-  async getEbaySoldOrders() {
+  async getEbaySoldOrders(offset: number, limit: number) {
+    const off = limit * offset - limit;
     try {
       await this.checkAccessToken();
       return await this.request.getRequest(
-        env.ebay_api + '/sell/fulfillment/v1/order?limit=50&offset=0',
+        env.ebay_api + '/sell/fulfillment/v1/order?limit'+`=${limit}&offset=${off}`,
         this.currentToken.access_token,
       );
     } catch (err) {

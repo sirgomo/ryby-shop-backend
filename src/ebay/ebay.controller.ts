@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -22,10 +23,10 @@ export class EbayController {
     private readonly logsService: LogsService,
   ) {}
 
-  @Get()
+  @Get(':limit/:off')
   @UseGuards(JwtAuthGuard)
-  async getEbaySoldOrders() {
-    return await this.service.getEbaySoldOrders();
+  async getEbaySoldOrders(@Param('limit') limit: number, @Param('off') off: number) {
+    return await this.service.getEbaySoldOrders(off, limit);
   }
 
   //get url for user consent
