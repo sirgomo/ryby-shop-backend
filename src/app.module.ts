@@ -47,6 +47,7 @@ import { AktionModule } from './aktion/aktion.module';
 import { MailModule } from './mail/mail.module';
 import { Destruction_protocolEntity } from './entity/destruction_protocolEntity';
 import { DestructionProModule } from './destruction_pro/destruction_pro.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -105,6 +106,7 @@ import { DestructionProModule } from './destruction_pro/destruction_pro.module';
     AktionModule,
     MailModule,
     DestructionProModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthModule],
