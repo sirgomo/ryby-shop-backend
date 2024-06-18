@@ -38,6 +38,8 @@ export class Bestellung {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   gesamtwert: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  totaltax: number;
 
   @Column()
   zahlungsstatus: string;

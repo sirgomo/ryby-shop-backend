@@ -10,4 +10,21 @@ export class DashboardController {
     async getEbayShopData(@Param('year') year: string) {
         return await this.service.getEbayTRansactionsData(year);
     }
+    @Get('ebay-netto/:year') 
+    async getEbayNetto(@Param('year') year: string) {
+        return await this.service.getEbayNettoData(year);
+    }
+    @Get('shop-netto/:year') 
+    async getShopNetto(@Param('year') year: string) {
+        return await this.service.getShopNettoData(year);
+    }
+    @Get('months/:year') 
+    async getMonths(@Param('year') year: string) {
+        return await this.service.getMonths(year);
+    }
+    @Get('years')
+    async getYears() {
+        return await this.service.getYears();
+    }
+    
 }

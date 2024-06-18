@@ -215,6 +215,7 @@ export class Database {
             versand_datum DATETIME,
             zahlungsart VARCHAR(255),
             gesamtwert DECIMAL(10,2),
+            totaltax DECIMAL(10,2) DEFAULT 0,
             zahlungsstatus VARCHAR(255),
             shipping_address_json VARCHAR(1000),
             bestellungstatus VARCHAR(255) NOT NULL,
