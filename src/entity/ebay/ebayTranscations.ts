@@ -40,4 +40,6 @@ export class EbayTransactions {
   refunds: EbayRefund[];
   @Column({ type: 'varchar', length: 50 })
   zahlungsart: string;
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: null})
+  advertising_costs: number;
 }

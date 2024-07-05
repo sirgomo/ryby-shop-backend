@@ -306,7 +306,8 @@ export class Database {
             ebay_advertising_cost DECIMAL(10,2),
             sel_amount INT NOT NULL,
             payment_status VARCHAR(50) NOT NULL,
-            zahlungsart VARCHAR(50)
+            zahlungsart VARCHAR(50),
+            advertising_costs DECIMAL(10,2) DEFAULT NULL
         );
         CREATE TABLE ebay_item_sold (
           id INT PRIMARY KEY AUTO_INCREMENT,

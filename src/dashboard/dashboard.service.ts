@@ -1,21 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { groupBy } from 'rxjs';
+import { EbayRequest } from 'src/ebay/ebay.request';
+import { EbayService } from 'src/ebay/ebay.service';
 import { Bestellung } from 'src/entity/bestellungEntity';
-import { EbayItemSold } from 'src/entity/ebay/ebayItemSold';
 import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 import { Wareneingang } from 'src/entity/warenEingangEntity';
-import { WareneingangProdVartiaion } from 'src/entity/waren_eingang_prod_variation';
 import { env } from 'src/env/env';
 import { Repository } from 'typeorm';
+import { Config } from '../ebay/ebay_signature/types/Config';
 
 
 @Injectable()
 export class DashboardService {
+    request = new EbayRequest();
     constructor(
         @InjectRepository(EbayTransactions) private readonly ebayTranRepo: Repository<EbayTransactions>,
         @InjectRepository(Bestellung) private readonly orderRepo: Repository<Bestellung>,
-        @InjectRepository(Wareneingang) private readonly goodsReciRepo: Repository<Wareneingang>
+        @InjectRepository(Wareneingang) private readonly goodsReciRepo: Repository<Wareneingang>,
+        private readonly authServ: EbayService
     ) {}
 
     async getEbayTRansactionsData(year: string) {
@@ -60,21 +62,30 @@ export class DashboardService {
             const items = await this.ebayTranRepo.createQueryBuilder('transactions')
             .select(`
             transactions.id,
+            transactions.orderId,
             transactions.price_total AS total, 
             transactions.price_shipping AS shipping,
             transactions.price_tax AS tax, 
             transactions.price_discont AS discon, 
             transactions.ebay_fee AS ebay_fee,
+            transactions.advertising_costs as adv_const,
             items.quanity as quantity,
             items.id as itemId,
             items.sku,
-            variations.price_in_euro as peuro,
-            variations.quanity_sold_at_once as quantity_at_once
+            vari.price_in_euro as peuro,
+            vari.quanity_sold_at_once as quantity_at_once
             `)
             .leftJoin('ebay_item_sold', 'items', 'items.transactionId = transactions.id')
-            .leftJoin('waren_eingang_prod_variation', 'variations', 'items.sku = variations.sku')
+            //.leftJoin('waren_eingang_prod_variation', 'variations', 'items.sku = variations.sku')
+            .leftJoin(qb => {
+                return qb
+                    .from('waren_eingang_prod_variation', 'vari')
+                    .select('vari.*')
+                    .addSelect('ROW_NUMBER() OVER (PARTITION BY vari.sku ORDER BY vari.id DESC) as rn')
+            }, 'vari', 'vari.sku = items.sku AND vari.rn = 1')
             .where('YEAR(transactions.creationDate) = :year', { year })
             .getRawMany();
+           
             const uniqueArray = [];
             for (let i = 0; i < items.length; i++) {
 
@@ -106,7 +117,22 @@ export class DashboardService {
             let tax = 0;
             let goods = 0;
 
+            const config: Config = {} as Config;
+
             for (let i = 0; i < uniqueArray.length; i++) {
+                //field in database, default empty, wee need to find ebay api to obtain the advertising cost for each sold item
+              /*  if(uniqueArray[i].adv_const === null) {
+                    await this.authServ.checkAccessToken();
+                    await this.request.getFinanzeRequest(
+                        `https://apiz.ebay.com/sell/finances/v1/transaction_summary?filter=transactionStatus:{COMPLETED}&filter=orderId:{${uniqueArray[i].orderId}}`,
+                        this.authServ.currentToken.access_token,
+                        'GET',
+                        config
+                      ).then((res) => {
+                        console.log(res);
+                      });
+                     
+                }*/
                 ship += Number(uniqueArray[i].shipping);
                 discont += Number(uniqueArray[i].discon);
                 total += Number(uniqueArray[i].total);
@@ -149,12 +175,18 @@ export class DashboardService {
                   vari.quanity_sold_at_once as squantity
                   `)
             .leftJoin('product_in_bestellung', 'produkte', 'produkte.bestellungId = orders.id')
-            .leftJoin('waren_eingang_prod_variation', 'vari', 'vari.sku = color')
+            //.leftJoin('waren_eingang_prod_variation', 'vari', 'vari.sku = color')
+            .leftJoin(qb => {
+                return qb
+                    .from('waren_eingang_prod_variation', 'vari')
+                    .select('vari.*')
+                    .addSelect('ROW_NUMBER() OVER (PARTITION BY vari.sku ORDER BY vari.id DESC) as rn')
+            }, 'vari', 'vari.sku = color AND vari.rn = 1')
             .where('YEAR(orders.bestelldatum)= :year',{ year })
             .andWhere('orders.status NOT IN (:excludedStatus)', { excludedStatus: ['ABGEBROCHEN'] })
             .groupBy('orders.id, produkte.color,produkte.menge, vari.price_in_euro, vari.quanity_sold_at_once, produkte.id, produkte.bestellungId')
             .getRawMany();
-
+           
       
             const uniqueArray = [];
             for (let i = 0; i < items.length; i++) {
@@ -237,5 +269,119 @@ export class DashboardService {
             throw new HttpException('Something goes wrong, ' + err.message, HttpStatus.BAD_GATEWAY); 
         }
 
+    }
+    async detailMonthAndYearEbay(month: number, year: number, pagenr: number, sitecount:  number) {
+        try {
+            const items = await this.ebayTranRepo.createQueryBuilder('transactions')
+            .select(`
+            transactions.id,
+            transactions.price_total AS total, 
+            transactions.price_shipping AS shipping,
+            transactions.price_tax AS tax, 
+            transactions.price_discont AS discon, 
+            transactions.ebay_fee AS ebay_fee,
+            transactions.advertising_costs as adv_const,
+            COUNT(*) OVER() as row_count,
+            items.quanity as quantity,
+            items.id as itemId,
+            items.title as title,
+            items.price, 
+            items.sku,
+            vari.price_in_euro as peuro,
+            vari.quanity_sold_at_once as quantity_at_once
+            `)
+            .leftJoin('ebay_item_sold', 'items', 'items.transactionId = transactions.id')
+            //.leftJoin('waren_eingang_prod_variation', 'variations', 'items.sku = variations.sku')
+            .leftJoin(qb => {
+                return qb
+                    .from('waren_eingang_prod_variation', 'vari')
+                    .select('vari.*')
+                    .addSelect('ROW_NUMBER() OVER (PARTITION BY vari.sku ORDER BY vari.id DESC) as rn')
+            }, 'vari', 'vari.sku = items.sku AND vari.rn = 1')
+            .where('YEAR(transactions.creationDate) = :year', { year })
+            .andWhere('MONTH(transactions.creationDate) = :month', { month })
+            .groupBy('transactions.id, items.quanity, items.id, vari.price_in_euro, vari.quanity_sold_at_once ')
+            .skip(pagenr * sitecount - sitecount)
+            .take(sitecount)
+            .getRawMany();
+
+            const uniqueArray = [];
+            for (let i = 0; i < items.length; i++) {
+
+                const ind = uniqueArray.findIndex((item) => item.id === items[i].id)
+                if(ind !== -1)
+                    uniqueArray[ind].products.push(items[i]);
+                else
+                uniqueArray.push({
+            ...items[i],
+            products: [items[i]],
+            });
+
+            }
+
+
+        return uniqueArray;
+        
+
+        } catch (err) {
+            console.log(err);
+            throw new HttpException('Something goes wrong, ' + err.message, HttpStatus.BAD_GATEWAY); 
+        }
+
+    }
+    async detailMonthAndYearShop(month: number, year: number, pagenr: number, sitecount: number) {
+        try {
+            const items = await this.orderRepo.createQueryBuilder('orders')
+            .select(` DISTINCT
+                  orders.id,
+                  orders.gesamtwert as total,
+                  orders.versandprice as shipping,
+                  orders.totaltax as tax,
+                  orders.status,
+                  COUNT(*) OVER() as row_count,
+                  produkte.id as productId,
+                  produkte.bestellungId,
+                  produkte.verkauf_price,
+                  produkte.verkauf_rabat,
+                  produkte.verkauf_steuer,
+                  produkte.color as color,
+                  produkte.menge as menge,
+                  vari.price_in_euro as peuro,
+                  vari.quanity_sold_at_once as squantity,
+                  items.name as name
+                  `)
+            .leftJoin('product_in_bestellung', 'produkte', 'produkte.bestellungId = orders.id')
+            //.leftJoin('waren_eingang_prod_variation', 'vari', 'vari.sku = color')
+            .leftJoin(qb => {
+                return qb
+                    .from('waren_eingang_prod_variation', 'vari')
+                    .select('vari.*')
+                    .addSelect('ROW_NUMBER() OVER (PARTITION BY vari.sku ORDER BY vari.id DESC) as rn')
+            }, 'vari', 'vari.sku = color AND vari.rn = 1')
+            .leftJoin('produkte.produkt', 'items')
+            .where('YEAR(orders.bestelldatum)= :year',{ year })
+            .andWhere('MONTH(orders.bestelldatum) = :month', { month })
+            .andWhere('orders.status NOT IN (:excludedStatus)', { excludedStatus: ['ABGEBROCHEN'] })
+            .groupBy('orders.id, produkte.color,produkte.menge, vari.price_in_euro, vari.quanity_sold_at_once, produkte.id, produkte.bestellungId, items.name')
+            .skip(pagenr * sitecount - sitecount)
+            .take(sitecount)
+            .getRawMany();
+               
+            const uniqueArray = [];
+            for (let i = 0; i < items.length; i++) {
+                const ind = uniqueArray.findIndex((item) => item.id === items[i].id);
+                if(ind !== -1)
+                    uniqueArray[ind].produkts.push(items[i]);
+                else
+                uniqueArray.push({
+                    ...items[i],
+                    produkts: [items[i]]
+                    });
+            }
+            return uniqueArray;
+        } catch (err) {
+            console.log(err);
+            throw new HttpException('Something goes wrong, ' + err.message, HttpStatus.BAD_GATEWAY); 
+        }
     }
 }

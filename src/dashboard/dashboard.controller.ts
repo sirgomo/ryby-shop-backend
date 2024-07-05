@@ -18,6 +18,21 @@ export class DashboardController {
     async getShopNetto(@Param('year') year: string) {
         return await this.service.getShopNettoData(year);
     }
+    @Get('ebay-month/:year/:month/:pagenr/:sitecount')
+    async getMonthDetailEbay(@Param('year') year: number,
+     @Param('month') month: number, 
+     @Param('pagenr') pagenr: number,
+     @Param('sitecount') sitecount: number
+     ) {
+        return await this.service.detailMonthAndYearEbay(month, year, pagenr, sitecount);
+    }
+    @Get('shop-month/:year/:month/:pagenr/:sitecount')
+    async getMonthDetailShop(@Param('year') year: number, 
+    @Param('month') month: number, 
+    @Param('pagenr') pagenr: number,
+    @Param('sitecount') sitecount: number ) {
+        return await this.service.detailMonthAndYearShop(month, year, pagenr, sitecount);
+    }
     @Get('months/:year') 
     async getMonths(@Param('year') year: string) {
         return await this.service.getMonths(year);
@@ -26,5 +41,6 @@ export class DashboardController {
     async getYears() {
         return await this.service.getYears();
     }
+  
     
 }
