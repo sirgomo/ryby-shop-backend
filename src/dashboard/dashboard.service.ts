@@ -295,6 +295,7 @@ export class DashboardService {
             const items = await this.ebayTranRepo.createQueryBuilder('transactions')
             .select(`
             transactions.id,
+            transactions.orderId,
             transactions.price_total AS total, 
             transactions.price_shipping AS shipping,
             transactions.price_tax AS tax, 

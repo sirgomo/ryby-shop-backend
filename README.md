@@ -14,6 +14,7 @@ Tests are performed using the 'Jest' library.
 7. Endpoint for handling orders and PayPal - saving the order and changes in the quantity of products using transactions
 8. Start working on eBay API functionality, focusing only on what's necessary
 9. Logging and saving some operations, ebay item quantity change
+10. Ebay Api -  Digital Signatures autogeneration, Api OAuth token
 
 And many more....
 

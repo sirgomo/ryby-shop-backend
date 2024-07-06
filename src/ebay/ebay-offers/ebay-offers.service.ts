@@ -13,12 +13,6 @@ export class EbayOffersService {
     try {
       await this.authServ.checkAccessToken();
 
-      /* const headers = {
-        'Content-Type': 'application/json',
-        'Accept-Language': 'de-DE',
-        'Accept-Encoding': 'application/gzip',
-      };*/
-
       return await this.ebayRequest.getRequest(
         `${env.ebay_api}/sell/inventory/v1/offer?sku=${sku}`,
         this.authServ.currentToken.access_token,
