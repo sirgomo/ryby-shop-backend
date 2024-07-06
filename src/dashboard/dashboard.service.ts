@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FeeTypeEnum, FinazTransactionDto } from 'src/dto/ebay/ebayFinanzTransaction';
+import { FeeTypeEnum, FinazTransactionDto, TransactionTypeEnum } from 'src/dto/ebay/ebayFinanzTransaction';
 import { EbayRequest } from 'src/ebay/ebay.request';
 import { EbayService } from 'src/ebay/ebay.service';
 import { Bestellung } from 'src/entity/bestellungEntity';
@@ -121,8 +121,9 @@ export class DashboardService {
           
 
             for (let i = 0; i < uniqueArray.length; i++) {
+         
                 //field in database, default empty
-               if(uniqueArray[i].adv_const === null) {
+               if(uniqueArray[i].adv_const === null || uniqueArray[i].ebay_fee === '0.00' ) {
                     await this.authServ.checkAccessToken();
                     await this.request.getFinanzeRequest(
                         `https://apiz.ebay.com/sell/finances/v1/transaction?filter=orderId:{${uniqueArray[i].orderId}}`,
@@ -130,20 +131,41 @@ export class DashboardService {
                         'GET'
                       ).then(async (res) => {
                       const items: FinazTransactionDto = res;
-                      
-                      let addfee = 0;
-                      items.transactions.forEach((trans) => {
-                        if(trans.feeType && trans.feeType === FeeTypeEnum.AD_FEE ) {
-                            add_fee += Number(trans.amount.value);
-                            addfee += Number(trans.amount.value);
-                        }
-                      });
+                     
+                      //check advertsing
+                      if( uniqueArray[i].adv_const === null ) {
+                        let addfee = 0;
+                        items.transactions.forEach((trans) => {
+                          if(trans.feeType && trans.feeType === FeeTypeEnum.AD_FEE ) {
+                              add_fee += Number(trans.amount.value);
+                              addfee += Number(trans.amount.value);
+                          }
+                        });
+  
+                        
+                          await this.ebayTranRepo.query(`UPDATE ebay_transactions set advertising_costs=${addfee} where id=${uniqueArray[i].id}`).catch((err) => {
+                              console.log(err);
+                          });
+                      } 
+                      //check ebay kost if it is set to 0.00
+                      if ( uniqueArray[i].ebay_fee === '0.00' ) {
 
-                      
-                        await this.ebayTranRepo.query(`UPDATE ebay_transactions set advertising_costs=${addfee} where id=${uniqueArray[i].id}`).catch((err) => {
+                       let fee = 0;
+                        items.transactions.forEach(async (trans) => {
+                            if(trans.transactionType === TransactionTypeEnum.SALE) 
+                                fee += Number(trans.totalFeeAmount.value);
+                                
+
+                            if(trans.transactionType === TransactionTypeEnum.REFUND)
+                                fee -= Number(trans.totalFeeAmount.value);
+                        })
+                        uniqueArray[i].ebay_fee = fee;
+                    
+                        await this.ebayTranRepo.query(`UPDATE ebay_transactions set ebay_fee=${fee} where id=${uniqueArray[i].id}`).catch((err) => {
                             console.log(err);
                         });
-                      
+                        
+                      }
 
                       });
                      
