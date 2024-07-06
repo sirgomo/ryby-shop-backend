@@ -76,7 +76,6 @@ export function setConfig(config: Config, sig: any[], method: string, endpoint: 
     config.publicKey = sig[0];
     config.jwtExpiration = 3;
     config.digestAlgorithm = 'sha256';
-console.log(getPathWithQuery(endpoint))
     config.signatureComponents = {
       "method": method,
       "authority": getHost(endpoint),

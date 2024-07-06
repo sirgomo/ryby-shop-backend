@@ -46,13 +46,14 @@ export class EbayRequest {
       return err;
     }
   }
-  async getFinanzeRequest(endpoint: string, token: string, method: string, config: Config, body? : string) {
+  async getFinanzeRequest(endpoint: string, token: string, method: string, body? : string) {
 
     const sig = await check_signature(token);
     
     if(sig[0] === undefined || sig[0] === null)
       return;
     
+    const config: Config = {} as Config;
     setConfig(config, sig, method, endpoint);
     config.signatureParams = [
       "x-ebay-signature-key",
@@ -95,7 +96,9 @@ export class EbayRequest {
         headers: headers,
         method: method,
       });
-      
+     if(res.status !== 200)
+        return res.statusText;
+
       return res.json();
     } catch (err) {
       return err;

@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FeeTypeEnum, FinazTransactionDto } from 'src/dto/ebay/ebayFinanzTransaction';
 import { EbayRequest } from 'src/ebay/ebay.request';
 import { EbayService } from 'src/ebay/ebay.service';
 import { Bestellung } from 'src/entity/bestellungEntity';
@@ -7,7 +8,6 @@ import { EbayTransactions } from 'src/entity/ebay/ebayTranscations';
 import { Wareneingang } from 'src/entity/warenEingangEntity';
 import { env } from 'src/env/env';
 import { Repository } from 'typeorm';
-import { Config } from '../ebay/ebay_signature/types/Config';
 
 
 @Injectable()
@@ -116,28 +116,47 @@ export class DashboardService {
             let fee = 0;
             let tax = 0;
             let goods = 0;
+            let add_fee = 0;
 
-            const config: Config = {} as Config;
+          
 
             for (let i = 0; i < uniqueArray.length; i++) {
-                //field in database, default empty, wee need to find ebay api to obtain the advertising cost for each sold item
-              /*  if(uniqueArray[i].adv_const === null) {
+                //field in database, default empty
+               if(uniqueArray[i].adv_const === null) {
                     await this.authServ.checkAccessToken();
                     await this.request.getFinanzeRequest(
-                        `https://apiz.ebay.com/sell/finances/v1/transaction_summary?filter=transactionStatus:{COMPLETED}&filter=orderId:{${uniqueArray[i].orderId}}`,
+                        `https://apiz.ebay.com/sell/finances/v1/transaction?filter=orderId:{${uniqueArray[i].orderId}}`,
                         this.authServ.currentToken.access_token,
-                        'GET',
-                        config
-                      ).then((res) => {
-                        console.log(res);
+                        'GET'
+                      ).then(async (res) => {
+                      const items: FinazTransactionDto = res;
+                      
+                      let addfee = 0;
+                      items.transactions.forEach((trans) => {
+                        if(trans.feeType && trans.feeType === FeeTypeEnum.AD_FEE ) {
+                            add_fee += Number(trans.amount.value);
+                            addfee += Number(trans.amount.value);
+                        }
+                      });
+
+                      
+                        await this.ebayTranRepo.query(`UPDATE ebay_transactions set advertising_costs=${addfee} where id=${uniqueArray[i].id}`).catch((err) => {
+                            console.log(err);
+                        });
+                      
+
                       });
                      
-                }*/
+                }
+               
                 ship += Number(uniqueArray[i].shipping);
                 discont += Number(uniqueArray[i].discon);
                 total += Number(uniqueArray[i].total);
                 fee += Number(uniqueArray[i].ebay_fee);
                 tax += Number(uniqueArray[i].tax);
+
+                if(uniqueArray[i].adv_const !== null)
+                    add_fee += Number(uniqueArray[i].adv_const);
                 
                 for (let j= 0; j < uniqueArray[i].products.length; j++) {
                     goods += ((Number(uniqueArray[i].products[j].peuro) * Number(uniqueArray[i].products[j].quantity_at_once)) * Number(uniqueArray[i].products[j].quantity));
@@ -148,8 +167,9 @@ export class DashboardService {
             return [{ data: [ fee + abo_cost, 
                             ship + discont,
                             tax, 
+                            add_fee,
                             goods,
-                            total - fee - (ship + discont) - tax - abo_cost - goods
+                            total - fee - (ship + discont) - tax - abo_cost - goods - add_fee
                             ]}]; 
 
         } catch (err) {
