@@ -5,6 +5,7 @@ import { OrderDto } from 'src/dto/order.dto';
 import { EbayOffersService } from 'src/ebay/ebay-offers/ebay-offers.service';
 import { LogsService } from 'src/ebay_paypal_logs/logs.service';
 import { LOGS_CLASS } from 'src/entity/logsEntity';
+import { env } from 'src/env/env';
 
 //check quantity item on ebay
 export async function isEbayMengeChecked(
@@ -145,7 +146,11 @@ export async function updateEbayOffer(
   ebayOfferService: EbayOffersService,
   logsService: LogsService,
 ) {
-   // seave error when there is no response from ebay 
+   //if we are on local and make test sell do not change nothing on ebay
+   if(env.PAYPAL_URL === 'https://api-m.sandbox.paypal.com')
+    return;
+  
+  // seave error when there is no response from ebay 
   if (requestquantity === 0) {
     const logs: AcctionLogsDto = {
       error_class: LOGS_CLASS.EBAY_ERROR,
