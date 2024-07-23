@@ -43,7 +43,7 @@ export class EbayService {
       const token = (await this.repo.findOne({ where: { id: 1 } }))
         .ebay_refresh_token;
 
-      if (!token)
+     if (!token)
         throw new HttpException(
           'Refresh Token not found',
           HttpStatus.NOT_FOUND,

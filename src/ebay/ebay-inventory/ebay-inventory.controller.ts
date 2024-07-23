@@ -108,14 +108,21 @@ export class EbayInventoryController {
   //get default category id for market place
   @Get('default-category')
   async getEbayDefaultCategoryId() {
-    await this.ebayServ.checkAccessToken();
+   await this.ebayServ.checkAccessToken();
    
-    return await this.request.getRequest(`${env.ebay_api}/commerce/taxonomy/v1/get_default_category_tree_id?marketplace_id=${env.ebay_marketplaye_id}`, this.ebayServ.currentToken.access_token);
+    const respo = await this.request.getRequest(`${env.ebay_api}/commerce/taxonomy/v1/get_default_category_tree_id?marketplace_id=${env.ebay_marketplaye_id}`, this.ebayServ.currentToken.access_token);
+    return {'respo': respo, 'token': this.ebayServ.currentToken.access_token};
   }
   //get category sugestion for item
   @Get('category-sugesstions')
   async getCategoryForItem(@Query('markt') markt: number, @Query('query') query: string) {
     await this.ebayServ.checkAccessToken();
     return await this.request.getRequest(`${env.ebay_api}/commerce/taxonomy/v1/category_tree/${markt}/get_category_suggestions?q=${query}`, this.ebayServ.currentToken.access_token);
+  }
+  //getAspectsforCategoryId
+  @Get('category-aspects')
+  async getCategoryAspects(@Query('tree_id') tree_id:number, @Query('category') categoryid: number) {
+    await this.ebayServ.checkAccessToken();
+    return await this.request.getRequest(`${env.ebay_api}/commerce/taxonomy/v1/category_tree/${tree_id}/get_item_aspects_for_category?category_id=${categoryid}`, this.ebayServ.currentToken.access_token);
   }
 }

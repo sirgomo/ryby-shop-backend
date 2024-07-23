@@ -23,18 +23,6 @@ export class EbayController {
     private readonly logsService: LogsService,
   ) {}
 
-  @Get(':limit/:off')
-  @UseGuards(JwtAuthGuard)
-  async getEbaySoldOrders(@Param('limit') limit: number, @Param('off') off: number) {
-    return await this.service.getEbaySoldOrders(off, limit);
-  }
-
-  //get url for user consent
-  @Get('consent')
-  @UseGuards(JwtAuthGuard)
-  async getUserConsent() {
-    return await this.service.getUserConsent();
-  }
 
   //get automatic access token and refreshtoken after user has consent
   @Get('redirect/consent')
@@ -96,4 +84,15 @@ export class EbayController {
     });
     return res;
   }
+  @Get(':limit/:off')
+  @UseGuards(JwtAuthGuard)
+  async getEbaySoldOrders(@Param('limit') limit: number, @Param('off') off: number) {
+    return await this.service.getEbaySoldOrders(off, limit);
+  }
+    //get url for user consent
+    @Get('consent')
+    @UseGuards(JwtAuthGuard)
+    async getUserConsent() {
+      return await this.service.getUserConsent();
+    }
 }
