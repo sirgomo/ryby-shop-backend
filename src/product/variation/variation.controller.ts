@@ -107,13 +107,19 @@ export class VariationController {
   }
   @Post('uploads/')
   async getImage(@Body() id: { id: string }, @Res() res: Response) {
-    if (id.id.split('//')[0] === 'https:') {
-      const imagestream = await this.getEbayImage(id.id);
-      imagestream.pipe(res as any);
-    } else {
-      const imageStream = await this.photoService.getPhoto(id.id, false);
-      imageStream.pipe(res as any);
+    
+    try {
+      if (id.id.split('//')[0] && id.id.split('//')[0] === 'https:') {
+        const imagestream = await this.getEbayImage(id.id);
+        imagestream.pipe(res as any);
+      } else {
+        const imageStream = await this.photoService.getPhoto(id.id, false);
+        imageStream.pipe(res as any);
+      }
+    } catch (err) {
+      return err;
     }
+
   }
   @Post('thumbnails/')
   async getThumbnails(@Body() id: { id: string }, @Res() res: Response) {

@@ -121,6 +121,7 @@ export class EbayRequest {
         method: method,
         body: body,
       });
+
       const data = await res.text();
       return data;
     } catch (err) {

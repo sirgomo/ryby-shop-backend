@@ -1,9 +1,14 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/auth.jwtGuard.guard';
 import { EbayRequest } from '../ebay.request';
 import { env } from 'src/env/env';
 import { EbayService } from '../ebay.service';
 import { ProductService } from 'src/product/product.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
+import { Request } from 'express';
+import FormData from 'form-data';
+import { XMLParser } from 'fast-xml-parser';
 
 @Controller('ebay-inventory')
 @UseGuards(JwtAuthGuard)
@@ -111,7 +116,7 @@ export class EbayInventoryController {
    await this.ebayServ.checkAccessToken();
    
     const respo = await this.request.getRequest(`${env.ebay_api}/commerce/taxonomy/v1/get_default_category_tree_id?marketplace_id=${env.ebay_marketplaye_id}`, this.ebayServ.currentToken.access_token);
-    return {'respo': respo, 'token': this.ebayServ.currentToken.access_token};
+    return respo;
   }
   //get category sugestion for item
   @Get('category-sugesstions')
@@ -124,5 +129,54 @@ export class EbayInventoryController {
   async getCategoryAspects(@Query('tree_id') tree_id:number, @Query('category') categoryid: number) {
     await this.ebayServ.checkAccessToken();
     return await this.request.getRequest(`${env.ebay_api}/commerce/taxonomy/v1/category_tree/${tree_id}/get_item_aspects_for_category?category_id=${categoryid}`, this.ebayServ.currentToken.access_token);
+  }
+  //send image to server
+  @Post('post-image')
+  @UseInterceptors(FileInterceptor('image', { storage: multer.memoryStorage() }))
+  async postImageToEbay(@UploadedFile() image: Express.Multer.File, @Req() req: Request) {
+    try {
+      await this.ebayServ.checkAccessToken();
+      const apiUrl = 'https://api.ebay.com/ws/api.dll'; // URL do eBay API
+      if (!image || !image.originalname) {
+        throw new HttpException('No file or XML Payload', HttpStatus.BAD_REQUEST);
+      }
+      const xmlPayload = `
+      <?xml version="1.0" encoding="utf-8"?>
+      <UploadSiteHostedPicturesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+          <RequesterCredentials>
+              <ebl:eBayAuthToken xmlns:ebl="urn:ebay:apis:eBLBaseComponents">${this.ebayServ.currentToken.access_token}</ebl:eBayAuthToken>
+          </RequesterCredentials>
+          <PictureName>${image.originalname}</PictureName>
+          <PictureSet>Standard</PictureSet>
+          <ExtensionInDays>20</ExtensionInDays>
+      </UploadSiteHostedPicturesRequest>
+    `;
+
+
+
+      const formData = new FormData();
+      formData.append('XML Payload', xmlPayload, { 'contentType' : 'text/xml'});
+      formData.append('image', image.buffer, { filename: image.originalname });
+
+      const headers = {
+        'X-EBAY-API-CALL-NAME': 'UploadSiteHostedPictures',
+        'X-EBAY-API-SITEID': 0,
+        'X-EBAY-API-RESPONSE-ENCODING': 'XML',
+        'X-EBAY-API-COMPATIBILITY-LEVEL': 967,
+        'X-EBAY-API-DETAIL-LEVEL': 0,
+        'Cache-Control': 'no-cache'
+      };
+      const formHeaders = formData.getHeaders();
+      const combinedHeaders = { ...headers, ...formHeaders };
+
+      const ressponse =  await this.request.sendRequestXml(apiUrl, 'POST', combinedHeaders, formData.getBuffer());
+      const parser = new XMLParser();
+      let responseObject = parser.parse(ressponse);
+      return responseObject;
+   
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
   }
 }
