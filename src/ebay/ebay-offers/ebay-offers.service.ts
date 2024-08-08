@@ -47,6 +47,45 @@ export class EbayOffersService {
       return err;
     }
   }
+  async allgetfulfillmentPolicyById(marktid: string) {
+    try {
+      await this.authServ.checkAccessToken();
+
+      return await this.ebayRequest.getRequest(
+        `${env.ebay_api}/sell/account/v1/fulfillment_policy?marketplace_id=${marktid}`,
+        this.authServ.currentToken.access_token,
+      );
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  }
+  async getPaymentPolicies(marktid: string) {
+    try {
+      await this.authServ.checkAccessToken();
+
+      return await this.ebayRequest.getRequest(
+        `${env.ebay_api}/sell/account/v1/payment_policy?marketplace_id=${marktid}`,
+        this.authServ.currentToken.access_token,
+      );
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  }
+  async getReturnPolicies(marktid: string) {
+    try {
+      await this.authServ.checkAccessToken();
+
+      return await this.ebayRequest.getRequest(
+        `${env.ebay_api}/sell/account/v1/return_policy?marketplace_id=${marktid}`,
+        this.authServ.currentToken.access_token,
+      );
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  }
   async updateOffer(offerId: string, offer: any) {
     try {
       await this.authServ.checkAccessToken();

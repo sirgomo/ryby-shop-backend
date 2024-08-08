@@ -175,8 +175,25 @@ export class EbayInventoryController {
       return responseObject;
    
     } catch (err) {
+      return err;
+    }
+  }
+  @Get('inventory-locations')
+  async getInventoryLocations() {
+    try {
+      await this.ebayServ.checkAccessToken();
+      return await this.request.getRequest(
+        `${env.ebay_api}/sell/inventory/v1/location`,
+        this.ebayServ.currentToken.access_token,
+      );
+    } catch (err) {
       console.log(err);
       return err;
     }
+   
+  }
+  @Get('ebay-store-categories') 
+  async getEbayStoreCategories() {
+    
   }
 }
